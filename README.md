@@ -29,4 +29,4 @@
             });
             
 如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
-如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)。是否极致方便？
+如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)。是否极致方便？总大小仅200多k。
