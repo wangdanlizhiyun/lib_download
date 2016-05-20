@@ -6,12 +6,22 @@
                 "drawable://"+R.drawable.anim,//资源路径gif图
                 	"file:///mnt/sdcard/paint.png",//sd卡
 使用方法简单：BmLoader.load(uri, imageView);
-对于特殊的需求可以使用回调自己处理：BmLoader.load(uri, imageView, new BackListener() {
+对于特殊的需求可以使用回调自己处理：
+        BmLoader.load(uri, imageView, new BackListener() {
+        
+                /**
+	            * 进度回调，运行在ui线程
+	            * @param percent
+	            */
                 @Override
                 public void onProcess(int percent) {
                     
                 }
-
+                /**
+            	 * 运行在ui线程
+            	 * @param bitmap
+            	 * @param movie
+            	 */
                 @Override
                 public void onSuccess(Bitmap bitmap, Movie movie) {
 
