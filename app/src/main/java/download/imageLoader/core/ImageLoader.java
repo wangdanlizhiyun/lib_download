@@ -16,10 +16,13 @@ import download.imageLoader.loader.Load;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.UrlParser;
+import download.imageLoader.view.GifMovieView;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -59,10 +62,10 @@ public class ImageLoader {
 				try {
 					if (((String) request.view.getTag()).equals(request.path)) {
 						if (request.listener == null) {
-							if (request.bitmap == null) {
+							if (request.checkEmpty()) {
 								setBitmap(request.view, config.getFailedBm());
 							} else {
-								if (request.isAnimation) {
+								if (request.isAnimation && request.bitmap != null) {
 									request.view.post(new Runnable() {
 
 										@Override
@@ -86,13 +89,13 @@ public class ImageLoader {
 										}
 									});
 								} else {
-									setBitmap(request.view, request.bitmap);
+									setBitmap(request);
 								}
 							}
 						} else {
 							// 设置了回调监听的自己处理
 							request.listener.onProcess(request.percent);
-							request.listener.onSuccess(request.bitmap);
+							request.listener.onSuccess(request.bitmap,request.movie);
 						}
 					}
 				} catch (Exception e) {
@@ -108,15 +111,30 @@ public class ImageLoader {
 
 	};
 
-	private static void setBitmap(View view, Bitmap bm) {
+	private static void setBitmap(View view,Bitmap bitmap) {
+		if (view == null) {
+			return;
+		}
+		if (view == null || bitmap == null) {
+			setBitmap(view, config.getFailedBm());
+		}
+
 		if (view instanceof ImageView) {
-			((ImageView) view).setImageBitmap(bm);
+			((ImageView) view).setImageBitmap(bitmap);
 		} else if (view instanceof ImageSwitcher) {
 			((ImageSwitcher) view).setImageDrawable(new BitmapDrawable(view
-					.getResources(), bm));
+					.getResources(), bitmap));
 		} else {// 对于其他自定义view
-			view.setBackground(bm == null ? null : new BitmapDrawable(view
-					.getResources(), bm));
+			view.setBackground(bitmap == null ? null : new BitmapDrawable(view
+					.getResources(), bitmap));
+		}
+	}
+	private static void setBitmap(BitmapRequest request) {
+		if (request.movie != null && request.view instanceof GifMovieView){
+			((GifMovieView) request.view).setMovie(request.movie);
+		}else{
+
+			setBitmap(request.view,request.bitmap);
 		}
 	}
 
@@ -134,15 +152,7 @@ public class ImageLoader {
 		return getInstance();
 	}
 
-	/**
-	 * 
-	 * @param path示例
-	 *            ："http://img.blog.csdn.net/20160114230048304",//gif图
-	 *            "assets//:test.png", "drawable//:"+R.drawable.common_logo,
-	 *            "file:///mnt/sdcard/paint.png",
-	 * @param view
-	 * @param mm
-	 */
+
 	protected void loadImage(final String path, final View view,
 			BackListener listener) {
 		getInstance();
@@ -150,11 +160,11 @@ public class ImageLoader {
 		if (Looper.myLooper() == Looper.getMainLooper()) {
 			config.cache.setDiskLruCache(request.view.getContext()
 					.getApplicationContext());
-			Bitmap bm = config.cache.getMemoryCacheBitmap(request);
-			if (bm != null) {
-				setBitmap(request.view, bm);
+			config.cache.getMemoryCache(request);
+			if (!request.checkEmpty()) {
+				setBitmap(request);
 			} else {
-				setBitmap(request.view, config.getLoadingBm());
+				setBitmap(request.view,config.getLoadingBm());
 				request.view.setTag(request.path);
 				executor.execute(buildTask(new BitmapRequest(request.view,
 						request.path, listener)));
@@ -170,7 +180,9 @@ public class ImageLoader {
 	 * @param path
 	 */
 	protected void preLoad(final String path) {
-		if (config.cache.getDiskCacheBitmap(new BitmapRequest(null, path)) == null) {
+		BitmapRequest request = new BitmapRequest(null, path);
+		config.cache.getDiskCacheBitmap(request);
+		if (request.checkEmpty()) {
 			executor.execute(buildTask(new BitmapRequest(null, path)));
 		}
 	}
@@ -194,9 +206,12 @@ public class ImageLoader {
 					}
 				}
 				addDoingTask(request);
-				Bitmap bm = config.cache.getBitmap(request);
-				if (bm == null) {
-					bm = Load.loadBitmap(request, config, new BackListener() {
+				config.cache.getMemoryCache(request);
+				if (request.checkEmpty()){
+					config.cache.getDiskCacheBitmap(request);
+				}
+				if (request.checkEmpty()) {
+					Load.loadBitmap(request, config, new BackListener() {
 
 						@Override
 						public void onProcess(int percent) {
@@ -209,32 +224,31 @@ public class ImageLoader {
 									if (percent % 10 != 0) {
 										return;
 									}
-									Bitmap percentBitmap = config.cache
+									config.cache
 											.getDiskCacheBitmap(request);
 									config.cache.addPercentBitmap(request.path,
-											percentBitmap);
-									refreashBitmap(request, percentBitmap,
-											false);
+											request.bitmap);
+									refreashBitmap(request, false);
 								}
 							} else {
-								refreashBitmap(request, null, false);
+								refreashBitmap(request, false);
 							}
 						}
 
 						@Override
-						public void onSuccess(Bitmap bitmap) {
+						public void onSuccess(Bitmap bitmap, Movie movie) {
 						}
 					});
 					// 第一次下载时。大文件分段显示，小文件动画
 					if (request.view != null) {
-						refreashBitmap(request, bm,
+						refreashBitmap(request,
 								request.totalSize < DownloadBitmapUtils.bigSize
 										&& UrlParser.isNetWork(request.path));
 					}
 				} else {
-					refreashBitmap(request, bm, false);
+					refreashBitmap(request,false);
 				}
-				config.cache.addMemoryBitmap(request.path, bm);
+				config.cache.addMemoryBitmap(request);
 				removeDoingTask(request);
 			}
 		};
@@ -258,11 +272,10 @@ public class ImageLoader {
 		}
 	}
 
-	private void refreashBitmap(final BitmapRequest request, Bitmap bm,
+	private void refreashBitmap(BitmapRequest request,
 			Boolean isAnimation) {
 		Message message = Message.obtain();
 		message.what = REFRESH;
-		request.bitmap = bm;
 		request.isAnimation = isAnimation;
 		message.obj = request;
 		mUIHandler.sendMessage(message);

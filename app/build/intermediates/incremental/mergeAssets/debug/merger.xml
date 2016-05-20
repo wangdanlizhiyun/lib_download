@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/assets"/></dataSet><dataSet config="debug"><source path="/Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/debug/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="/Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/assets"><file name="anim.gif" path="/Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/assets/anim.gif"/></source></dataSet><dataSet config="debug"><source path="/Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/debug/assets"/></dataSet></merger>

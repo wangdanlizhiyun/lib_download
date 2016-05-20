@@ -4,6 +4,7 @@ package download.imageLoader.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +16,12 @@ import download.imageLoader.cache.DiskLruCache;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ImageSizeUtil.ImageSize;
+import download.imageLoader.view.GifMovieView;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Movie;
 import android.view.View;
 
 public class DownloadBitmapUtils {
@@ -78,7 +82,7 @@ public class DownloadBitmapUtils {
 	}
 
 
-	public static Bitmap downloadImgByUrl(BitmapRequest request) {
+	public static void downloadImgByUrl(BitmapRequest request) {
 		FileOutputStream fos = null;
 		InputStream is = null;
 		HttpURLConnection conn = null;
@@ -95,18 +99,19 @@ public class DownloadBitmapUtils {
 			opts.inSampleSize = ImageSizeUtil.caculateInSampleSize(opts,
 					request.width, request.height);
 			opts.inJustDecodeBounds = false;
-			bitmap = BitmapFactory.decodeStream(is, null, opts);
-			return bitmap;
+			request.movie = Movie.decodeStream(is);
+			request.bitmap = BitmapFactory.decodeStream(is);
+			if (request.movie == null || !(request.view instanceof GifMovieView)){
+				request.bitmap = BitmapFactory.decodeStream(is, null, opts);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			Util.close(conn, fos, is);
 		}
-
-		return null;
 	}
 
-	public static Bitmap loadImageFromAssets(BitmapRequest request) {
+	public static void loadImageFromAssets(BitmapRequest request) {
 		String name = request.path.substring(9);
 		InputStream is = null;
 		try {
@@ -115,29 +120,37 @@ public class DownloadBitmapUtils {
 			e.printStackTrace();
 		}
 		if (is == null) {
-			return null;
+			return;
 		}
-		Bitmap bm = BitmapFactory.decodeStream(is);
-		return bm;
+		request.movie = Movie.decodeStream(is);
+		if (request.movie == null || !(request.view instanceof GifMovieView)){
+			request.bitmap = BitmapFactory.decodeStream(is);
+		}
 	}
 
-	public static Bitmap loadImageFromLocal(final String path, BitmapRequest request) {
+
+	public static void loadImageFromLocal(final String path, BitmapRequest request) {
 		if (!new File(path).exists()) {
-			return null;
+			return ;
 		}
 		ImageSizeUtil.getImageViewSize(request);
-		Bitmap bm;
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(path, options);
 		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 				request.width, request.height);
 		options.inJustDecodeBounds = false;
-		bm = BitmapFactory.decodeFile(path, options);
-		return bm;
+		try{
+			request.movie = Movie.decodeStream(new FileInputStream(new File(path)));
+		}catch (Exception e){
+
+		}
+		if (request.movie == null || !(request.view instanceof GifMovieView)){
+			request.bitmap = BitmapFactory.decodeFile(path, options);
+		}
 	}
 
-	public static Bitmap loadImageFromDrawable(BitmapRequest request) {
+	public static void loadImageFromDrawable(BitmapRequest request) {
 		int id = 0;
 		try {
 			id = Integer.parseInt(request.path.substring(11));
@@ -145,9 +158,8 @@ public class DownloadBitmapUtils {
 			e.printStackTrace();
 		}
 		if (id == 0) {
-			return null;
+			return;
 		}
-		Bitmap bm;
 		ImageSizeUtil.getImageViewSize(request);
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
@@ -155,7 +167,13 @@ public class DownloadBitmapUtils {
 		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 				request.width, request.height);
 		options.inJustDecodeBounds = false;
-		bm = BitmapFactory.decodeResource(request.view.getResources(), id, options);
-		return bm;
+		try{
+			request.movie = Movie.decodeStream(request.view.getResources().openRawResource(id));
+		}catch (Exception e){
+
+		}
+		if (request.movie == null || !(request.view instanceof GifMovieView)){
+			request.bitmap = BitmapFactory.decodeResource(request.view.getResources(), id, options);
+		}
 	}
 }

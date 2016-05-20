@@ -15,27 +15,26 @@ import android.graphics.Bitmap;
  *
  */
 public class Load {
-	public static Bitmap loadBitmap(BitmapRequest request, ImageConfig config,
+	public static void loadBitmap(BitmapRequest request, ImageConfig config,
 			BackListener listener) {
-		Bitmap bm = null;
 		UrlType urlType = download.imageLoader.util.UrlParser.getUrlType(request.path);
 		switch (urlType) {
 		case HTTP:
 			DownloadBitmapUtils.downloadBitmapByUrl(request, config.cache.getmDiskLruCacheBitmap(), listener);
-			bm = config.cache.getDiskCacheBitmap(request);
-			if (bm != null) {
-				return bm;
+			config.cache.getDiskCacheBitmap(request);
+			if (config.cache.getmDiskLruCacheBitmap() == null) {
+				DownloadBitmapUtils.downloadImgByUrl(request);
+
 			}
-			bm = DownloadBitmapUtils.downloadImgByUrl(request);
 			break;
 		case ASSETS:
-			bm = DownloadBitmapUtils.loadImageFromAssets(request);
+			DownloadBitmapUtils.loadImageFromAssets(request);
 			break;
 		case DRAWABLE:
-			bm = DownloadBitmapUtils.loadImageFromDrawable(request);
+			DownloadBitmapUtils.loadImageFromDrawable(request);
 			break;
 		case FILE:
-			bm = DownloadBitmapUtils.loadImageFromLocal(new File(URI.create(request.path))
+			DownloadBitmapUtils.loadImageFromLocal(new File(URI.create(request.path))
 					.getAbsolutePath().substring(1), request);
 			break;
 		case UNKNOWN:
@@ -44,6 +43,5 @@ public class Load {
 		default:
 			break;
 		}
-		return bm;
 	}
 }

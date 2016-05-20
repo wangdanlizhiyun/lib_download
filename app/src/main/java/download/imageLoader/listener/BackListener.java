@@ -1,6 +1,7 @@
 package download.imageLoader.listener;
 
 import android.graphics.Bitmap;
+import android.graphics.Movie;
 
 
 public interface BackListener {
@@ -9,5 +10,5 @@ public interface BackListener {
 	 * @param percent
 	 */
 	public void onProcess(int percent);
-	public void onSuccess(Bitmap bitmap);
+	public void onSuccess(Bitmap bitmap,Movie movie);
 }

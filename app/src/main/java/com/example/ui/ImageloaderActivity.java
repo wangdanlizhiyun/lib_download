@@ -5,11 +5,14 @@ import java.util.List;
 
 
 import download.imageLoader.core.BmLoader;
+import download.imageLoader.view.GifMovieView;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -50,10 +53,12 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
     			"http://img.my.csdn.net/uploads/201407/26/1406383275_3977.jpg",
     			"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg",
         		"http://img.blog.csdn.net/20160114230048304",//gif图
+                "http://img.blog.csdn.net/20160114230048304",//gif图
+                "http://img.blog.csdn.net/20160114230048304",//gif图
     			"assets://test.png",
                 	"drawable://"+R.drawable.ic_launcher,
                 	"file:///mnt/sdcard/paint.png",
-        			"http://img.my.csdn.net/uploads/201407/26/1406383059_22371.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406383059_2237.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406383058_4330.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406383038_3602.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406382942_3079.jpg",
@@ -85,21 +90,21 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         			"http://img.my.csdn.net/uploads/201407/26/1406382840_6603.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406382840_2405.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406382840_6354.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382839_5779.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382810_7578.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382810_2436.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382809_3883.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382809_6269.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382808_4179.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382790_8326.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382789_7174.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382789_5170.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382789_4118.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382788_9532.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382767_3184.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382767_4772.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382766_4924.jpg",
-        			"http://img.my.csdn.net/uploads/201407/26/1406382766_5762.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382839_5779.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382810_7578.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382810_2436.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382809_3883.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382809_6269.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382808_4179.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382790_8326.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382789_7174.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382789_5170.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382789_4118.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382788_9532.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382767_3184.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382767_4772.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382766_4924.jpg",
+//        			"http://img.my.csdn.net/uploads/201407/26/1406382766_5762.jpg",
         };
         for (String url : imageUrls) {
             mUrList.add(url);
@@ -173,12 +178,14 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.image_list_item,parent, false);
                 holder = new ViewHolder();
-                holder.imageView = (ImageView) convertView.findViewById(R.id.image);
+                holder.imageView = (GifMovieView) convertView.findViewById(R.id.image);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            ImageView imageView = holder.imageView;
+            final GifMovieView imageView = holder.imageView;
+            imageView.getLayoutParams().width = mImageWidth;
+            imageView.getLayoutParams().height = mImageWidth;
 //            final String tag = (String)imageView.getTag();
             final String uri = getItem(position);
 //            if (!uri.equals(tag)) {
@@ -187,6 +194,13 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //            if (mIsGridViewIdle && mCanGetBitmapFromNetWork) {
 //                imageView.setTag(uri);
                 BmLoader.load(uri, imageView);
+
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    imageView.setMovie(Movie.decodeStream(getResources().openRawResource(R.raw.anim)));
+//                }
+//            }).start();
 //            }
 //            Glide.with(ImageloaderActivity.this).load(uri).into(imageView);
             return convertView;
@@ -195,7 +209,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
     }
 
     private static class ViewHolder {
-        public ImageView imageView;
+        public GifMovieView imageView;
     }
 
     @Override
