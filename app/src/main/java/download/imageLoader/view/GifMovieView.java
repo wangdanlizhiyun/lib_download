@@ -2,54 +2,30 @@ package download.imageLoader.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Movie;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 
-/**
- * This is a View class that wraps Android {@link Movie} object and displays it.
- * You can set GIF as a Movie object or as a resource id from XML or by calling
- * <p>
- * You can pause and resume GIF animation by calling {@link #setPaused(boolean)}.
- * <p>
- * The animation is drawn in the center inside of the measured view bounds.
- *
- * @author Sergey Bakhtiarov
- */
 
 public class GifMovieView extends ImageView {
-
-	private static final int DEFAULT_MOVIEW_DURATION = 1000;
-
+	private final int DEFAULT_MOVIEW_DURATION = 1000;
 	private Movie mMovie;
-
 	private long mMovieStart;
 	private int mCurrentAnimationTime = 0;
 
-	/**
-	 * Position for drawing animation frames in the center of the view.
-	 */
 	private float mLeft;
 	private float mTop;
 
-	/**
-	 * Scaling factor to fit the animation within view bounds.
-	 */
+
 	private float mScale;
 
-	/**
-	 * Scaled movie frames width and height.
-	 */
 	private int mMeasuredMovieWidth;
 	private int mMeasuredMovieHeight;
 
-	private volatile boolean mPaused = false;
 	private boolean mVisible = true;
 
 	public GifMovieView(Context context) {
@@ -66,20 +42,11 @@ public class GifMovieView extends ImageView {
 		setViewAttributes(context, attrs, defStyle);
 	}
 
-	@SuppressLint("NewApi")
 	private void setViewAttributes(Context context, AttributeSet attrs, int defStyle) {
-
-		/**
-		 * Starting from HONEYCOMB have to turn off HW acceleration to draw
-		 * Movie on Canvas.
-		 */
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
-
-
 	}
-
 
 	public void setMovie(Movie movie) {
 		this.mMovie = movie;
@@ -96,22 +63,12 @@ public class GifMovieView extends ImageView {
 		invalidate();
 	}
 
-	public void setPaused(boolean paused) {
-		this.mPaused = paused;
-
-		/**
-		 * Calculate new movie start time, so that it resumes from the same
-		 * frame.
-		 */
-		if (!paused) {
-			mMovieStart = android.os.SystemClock.uptimeMillis() - mCurrentAnimationTime;
-		}
-
-		invalidate();
-	}
-
-	public boolean isPaused() {
-		return this.mPaused;
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		this.clearAnimation();
+		this.mMovie = null;
+		this.setImageDrawable(null);
 	}
 
 	@Override
@@ -158,25 +115,15 @@ public class GifMovieView extends ImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (mMovie != null && getDrawable() == null) {
-			if (!mPaused) {
-				updateAnimationTime();
-				drawMovieFrame(canvas);
-				invalidateView();
-			} else {
-				drawMovieFrame(canvas);
-			}
+			updateAnimationTime();
+			drawMovieFrame(canvas);
+			invalidateView();
 		}else {
 			super.onDraw(canvas);
 		}
 	}
 
-	/**
-	 * Invalidates view only if it is visible.
-	 * <br>
-	 * {@link #postInvalidateOnAnimation()} is used for Jelly Bean and higher.
-	 *
-	 */
-	@SuppressLint("NewApi")
+
 	private void invalidateView() {
 		if(mVisible) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -187,9 +134,7 @@ public class GifMovieView extends ImageView {
 		}
 	}
 
-	/**
-	 * Calculate current animation time
-	 */
+
 	private void updateAnimationTime() {
 		long now = android.os.SystemClock.uptimeMillis();
 
@@ -206,13 +151,8 @@ public class GifMovieView extends ImageView {
 		mCurrentAnimationTime = (int) ((now - mMovieStart) % dur);
 	}
 
-	/**
-	 * Draw current GIF frame
-	 */
 	private void drawMovieFrame(Canvas canvas) {
-
 		mMovie.setTime(mCurrentAnimationTime);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.scale(mScale, mScale);
 		mMovie.draw(canvas, mLeft / mScale, mTop / mScale);

@@ -115,7 +115,7 @@ public class ImageLoader {
 		if (view == null) {
 			return;
 		}
-		if (view == null || bitmap == null) {
+		if (bitmap == null) {
 			setBitmap(view, config.getFailedBm());
 		}
 
@@ -131,6 +131,7 @@ public class ImageLoader {
 	}
 	private static void setBitmap(BitmapRequest request) {
 		if (request.movie != null && request.view instanceof GifMovieView){
+			Log.v("movie","设置movie"+request.path);
 			((GifMovieView) request.view).setMovie(request.movie);
 		}else{
 
@@ -170,7 +171,7 @@ public class ImageLoader {
 						request.path, listener)));
 			}
 		} else {
-			throw new RuntimeException("请在主线程调用");
+			throw new RuntimeException("only run on ui thread");
 		}
 	}
 

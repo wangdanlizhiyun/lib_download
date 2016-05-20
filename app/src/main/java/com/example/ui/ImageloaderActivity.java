@@ -25,6 +25,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 public class ImageloaderActivity extends Activity implements OnScrollListener {
     private static final String TAG = "MainActivity";
@@ -55,7 +56,8 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         		"http://img.blog.csdn.net/20160114230048304",//gif图
                 "http://img.blog.csdn.net/20160114230048304",//gif图
                 "http://img.blog.csdn.net/20160114230048304",//gif图
-    			"assets://test.png",
+    			"assets://anim.gif",
+                "drawable://"+R.drawable.anim,
                 	"drawable://"+R.drawable.ic_launcher,
                 	"file:///mnt/sdcard/paint.png",
         			"http://img.my.csdn.net/uploads/201407/26/1406383059_2237.jpg",
@@ -184,8 +186,6 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
                 holder = (ViewHolder) convertView.getTag();
             }
             final GifMovieView imageView = holder.imageView;
-            imageView.getLayoutParams().width = mImageWidth;
-            imageView.getLayoutParams().height = mImageWidth;
 //            final String tag = (String)imageView.getTag();
             final String uri = getItem(position);
 //            if (!uri.equals(tag)) {
@@ -203,6 +203,8 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //            }).start();
 //            }
 //            Glide.with(ImageloaderActivity.this).load(uri).into(imageView);
+            convertView.getLayoutParams().width = mImageWidth;
+            convertView.getLayoutParams().height = mImageWidth;
             return convertView;
         }
 
