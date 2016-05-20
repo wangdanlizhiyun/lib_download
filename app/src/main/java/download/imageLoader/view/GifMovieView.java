@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 
+import download.imageLoader.core.BmLoader;
 
 
 public class GifMovieView extends ImageView {
@@ -48,6 +49,9 @@ public class GifMovieView extends ImageView {
 		}
 	}
 
+	public void bind(String path){
+		BmLoader.load(path,this);
+	}
 	public void setMovie(Movie movie) {
 		this.mMovie = movie;
 		setImageDrawable(null);
@@ -74,8 +78,8 @@ public class GifMovieView extends ImageView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measureModeWidth = MeasureSpec.getMode(widthMeasureSpec);
-		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec);
-		int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec);
+		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
+		int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec) - getPaddingTop() - getPaddingBottom();
 		float maximumHeight = MeasureSpec.getSize(heightMeasureSpec);
 		float scaleH = 1f;
 		float scaleW = 1f;
@@ -107,8 +111,8 @@ public class GifMovieView extends ImageView {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		mLeft = (getWidth() - mMeasuredMovieWidth) / 2f;
-		mTop = (getHeight() - mMeasuredMovieHeight) / 2f;
+		mLeft = (getWidth() - mMeasuredMovieWidth + getPaddingLeft() + getPaddingRight()) / 2f;
+		mTop = (getHeight() - mMeasuredMovieHeight + getPaddingTop() + getPaddingBottom()) / 2f;
 		mVisible = getVisibility() == View.VISIBLE;
 	}
 

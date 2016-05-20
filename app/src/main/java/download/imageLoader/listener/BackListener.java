@@ -6,9 +6,15 @@ import android.graphics.Movie;
 
 public interface BackListener {
 	/**
-	 * 进度回调，运行在子线程
+	 * 进度回调，运行在ui线程
 	 * @param percent
 	 */
 	public void onProcess(int percent);
+
+	/**
+	 * 运行在ui线程
+	 * @param bitmap
+	 * @param movie
+	 */
 	public void onSuccess(Bitmap bitmap,Movie movie);
 }

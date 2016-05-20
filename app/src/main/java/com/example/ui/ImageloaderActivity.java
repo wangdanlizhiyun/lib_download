@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import download.imageLoader.core.BmLoader;
+import download.imageLoader.listener.BackListener;
 import download.imageLoader.view.GifMovieView;
 
 import android.app.Activity;
@@ -12,6 +13,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Bitmap;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -193,8 +195,20 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //            }
 //            if (mIsGridViewIdle && mCanGetBitmapFromNetWork) {
 //                imageView.setTag(uri);
-                BmLoader.load(uri, imageView);
+//                BmLoader.load(uri, imageView);
 
+            BmLoader.load(uri, imageView, new BackListener() {
+                @Override
+                public void onProcess(int percent) {
+
+                }
+
+                @Override
+                public void onSuccess(Bitmap bitmap, Movie movie) {
+
+                }
+            });
+            imageView.bind(uri);
 //            new Thread(new Runnable() {
 //                @Override
 //                public void run() {
