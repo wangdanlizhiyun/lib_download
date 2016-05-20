@@ -1,6 +1,7 @@
 # lib_download
 处理异步下载的库，包含图片下载和ormlite(马天宇的开源)，且全局公用一个线程池
 虽然有默认的正在加载和加载失败的图片，但是还是可以打成jar包使用
+支持预加载：BmLoader.preLoad(uri);
 支持本地和网络图片，路径格式示例为："http://img.blog.csdn.net/20160114230048304",//网络
     			"assets://anim.gif",
                 "drawable://"+R.drawable.anim,//资源路径gif图
