@@ -199,6 +199,10 @@ public class ImageLoader {
 		return new Runnable() {
 			@Override
 			public void run() {
+				//listview等快速滑动时过滤应该放弃的任务
+				if (request.view != null && !((String) request.view.getTag()).equals(request.path)) {
+					return;
+				}
 				while (hasDoingTask(request)) {
 					try {
 						Thread.sleep(20);
