@@ -1,5 +1,6 @@
 package download.imageLoader.core;
 
+import android.content.Context;
 import android.view.View;
 import download.imageLoader.listener.BackListener;
 /**
@@ -9,7 +10,7 @@ import download.imageLoader.listener.BackListener;
  */
 public class BmLoader {
 	/**
-	 * 预加载图片
+	 * preload
 	 * 
 	 * @param path
 	 */
@@ -39,5 +40,16 @@ public class BmLoader {
 	 */
 	public static void load(final String path, final View view) {
 		ImageLoader.getInstance().loadImage(path, view);
+	}
+
+	/**
+	 * set longding and load failed bitmap resource.
+	 * @param context
+	 * @param loadingId
+	 * @param failedId
+	 */
+	public static void setLoadingAndFailedId(Context context, int loadingId,
+											 int failedId) {
+		ImageLoader.getInstance().setLoadingAndFailedId(context,loadingId,failedId);
 	}
 }

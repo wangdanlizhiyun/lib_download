@@ -38,12 +38,10 @@ import android.widget.ImageView;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class ImageLoader {
-	private static SmartExecutor executor;
-
+	private SmartExecutor executor;
 	private static class InstanceHoler {
 		private static final ImageLoader instance = new ImageLoader();
 	}
-
 	public static ImageLoader getInstance() {
 		return InstanceHoler.instance;
 	}
@@ -152,11 +150,10 @@ public class ImageLoader {
 		config = new ImageConfig();
 	}
 
-	public ImageLoader setLoadingAndFailedId(Context context, int loadingId,
+	protected void setLoadingAndFailedId(Context context, int loadingId,
 			int failedId) {
 		config.setFailedIdAndLoadingId(context.getResources(), failedId,
 				loadingId);
-		return getInstance();
 	}
 
 
