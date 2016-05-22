@@ -130,11 +130,17 @@ public class ImageLoader {
 		}
 	}
 	private static void setBitmap(BitmapRequest request) {
-		if (request.movie != null && request.view instanceof GifMovieView){
-			Log.v("movie","设置movie"+request.path);
-			((GifMovieView) request.view).setMovie(request.movie);
+		if (request.view instanceof GifMovieView){
+			if (request.movie != null){
+				((GifMovieView) request.view).setMovie(request.movie);
+			}else {
+				if (request.bitmap != null){
+					((GifMovieView) request.view).setImageBitmap(request.bitmap);
+				}else {
+					((GifMovieView) request.view).setImageBitmap(config.getFailedBm());
+				}
+			}
 		}else{
-
 			setBitmap(request.view,request.bitmap);
 		}
 	}
@@ -163,8 +169,10 @@ public class ImageLoader {
 					.getApplicationContext());
 			config.cache.getMemoryCache(request);
 			if (!request.checkEmpty()) {
+				Log.v("test","use cache");
 				setBitmap(request);
 			} else {
+				Log.v("test","not use cache");
 				setBitmap(request.view,config.getLoadingBm());
 				request.view.setTag(request.path);
 				executor.execute(buildTask(new BitmapRequest(request.view,

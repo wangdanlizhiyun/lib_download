@@ -26,10 +26,6 @@ import android.view.View;
 
 public class DownloadBitmapUtils {
 	public static final int bigSize = 10 * 1024;
-
-	public interface LoadListener {
-		public abstract void getMorePrecent();
-	}
 	public static void downloadBitmapByUrl(BitmapRequest request,
 			DiskLruCache diskLruCache, BackListener listener) {
 			if (diskLruCache == null) {
@@ -100,8 +96,7 @@ public class DownloadBitmapUtils {
 					request.width, request.height);
 			opts.inJustDecodeBounds = false;
 			request.movie = Movie.decodeStream(is);
-			request.bitmap = BitmapFactory.decodeStream(is);
-			if (request.movie == null || !(request.view instanceof GifMovieView)){
+			if (request.checkEmpty()){
 				request.bitmap = BitmapFactory.decodeStream(is, null, opts);
 			}
 		} catch (Exception e) {
@@ -123,7 +118,7 @@ public class DownloadBitmapUtils {
 			return;
 		}
 		request.movie = Movie.decodeStream(is);
-		if (request.movie == null || !(request.view instanceof GifMovieView)){
+		if (request.checkEmpty()){
 			request.bitmap = BitmapFactory.decodeStream(is);
 		}
 	}
@@ -145,7 +140,7 @@ public class DownloadBitmapUtils {
 		}catch (Exception e){
 
 		}
-		if (request.movie == null || !(request.view instanceof GifMovieView)){
+		if (request.checkEmpty()){
 			request.bitmap = BitmapFactory.decodeFile(path, options);
 		}
 	}
@@ -172,7 +167,7 @@ public class DownloadBitmapUtils {
 		}catch (Exception e){
 
 		}
-		if (request.movie == null || !(request.view instanceof GifMovieView)){
+		if (request.checkEmpty()){
 			request.bitmap = BitmapFactory.decodeResource(request.view.getResources(), id, options);
 		}
 	}

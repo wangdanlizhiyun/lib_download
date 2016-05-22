@@ -197,17 +197,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //                imageView.setTag(uri);
 //                BmLoader.load(uri, imageView);
 
-            BmLoader.load(uri, imageView, new BackListener() {
-                @Override
-                public void onProcess(int percent) {
 
-                }
-
-                @Override
-                public void onSuccess(Bitmap bitmap, Movie movie) {
-
-                }
-            });
             imageView.bind(uri);
 //            new Thread(new Runnable() {
 //                @Override

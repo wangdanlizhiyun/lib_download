@@ -10,6 +10,8 @@ import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.ImageSizeUtil;
 import download.imageLoader.util.Util;
 import download.imageLoader.util.ImageSizeUtil.ImageSize;
+import download.imageLoader.view.GifMovieView;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager.Request;
@@ -82,7 +84,6 @@ public class BitmapCache {
 				e.printStackTrace();
 			}
 		}
-
 	}
 
     @SuppressWarnings("deprecation")
@@ -116,11 +117,11 @@ public class BitmapCache {
 		String key = Util.md5(request.path);
 		ImageSizeUtil.getImageViewSize(request);
 		request.movie = mMemoryMovieLruCache.get(key);
-		if (request.movie == null){
+		if (request.checkEmpty()){
 			request.bitmap = mMemoryBitmapLruCache.get(key);
-			if (request.bitmap != null && (request.width > request.bitmap.getWidth() || request.height > request.bitmap.getHeight())) {
-				request.bitmap = null;
-			}
+//			if (request.bitmap != null && (request.width > request.bitmap.getWidth() || request.height > request.bitmap.getHeight())) {
+//				request.bitmap = null;
+//			}
 		}
 
 	}
