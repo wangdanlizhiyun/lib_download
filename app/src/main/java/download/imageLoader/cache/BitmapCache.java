@@ -46,10 +46,10 @@ public class BitmapCache {
 				return Util.getBitmapByteSize(value) / 1024;
 			}
 		};
-		mMemoryMovieLruCache = new LruCache<String, Movie>(maxMemory / 2){//应该比该值稍大
+		mMemoryMovieLruCache = new LruCache<String, Movie>(10){
 			@Override
 			protected int sizeOf(String key, Movie value) {
-				return value.width() * value.height() / 1024;
+				return 1;
 			}
 		};
 		mPercentLruCache = new LruCache<String, Bitmap>(maxMemory / 5) {
