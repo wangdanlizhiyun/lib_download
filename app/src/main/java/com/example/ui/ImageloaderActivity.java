@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,21 +95,21 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         			"http://img.my.csdn.net/uploads/201407/26/1406382840_6603.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406382840_2405.jpg",
         			"http://img.my.csdn.net/uploads/201407/26/1406382840_6354.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382839_5779.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382810_7578.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382810_2436.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382809_3883.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382809_6269.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382808_4179.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382790_8326.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382789_7174.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382789_5170.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382789_4118.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382788_9532.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382767_3184.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382767_4772.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382766_4924.jpg",
-//        			"http://img.my.csdn.net/uploads/201407/26/1406382766_5762.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382839_5779.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382810_7578.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382810_2436.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382809_3883.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382809_6269.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382808_4179.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382790_8326.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382789_7174.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382789_5170.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382789_4118.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382788_9532.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382767_3184.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382767_4772.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382766_4924.jpg",
+        			"http://img.my.csdn.net/uploads/201407/26/1406382766_5762.jpg",
         };
         for (String url : imageUrls) {
             mUrList.add(url);
@@ -199,12 +200,6 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 
 
             imageView.bind(uri);
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    imageView.setMovie(Movie.decodeStream(getResources().openRawResource(R.raw.anim)));
-//                }
-//            }).start();
 //            }
 //            Glide.with(ImageloaderActivity.this).load(uri).into(imageView);
             convertView.getLayoutParams().width = mImageWidth;

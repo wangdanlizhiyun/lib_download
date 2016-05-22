@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Movie;
+import android.util.Log;
 import android.view.View;
 
 public class DownloadBitmapUtils {
@@ -142,6 +143,11 @@ public class DownloadBitmapUtils {
 		}
 		if (request.checkEmpty()){
 			request.bitmap = BitmapFactory.decodeFile(path, options);
+
+			Log.v("test", " options.inSampleSize=" +
+					options.inSampleSize + " " +
+							request.width + " " + request.height+
+					request.bitmap.getWidth() + " " + request.bitmap.getHeight());
 		}
 	}
 

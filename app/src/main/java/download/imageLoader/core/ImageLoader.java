@@ -113,9 +113,6 @@ public class ImageLoader {
 		if (view == null) {
 			return;
 		}
-		if (bitmap == null) {
-			setBitmap(view, config.getFailedBm());
-		}
 
 		if (view instanceof ImageView) {
 			((ImageView) view).setImageBitmap(bitmap);
@@ -158,23 +155,29 @@ public class ImageLoader {
 
 
 	protected void loadImage(final String path, final View view,
-			BackListener listener) {
+			final BackListener listener) {
 		getInstance();
-		BitmapRequest request = new BitmapRequest(view, path);
 		if (Looper.myLooper() == Looper.getMainLooper()) {
-			config.cache.setDiskLruCache(request.view.getContext()
-					.getApplicationContext());
-			config.cache.getMemoryCache(request);
-			if (!request.checkEmpty()) {
-				Log.v("test","use cache");
-				setBitmap(request);
-			} else {
-				Log.v("test","not use cache");
-				setBitmap(request.view,config.getLoadingBm());
-				request.view.setTag(request.path);
-				executor.execute(buildTask(new BitmapRequest(request.view,
-						request.path, listener)));
-			}
+			view.post(new Runnable() {
+				@Override
+				public void run() {
+					BitmapRequest request = new BitmapRequest(view, path);
+					config.cache.setDiskLruCache(request.view.getContext()
+							.getApplicationContext());
+					config.cache.getMemoryCache(request);
+					if (!request.checkEmpty()) {
+						Log.v("test", "use cache");
+						setBitmap(request);
+					} else {
+						Log.v("test", "not use cache");
+						setBitmap(request.view, config.getLoadingBm());
+						request.view.setTag(request.path);
+						executor.execute(buildTask(new BitmapRequest(request.view,
+								request.path, listener)));
+					}
+				}
+			});
+
 		} else {
 			throw new RuntimeException("only run on ui thread");
 		}

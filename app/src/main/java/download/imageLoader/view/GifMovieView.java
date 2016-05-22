@@ -50,7 +50,7 @@ public class GifMovieView extends ImageView {
 	}
 
 	public void bind(String path){
-		BmLoader.load(path,this);
+		BmLoader.load(path, this);
 	}
 	public void setMovie(Movie movie) {
 		if (Looper.myLooper() != Looper.getMainLooper()) {
@@ -62,14 +62,6 @@ public class GifMovieView extends ImageView {
 		requestLayout();
 	}
 
-	public Movie getMovie() {
-		return mMovie;
-	}
-
-	public void setMovieTime(int time) {
-		mCurrentAnimationTime = time;
-		invalidate();
-	}
 
 	@Override
 	protected void onDetachedFromWindow() {
@@ -79,6 +71,14 @@ public class GifMovieView extends ImageView {
 		this.setImageDrawable(null);
 	}
 
+	public Movie getMovie() {
+		return mMovie;
+	}
+
+	public void setMovieTime(int time) {
+		mCurrentAnimationTime = time;
+		invalidate();
+	}
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measureModeWidth = MeasureSpec.getMode(widthMeasureSpec);

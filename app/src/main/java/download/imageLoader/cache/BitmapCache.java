@@ -3,6 +3,7 @@ package download.imageLoader.cache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import download.imageLoader.request.BitmapRequest;
@@ -33,6 +34,15 @@ public class BitmapCache {
 	private LruCache<String, Bitmap> mPercentLruCache;
 	private DiskLruCache mDiskLruCache = null;
     private static final long DISK_CACHE_SIZE = 1024 * 1024 * 60;
+	private class Size{
+		public int width;
+		public int height;
+		public Size(int w,int h){
+			this.width = w;
+			this.height = h;
+		}
+	}
+	private HashMap<String, Size> mHistoryMaxSize = new HashMap<String, Size>();
 
 	
 
@@ -99,7 +109,13 @@ public class BitmapCache {
 	public void addMemoryBitmap(BitmapRequest request) {
 		String key = Util.md5(request.path);
 		if (request.bitmap != null){
-			mMemoryBitmapLruCache.put(key, request.bitmap);
+			//保存使用过的尽可能的最大值
+			Size oldSize = mHistoryMaxSize.get(request.path);
+			Size newSize = new Size(request.width,request.height);
+			if (oldSize == null || (oldSize != null && (oldSize.width <= newSize.width || oldSize.height <= newSize.height))){
+				mHistoryMaxSize.put(request.path,newSize);
+				mMemoryBitmapLruCache.put(key, request.bitmap);
+			}
 		}
 		if (request.movie != null){
 			mMemoryMovieLruCache.put(key,request.movie);
@@ -119,9 +135,16 @@ public class BitmapCache {
 		request.movie = mMemoryMovieLruCache.get(key);
 		if (request.checkEmpty()){
 			request.bitmap = mMemoryBitmapLruCache.get(key);
-//			if (request.bitmap != null && (request.width > request.bitmap.getWidth() || request.height > request.bitmap.getHeight())) {
-//				request.bitmap = null;
-//			}
+
+			Size oldSize = mHistoryMaxSize.get(request.path);
+			if (oldSize != null && request.view != null && request.bitmap != null && (request.width > oldSize.width || request.height > oldSize.height)) {
+
+
+				Log.v("test","请求图片大小大于缓存的图片大小"+
+						request.width+" "+request.height+" "+
+						oldSize.width+" "+oldSize.height);
+				request.bitmap = null;
+			}
 		}
 
 	}
