@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Movie;
 import android.os.Build;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,7 +40,6 @@ public class GifMovieView extends ImageView {
 
 	public GifMovieView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-
 		setViewAttributes(context, attrs, defStyle);
 	}
 
@@ -53,7 +53,11 @@ public class GifMovieView extends ImageView {
 		BmLoader.load(path,this);
 	}
 	public void setMovie(Movie movie) {
+		if (Looper.myLooper() != Looper.getMainLooper()) {
+			throw new RuntimeException("only run on ui thread");
+		}
 		this.mMovie = movie;
+		//至关重要的设置
 		setImageDrawable(null);
 		requestLayout();
 	}
