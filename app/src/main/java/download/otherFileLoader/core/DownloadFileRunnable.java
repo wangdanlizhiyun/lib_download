@@ -6,13 +6,15 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import download.otherFileLoader.listener.DownloadPercentListener;
 import download.otherFileLoader.request.DownFile;
 
 public class DownloadFileRunnable implements Runnable {
 	private DownFile mDownFile;
 	private File saveFile;
-	private volatile boolean flag = false;
+	private final AtomicBoolean flag = new AtomicBoolean();
 	private volatile HttpURLConnection http;
 	private ApkLoader downloader;
 
@@ -29,7 +31,7 @@ public class DownloadFileRunnable implements Runnable {
 	}
 
 	public void cancel() {
-		flag = false;
+		flag.set(false);
 		if (http != null) {
 			http.disconnect();
 		}
@@ -41,7 +43,7 @@ public class DownloadFileRunnable implements Runnable {
 
 	@Override
 	public void run() {
-		flag = true;
+		flag.set(true);
 		mDownFile
 				.setTotalLength(getContentLengthFormUrl(mDownFile.getDownUrl()));
 		InputStream inStream = null;
@@ -76,7 +78,7 @@ public class DownloadFileRunnable implements Runnable {
 					if (mDownFile.getDownLength() > 0
 							&& mDownFile.getDownLength() >= mDownFile
 									.getTotalLength()) {
-						flag = false;
+						flag.set(false);
 						mDownFile.state = 1;
 						if (listener != null) {
 							listener.notify(mDownFile);
@@ -88,10 +90,10 @@ public class DownloadFileRunnable implements Runnable {
 				int offset = 0;
 				threadfile = new RandomAccessFile(this.saveFile, "rwd");
 				threadfile.seek(mDownFile.getDownLength());
-				while (flag) {
+				while (flag.get()) {
 					offset = inStream.read(buffer, 0, 1024);
 					if (offset == -1) {
-						flag = false;
+						flag.set(false);
 						mDownFile.state = 1;
 						if (listener != null) {
 							listener.notify(mDownFile);

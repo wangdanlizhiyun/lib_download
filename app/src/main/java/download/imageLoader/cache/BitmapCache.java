@@ -20,6 +20,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Movie;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StatFs;
 import android.os.Build.VERSION_CODES;
@@ -29,9 +31,9 @@ import android.view.View;
 
 @SuppressLint("NewApi")
 public class BitmapCache {
-	private LruCache<String, Bitmap> mMemoryBitmapLruCache;
+	private LruCache<String, BitmapDrawable> mMemoryBitmapLruCache;
 	private LruCache<String, Movie> mMemoryMovieLruCache;
-	private LruCache<String, Bitmap> mPercentLruCache;
+	private LruCache<String, BitmapDrawable> mPercentLruCache;
 	private DiskLruCache mDiskLruCache = null;
     private static final long DISK_CACHE_SIZE = 1024 * 1024 * 60;
 	private class Size{
@@ -51,11 +53,11 @@ public class BitmapCache {
 		super();
 		// 获取我们应用的最大可用内存
 		int maxMemory = Math.min(
-				(int) Runtime.getRuntime().maxMemory() / 1024 / 8, 30 * 1024);
-		mMemoryBitmapLruCache = new LruCache<String, Bitmap>(maxMemory) {
+				(int) Runtime.getRuntime().maxMemory()  / 8, 30 * 1024 * 1024);
+		mMemoryBitmapLruCache = new LruCache<String, BitmapDrawable>(maxMemory) {
 			@Override
-			protected int sizeOf(String key, Bitmap value) {
-				return Util.getBitmapByteSize(value) / 1024;
+			protected int sizeOf(String key, BitmapDrawable value) {
+				return Util.getBitmapByteSize(value);
 			}
 		};
 		mMemoryMovieLruCache = new LruCache<String, Movie>(10){
@@ -64,10 +66,10 @@ public class BitmapCache {
 				return 1;
 			}
 		};
-		mPercentLruCache = new LruCache<String, Bitmap>(maxMemory / 5) {
+		mPercentLruCache = new LruCache<String, BitmapDrawable>(maxMemory / 5) {
 			@Override
-			protected int sizeOf(String key, Bitmap value) {
-				return Util.getBitmapByteSize(value) / 1024;
+			protected int sizeOf(String key, BitmapDrawable value) {
+				return Util.getBitmapByteSize(value);
 			}
 		};
 	}
@@ -105,26 +107,27 @@ public class BitmapCache {
         final StatFs stats = new StatFs(path.getPath());
         return (long) stats.getBlockSize() * (long) stats.getAvailableBlocks();
     }
-    
+
 	public void addMemoryBitmap(BitmapRequest request) {
 		String key = Util.md5(request.path);
 		if (request.bitmap != null){
 			//保存使用过的尽可能的最大值
 			Size oldSize = mHistoryMaxSize.get(request.path);
 			Size newSize = new Size(request.width,request.height);
-			if (oldSize == null || (oldSize != null && (oldSize.width <= newSize.width || oldSize.height <= newSize.height))){
+			if (oldSize == null || ( newSize.width * newSize.height > oldSize.width * oldSize.height )){
 				mHistoryMaxSize.put(request.path,newSize);
-				mMemoryBitmapLruCache.put(key, request.bitmap);
 			}
+			mMemoryBitmapLruCache.put(key, request.bitmap);
 		}
 		if (request.movie != null){
 			mMemoryMovieLruCache.put(key,request.movie);
 		}
 	}
 
-	public void addPercentBitmap(String path, Bitmap bm) {
+	public void addPercentBitmap(String path, BitmapDrawable bm) {
+		String key = Util.md5(path);
+		mPercentLruCache.remove(key);
 		if (bm != null){
-			String key = Util.md5(path);
 			mPercentLruCache.put(key, bm);
 		}
 	}
@@ -133,16 +136,11 @@ public class BitmapCache {
 		String key = Util.md5(request.path);
 		ImageSizeUtil.getImageViewSize(request);
 		request.movie = mMemoryMovieLruCache.get(key);
-		if (request.checkEmpty()){
+		if (request.checkIfNeedAsyncLoad()){
 			request.bitmap = mMemoryBitmapLruCache.get(key);
 
 			Size oldSize = mHistoryMaxSize.get(request.path);
 			if (oldSize != null && request.view != null && request.bitmap != null && (request.width > oldSize.width || request.height > oldSize.height)) {
-
-
-				Log.v("test","请求图片大小大于缓存的图片大小"+
-						request.width+" "+request.height+" "+
-						oldSize.width+" "+oldSize.height);
 				request.bitmap = null;
 			}
 		}
@@ -159,17 +157,18 @@ public class BitmapCache {
 			return ;
 		}
 		String key = Util.md5(request.path);
-		 try {
-		 DiskLruCache.Snapshot snapShot = mDiskLruCache.get(key);
-		 if (snapShot != null) {
-			DownloadBitmapUtils.loadImageFromLocal(diskCacheDir.getAbsolutePath()
-					 + File.separator + key + ".0", request);
+		try {
+			DiskLruCache.Snapshot snapShot = mDiskLruCache.get(key);
+			if (snapShot != null) {
+				DownloadBitmapUtils.loadImageFromLocal(diskCacheDir.getAbsolutePath()
+						+ File.separator + key + ".0", request);
 
-		 }
-		 } catch (IOException e) {
-		 e.printStackTrace();
-		 }
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+
 	public Boolean hasDiskBm(String path) {
 		String key = Util.md5(path);
 		File file = new File(diskCacheDir.getAbsolutePath()+ File.separator + key + ".0");

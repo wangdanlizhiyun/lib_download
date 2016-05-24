@@ -50,6 +50,23 @@ public class BmLoader {
 	 */
 	public static void setLoadingAndFailedId(Context context, int loadingId,
 											 int failedId) {
-		ImageLoader.getInstance().setLoadingAndFailedId(context,loadingId,failedId);
+		ImageLoader.getInstance().setLoadingAndFailedId(context, loadingId, failedId);
 	}
+
+	/**
+	 * 设置是否仅wifi下下载模式
+	 * @param b
+	 */
+	public static void setOnlyWifiMode(Boolean b){
+		ImageLoader.getInstance().getConfig().setOnlyWifiMode(b);
+	}
+
+	/**
+	 * 设置是否仅使用缓存模式
+	 * @param b
+	 */
+	public static void setOnlyMemoryMode(Boolean b){
+		ImageLoader.getInstance().getConfig().setOnlyMemoryMode(b);
+	}
+
 }

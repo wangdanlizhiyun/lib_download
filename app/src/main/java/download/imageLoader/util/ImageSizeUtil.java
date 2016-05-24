@@ -46,31 +46,32 @@ public class ImageSizeUtil {
 		if (request.width > 0 && request.height > 0) {
 			return;
 		}
-		if (request.view == null) {
+		if (request.view.get() == null) {
 			request.width = 300;
 			request.height = 300;
+			return;
 		}
 
-		LayoutParams lp = request.view.getLayoutParams();
+		LayoutParams lp = request.view.get().getLayoutParams();
 
-		int width = request.view.getWidth() - request.view.getPaddingLeft() - request.view.getPaddingRight();// 获取imageview的实际宽度
+		int width = request.view.get().getWidth() - request.view.get().getPaddingLeft() - request.view.get().getPaddingRight();// 获取imageview的实际宽度
 		if (width <= 0) {
-			width = lp.width - request.view.getPaddingLeft() - request.view.getPaddingRight();// 获取imageview在layout中声明的宽度
+			width = lp.width - request.view.get().getPaddingLeft() - request.view.get().getPaddingRight();// 获取imageview在layout中声明的宽度
 		}
 		if (width <= 0) {
 			// width = imageView.getMaxWidth();// 检查最大值
-			width = getImageViewFieldValue(request.view, "mMaxWidth") - request.view.getPaddingTop() - request.view.getPaddingBottom();
+			width = getImageViewFieldValue(request.view, "mMaxWidth") - request.view.get().getPaddingTop() - request.view.get().getPaddingBottom();
 		}
 		if (width <= 0) {
 			width = 300;
 		}
 
-		int height = request.view.getHeight() - request.view.getPaddingTop() - request.view.getPaddingBottom();// 获取imageview的实际高度
+		int height = request.view.get().getHeight() - request.view.get().getPaddingTop() - request.view.get().getPaddingBottom();// 获取imageview的实际高度
 		if (height <= 0) {
 			height = lp.height;// 获取imageview在layout中声明的宽度
 		}
 		if (height <= 0) {
-			height = getImageViewFieldValue(request.view, "mMaxHeight") - request.view.getPaddingTop() - request.view.getPaddingBottom();// 检查最大值
+			height = getImageViewFieldValue(request.view, "mMaxHeight") - request.view.get().getPaddingTop() - request.view.get().getPaddingBottom();// 检查最大值
 		}
 		if (height <= 0) {
 			height = 300;

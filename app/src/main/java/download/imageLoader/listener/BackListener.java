@@ -2,6 +2,7 @@ package download.imageLoader.listener;
 
 import android.graphics.Bitmap;
 import android.graphics.Movie;
+import android.graphics.drawable.BitmapDrawable;
 
 
 public interface BackListener {
@@ -16,5 +17,5 @@ public interface BackListener {
 	 * @param bitmap
 	 * @param movie
 	 */
-	public void onSuccess(Bitmap bitmap,Movie movie);
+	public void onSuccess(BitmapDrawable bitmap,Movie movie);
 }

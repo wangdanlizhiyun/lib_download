@@ -1,5 +1,6 @@
 package download.imageLoader.loader;
 
+
 import java.io.File;
 import java.net.URI;
 import download.imageLoader.config.ImageConfig;
@@ -20,11 +21,15 @@ public class Load {
 		UrlType urlType = download.imageLoader.util.UrlParser.getUrlType(request.path);
 		switch (urlType) {
 		case HTTP:
-			DownloadBitmapUtils.downloadBitmapByUrl(request, config.cache.getmDiskLruCacheBitmap(), listener);
-			config.cache.getDiskCacheBitmap(request);
-			if (config.cache.getmDiskLruCacheBitmap() == null) {
+			request.isFirstDown = true;
+			if (!config.getOnlyMemoryMode()){
+				if (!config.getOnlyWifiMode()){
+					DownloadBitmapUtils.downloadBitmapToDisk(request, config.cache.getmDiskLruCacheBitmap(), listener);
+				}
+				config.cache.getDiskCacheBitmap(request);
+			}
+			if (request.checkIfNeedAsyncLoad() && !config.getOnlyWifiMode()) {
 				DownloadBitmapUtils.downloadImgByUrl(request);
-
 			}
 			break;
 		case ASSETS:

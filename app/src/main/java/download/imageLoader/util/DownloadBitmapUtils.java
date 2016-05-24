@@ -15,19 +15,14 @@ import java.net.URL;
 import download.imageLoader.cache.DiskLruCache;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
-import download.imageLoader.util.ImageSizeUtil.ImageSize;
-import download.imageLoader.view.GifMovieView;
-
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Movie;
-import android.util.Log;
-import android.view.View;
+import android.graphics.drawable.BitmapDrawable;
 
 public class DownloadBitmapUtils {
-	public static final int bigSize = 10 * 1024;
-	public static void downloadBitmapByUrl(BitmapRequest request,
+	public static final int bigSize = 1024 * 1024;
+	public static void downloadBitmapToDisk(BitmapRequest request,
 			DiskLruCache diskLruCache, BackListener listener) {
 			if (diskLruCache == null) {
 				return ;
@@ -54,9 +49,11 @@ public class DownloadBitmapUtils {
 							out.write(b);
 								sum++;
 								request.percent = (int) (sum * 100 / request.totalSize);
-								if (request.percent >= p && p <= 100) {
+								if (request.percent >= p) {
 									p += 1;
-									listener.onProcess(request.percent);
+									if (request.percent < 100){
+										listener.onProcess(request.percent);
+									}
 								}
 						}
 						editor.commit();
@@ -76,6 +73,7 @@ public class DownloadBitmapUtils {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
 	}
 
 
@@ -88,17 +86,16 @@ public class DownloadBitmapUtils {
 			conn = (HttpURLConnection) url.openConnection();
 			is = new BufferedInputStream(conn.getInputStream());
 			is.mark(is.available());
-			Options opts = new Options();
-			opts.inJustDecodeBounds = true;
-			Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
-			// 获取imageview想要显示的宽和高
+			Options options = new Options();
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(is, null, options);
 			ImageSizeUtil.getImageViewSize(request);
-			opts.inSampleSize = ImageSizeUtil.caculateInSampleSize(opts,
+			options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 					request.width, request.height);
-			opts.inJustDecodeBounds = false;
+			options.inJustDecodeBounds = false;
 			request.movie = Movie.decodeStream(is);
-			if (request.checkEmpty()){
-				request.bitmap = BitmapFactory.decodeStream(is, null, opts);
+			if (request.checkIfNeedAsyncLoad()){
+				request.bitmap = new BitmapDrawable(request.view.get().getResources(),BitmapFactory.decodeStream(is, null, options));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -111,16 +108,26 @@ public class DownloadBitmapUtils {
 		String name = request.path.substring(9);
 		InputStream is = null;
 		try {
-			is = request.view.getContext().getAssets().open(name);
+			if (request.view.get() == null){
+				return;
+			}
+			is = request.view.get().getContext().getAssets().open(name);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		if (is == null) {
 			return;
 		}
+		ImageSizeUtil.getImageViewSize(request);
 		request.movie = Movie.decodeStream(is);
-		if (request.checkEmpty()){
-			request.bitmap = BitmapFactory.decodeStream(is);
+		if (request.checkIfNeedAsyncLoad()){
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(is, null, options);
+			options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
+					request.width, request.height);
+			options.inJustDecodeBounds = false;
+			request.bitmap = new BitmapDrawable(request.view.get().getResources(),BitmapFactory.decodeStream(is, null, options));
 		}
 	}
 
@@ -136,19 +143,19 @@ public class DownloadBitmapUtils {
 		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 				request.width, request.height);
 		options.inJustDecodeBounds = false;
-		try{
-			request.movie = Movie.decodeStream(new FileInputStream(new File(path)));
-		}catch (Exception e){
+		if (request.totalSize > DownloadBitmapUtils.bigSize && request.percent > 0 && request.percent < 100){//大图获取百分比
+			request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
+		}else {
+			try{
+				request.movie = Movie.decodeStream(new FileInputStream(new File(path)));
+			}catch (Exception e){
 
+			}
+			if (request.checkIfNeedAsyncLoad()){
+				request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
+			}
 		}
-		if (request.checkEmpty()){
-			request.bitmap = BitmapFactory.decodeFile(path, options);
 
-			Log.v("test", " options.inSampleSize=" +
-					options.inSampleSize + " " +
-							request.width + " " + request.height+
-					request.bitmap.getWidth() + " " + request.bitmap.getHeight());
-		}
 	}
 
 	public static void loadImageFromDrawable(BitmapRequest request) {
@@ -164,17 +171,21 @@ public class DownloadBitmapUtils {
 		ImageSizeUtil.getImageViewSize(request);
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeResource(request.view.getResources(), id, options);
+
+		if (request.view.get() == null){
+			return;
+		}
+		BitmapFactory.decodeResource(request.view.get().getResources(), id, options);
 		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 				request.width, request.height);
 		options.inJustDecodeBounds = false;
 		try{
-			request.movie = Movie.decodeStream(request.view.getResources().openRawResource(id));
+			request.movie = Movie.decodeStream(request.view.get().getResources().openRawResource(id));
 		}catch (Exception e){
 
 		}
-		if (request.checkEmpty()){
-			request.bitmap = BitmapFactory.decodeResource(request.view.getResources(), id, options);
+		if (request.checkIfNeedAsyncLoad()){
+			request.bitmap = new BitmapDrawable(request.view.get().getResources(),BitmapFactory.decodeResource(request.view.get().getResources(), id, options));
 		}
 	}
 }

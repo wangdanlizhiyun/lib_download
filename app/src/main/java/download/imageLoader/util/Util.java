@@ -11,29 +11,30 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Environment;
 import android.view.View;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class Util {
-	  public static int getBitmapByteSize(Bitmap bitmap) {
+	  public static int getBitmapByteSize(BitmapDrawable bitmap) {
 	    // The return value of getAllocationByteCount silently changes for recycled bitmaps from the
 	    // internal buffer size to row bytes * height. To avoid random inconsistencies in caches, we
 	    // instead assert here.
-	    if (bitmap.isRecycled()) {
+	    if (bitmap.getBitmap().isRecycled()) {
 	      throw new IllegalStateException("Cannot obtain size for recycled Bitmap: " + bitmap
-	          + "[" + bitmap.getWidth() + "x" + bitmap.getHeight() + "] " + bitmap.getConfig());
+	          + "[" + bitmap.getBitmap().getWidth() + "x" + bitmap.getBitmap().getHeight() + "] " + bitmap.getBitmap().getConfig());
 	    }
 	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 	      // Workaround for KitKat initial release NPE in Bitmap, fixed in MR1. See issue #148.
 	      try {
-	        return bitmap.getAllocationByteCount();
+	        return bitmap.getBitmap().getAllocationByteCount();
 	      } catch (NullPointerException e) {
 	        // Do nothing.
 	      }
 	    }
-	    return bitmap.getHeight() * bitmap.getRowBytes();
+	    return bitmap.getBitmap().getHeight() * bitmap.getBitmap().getRowBytes();
 	  }
 	/**
 	 * 利用签名辅助类，将字符串字节数组
