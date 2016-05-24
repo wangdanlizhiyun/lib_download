@@ -22,10 +22,15 @@
 
 对于特殊的需求可以使用回调自己处理：
         BmLoader.load(uri, imageView, new BackListener() {
+        
                 @Override
+                
                 public void onProcess(int percent) {}
+               
                 @Override
-                public void onSuccess(Bitmap bitmap, Movie movie) {
+                public void onSuccess(Bitmap bitmap, Movie movie) {｝
+                
+                @Override
 		public void onFailed()｛｝;
             });
             
