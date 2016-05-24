@@ -77,9 +77,10 @@ public class LoadTask implements  Runnable {
 
                 }
                 @Override
-                public void onSuccess(BitmapDrawable bitmap, Movie movie) {
+                public void onSuccess(BitmapDrawable bitmap, Movie movie) {}
 
-                }
+                @Override
+                public void onFailed() {}
             });
             if (mRequest.checkIfNeedAsyncLoad()){
                 mImageLoader.getConfig().cache.getDiskCacheBitmap(mRequest);
@@ -119,8 +120,14 @@ public class LoadTask implements  Runnable {
                             request.display();
                         } else {
                             // 设置了回调监听的自己处理
-                            request.listener.onProcess(request.percent);
-                            request.listener.onSuccess(request.bitmap,request.movie);
+                            if (request.percent > 0){
+                                request.listener.onProcess(request.percent);
+                            }
+                            if (request.isNoresult()){
+                                request.listener.onFailed();
+                            }else {
+                                request.listener.onSuccess(request.bitmap,request.movie);
+                            }
                         }
 
                     break;

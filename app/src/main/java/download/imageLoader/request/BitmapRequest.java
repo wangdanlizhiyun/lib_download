@@ -58,7 +58,11 @@ public class BitmapRequest{
 	 * @return
 	 */
 	public Boolean checkIfNeedAsyncLoad(){
-		return (bitmap == null && movie == null) || (bitmap == null && view.get() != null && !(view.get() instanceof GifMovieView)) ;
+		return isNoresult() || (bitmap == null && view.get() != null && !(view.get() instanceof GifMovieView)) ;
+	}
+
+	public Boolean isNoresult(){
+		return (bitmap == null && movie == null);
 	}
 
 	/**

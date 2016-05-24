@@ -7,7 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 
 public interface BackListener {
 	/**
-	 * 进度回调，运行在ui线程
+	 * 下载进度，仅对于网络下载可保存本地的情况下调用
 	 * @param percent
 	 */
 	public void onProcess(int percent);
@@ -18,4 +18,9 @@ public interface BackListener {
 	 * @param movie
 	 */
 	public void onSuccess(BitmapDrawable bitmap,Movie movie);
+
+	/**
+	 * 加载失败
+	 */
+	public void onFailed();
 }

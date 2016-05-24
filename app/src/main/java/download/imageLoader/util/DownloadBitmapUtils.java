@@ -51,7 +51,7 @@ public class DownloadBitmapUtils {
 								request.percent = (int) (sum * 100 / request.totalSize);
 								if (request.percent >= p) {
 									p += 1;
-									if (request.percent < 100){
+									if (request.percent <= 100){
 										listener.onProcess(request.percent);
 									}
 								}
