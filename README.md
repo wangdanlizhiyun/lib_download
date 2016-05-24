@@ -29,9 +29,9 @@
                
                 @Override
                 public void onSuccess(Bitmap bitmap, Movie movie) {｝
-                
+        
                 @Override
-		public void onFailed()｛｝;
+	        public void onFailed()｛｝;
             });
             
 
