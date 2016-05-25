@@ -44,4 +44,4 @@
 设置矩形imageView.setRectangle().bind(uri);
 设置圆角imageView.setRound(50).bind(uri);
 
-
+9.断点下载 ApkLoader.getInstance(this).downApk("");
