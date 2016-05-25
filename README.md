@@ -41,9 +41,7 @@
                 });
                 
 8.可设置圆形imageView.setCircle().bind(uri);
-
 设置矩形imageView.setRectangle().bind(uri);
-
 设置圆角imageView.setRound(50).bind(uri);
 
 
