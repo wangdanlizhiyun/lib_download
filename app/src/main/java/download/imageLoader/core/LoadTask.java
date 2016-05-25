@@ -101,11 +101,11 @@ public class LoadTask implements  Runnable {
         Message message = Message.obtain();
         message.what = REFRESH;
         message.obj = mRequest;
-        if (mUIHandler != null){
-            mUIHandler.sendMessage(message);
+        if (sUIHandler != null){
+            sUIHandler.sendMessage(message);
         }
     }
-    private static Handler mUIHandler = new Handler(Looper.getMainLooper()) {
+    private static Handler sUIHandler = new Handler(Looper.getMainLooper()) {
         public void handleMessage(Message msg) {
             final BitmapRequest request = (BitmapRequest) msg.obj;
             switch (msg.what) {

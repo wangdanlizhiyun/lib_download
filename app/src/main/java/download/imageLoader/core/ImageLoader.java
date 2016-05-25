@@ -26,8 +26,8 @@ public class ImageLoader {
 	}
 
 	private RunningTasksManager mRunningTasksManager;
-	private static ImageConfig config = null;
-	private final static int threadCount = 5;
+	private ImageConfig config = null;
+	private final int threadCount = 3;
 
 	public RunningTasksManager getmRunningTasksManager(){
 		if (mRunningTasksManager == null)

@@ -199,7 +199,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //                BmLoader.load(uri, imageView);
 
 
-            imageView.bind(uri);
+            imageView.setRound(50).bind(uri);
 //            }
 //            Glide.with(ImageloaderActivity.this).load(uri).into(imageView);
             convertView.getLayoutParams().width = mImageWidth;

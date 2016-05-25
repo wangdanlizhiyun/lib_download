@@ -1,12 +1,23 @@
 package download.imageLoader.view;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Movie;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
 import android.os.Build;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -18,11 +29,20 @@ public class GifMovieView extends ImageView {
 	private Movie mMovie;
 	private long mMovieStart;
 	private int mCurrentAnimationTime = 0;
+	private Paint mPaint;
+	private final int TYPE_RECTANGLE = 0,TYPE_CYCLE = 1,TYPE_ROUND = 2;
+	private int type = TYPE_RECTANGLE;
+	private int boder_radius = 10;
+
+	float scaleH = 1f;
+	float scaleW = 1f;
 
 	private float mLeft;
 	private float mTop;
 
+	private Path mPath;
 
+	private long nowTime,dur;
 	private float mScale;
 
 	private int mMeasuredMovieWidth;
@@ -41,6 +61,8 @@ public class GifMovieView extends ImageView {
 	public GifMovieView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		setViewAttributes(context, attrs, defStyle);
+		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		mPath = new Path();
 	}
 
 	private void setViewAttributes(Context context, AttributeSet attrs, int defStyle) {
@@ -49,6 +71,24 @@ public class GifMovieView extends ImageView {
 		}
 	}
 
+	public GifMovieView setCircle(){
+		this.type = TYPE_CYCLE;
+		requestLayout();
+		return this;
+	}
+	public GifMovieView setRectangle(){
+		this.type = TYPE_RECTANGLE;
+		requestLayout();
+		return this;
+	}
+	public GifMovieView setRound(int round){
+		this.type = TYPE_ROUND;
+		if (round > 0){
+			boder_radius = round;
+		}
+		requestLayout();
+		return this;
+	}
 	public void bind(String path){
 		BmLoader.load(path, this);
 	}
@@ -71,10 +111,6 @@ public class GifMovieView extends ImageView {
 		this.setImageDrawable(null);
 	}
 
-	public Movie getMovie() {
-		return mMovie;
-	}
-
 	public void setMovieTime(int time) {
 		mCurrentAnimationTime = time;
 		invalidate();
@@ -85,8 +121,6 @@ public class GifMovieView extends ImageView {
 		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
 		int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec) - getPaddingTop() - getPaddingBottom();
 		float maximumHeight = MeasureSpec.getSize(heightMeasureSpec);
-		float scaleH = 1f;
-		float scaleW = 1f;
 		if (mMovie != null && getDrawable() == null){
 			float movieWidth = mMovie.width();
 			float movieHeight = mMovie.height();
@@ -102,8 +136,11 @@ public class GifMovieView extends ImageView {
 					scaleW = movieWidth/maximumWidth;
 			}
 
-			if (Math.max(scaleH,scaleW) > 0)
+			if (Math.max(scaleH,scaleW) > 0){
 				mScale = 1f/Math.max(scaleH,scaleW);
+			}else {
+				mScale = 1.0f;
+			}
 			mMeasuredMovieWidth = (int) (movieWidth * mScale);
 			mMeasuredMovieHeight = (int) (movieHeight * mScale);
 			setMeasuredDimension(mMeasuredMovieWidth, mMeasuredMovieHeight);
@@ -120,14 +157,61 @@ public class GifMovieView extends ImageView {
 		mVisible = getVisibility() == View.VISIBLE;
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (mMovie != null && getDrawable() == null) {
-			updateAnimationTime();
 			drawMovieFrame(canvas);
 			invalidateView();
-		}else {
-			super.onDraw(canvas);
+		}else {//直接修改ImageView源代码
+//			super.onDraw(canvas);
+			if (getDrawable() == null) {
+				return; // couldn't resolve the URI
+			}
+
+			if (getDrawable().getIntrinsicWidth() == 0 || getDrawable().getIntrinsicHeight() == 0) {
+				return;     // nothing to draw (empty bounds)
+			}
+				int saveCount = canvas.getSaveCount();
+				canvas.save();
+
+				if (getCropToPadding()) {
+					final int scrollX = getScrollX();
+					final int scrollY = getScrollY();
+					canvas.clipRect(scrollX + getPaddingLeft(), scrollY + getPaddingTop(),
+							scrollX + getRight() - mLeft - getPaddingRight(),
+							scrollY + getBottom() - mTop - getPaddingBottom());
+				}
+
+				canvas.translate(getPaddingLeft(), getPaddingTop());
+				clipDrawable(canvas);
+				if (getImageMatrix() != null) {
+					canvas.concat(getImageMatrix());
+				}
+
+				getDrawable().draw(canvas);
+
+				canvas.restoreToCount(saveCount);
+			}
+	}
+	private void clipDrawable(Canvas canvas){
+		mPath.reset();
+		switch (type){
+			case TYPE_CYCLE:
+				canvas.clipPath(mPath); // makes the clip empty
+				mPath.addCircle(getWidth() / 2 , getHeight() / 2 ,
+						Math.min(getWidth(), getHeight()) / 2 , Path.Direction.CCW);
+				canvas.clipPath(mPath, Region.Op.REPLACE);
+				break;
+			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
+				canvas.clipPath(mPath); // makes the clip empty
+				RectF rect = new RectF(0,0, (int) (getWidth()), (int) (getHeight()));
+				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
+				canvas.clipPath(mPath, Region.Op.REPLACE);
+				break;
+			case TYPE_RECTANGLE:
+
+				break;
 		}
 	}
 
@@ -142,29 +226,47 @@ public class GifMovieView extends ImageView {
 		}
 	}
 
+	private void drawMovieFrame(Canvas canvas) {
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.scale(mScale, mScale);
+		clipGif(canvas);
+		updateTime();
+		mMovie.setTime(mCurrentAnimationTime);
+		mMovie.draw(canvas, mLeft / mScale, mTop / mScale, mPaint);
+		canvas.restore();
+	}
 
-	private void updateAnimationTime() {
-		long now = android.os.SystemClock.uptimeMillis();
+	private void clipGif(Canvas canvas){
+		mPath.reset();
+		switch (type){
+			case TYPE_CYCLE:
+				canvas.clipPath(mPath); // makes the clip empty
+				mPath.addCircle(getWidth() / 2 / mScale, getHeight() / 2 /mScale,
+						Math.min(getWidth(), getHeight()) / 2 / mScale * Math.max(scaleH,scaleW) / Math.min(scaleH,scaleW), Path.Direction.CCW);
+				canvas.clipPath(mPath, Region.Op.REPLACE);
+				break;
+			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
+				canvas.clipPath(mPath); // makes the clip empty
+				RectF rect = new RectF(0,0, (int) (getWidth()/mScale), (int) (getHeight()/mScale));
+				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
+				canvas.clipPath(mPath, Region.Op.REPLACE);
+				break;
+			case TYPE_RECTANGLE:
 
-		if (mMovieStart == 0) {
-			mMovieStart = now;
+				break;
 		}
+	}
 
-		int dur = mMovie.duration();
-
+	private void updateTime(){
+		nowTime = android.os.SystemClock.uptimeMillis();
+		if (mMovieStart == 0) {
+			mMovieStart = nowTime;
+		}
+		dur = mMovie.duration();
 		if (dur == 0) {
 			dur = DEFAULT_MOVIEW_DURATION;
 		}
-
-		mCurrentAnimationTime = (int) ((now - mMovieStart) % dur);
-	}
-
-	private void drawMovieFrame(Canvas canvas) {
-		mMovie.setTime(mCurrentAnimationTime);
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(mScale, mScale);
-		mMovie.draw(canvas, mLeft / mScale, mTop / mScale);
-		canvas.restore();
+		mCurrentAnimationTime = (int) ((nowTime - mMovieStart) % dur);
 	}
 
 	@SuppressLint("NewApi")

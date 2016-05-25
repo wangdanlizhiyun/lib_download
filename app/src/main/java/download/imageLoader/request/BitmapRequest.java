@@ -7,6 +7,7 @@ import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.ViewTaskUtil;
 import download.imageLoader.view.GifMovieView;
 
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Movie;
@@ -14,6 +15,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.view.View;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
@@ -106,7 +108,7 @@ public class BitmapRequest{
 					if (bitmap != null){
 						((GifMovieView) view.get()).setImageDrawable(bitmap);
 					}else {
-//						((GifMovieView) view.get()).setImageBitmap(ImageLoader.getInstance().getConfig().getFailedBm());
+						((GifMovieView) view.get()).setImageBitmap(ImageLoader.getInstance().getConfig().getFailedBm());
 					}
 				}
 			}else{
@@ -114,6 +116,7 @@ public class BitmapRequest{
 			}
 		}
 	}
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	public static void setBitmap(View view,BitmapDrawable bitmap) {
 		if (view == null) {
 			return;
@@ -123,7 +126,7 @@ public class BitmapRequest{
 		} else if (view instanceof ImageSwitcher) {
 			((ImageSwitcher) view).setImageDrawable(bitmap);
 		} else {// 对于其他自定义view
-			view.setBackgroundDrawable(bitmap);
+			view.setBackground(bitmap);
 		}
 	}
 
