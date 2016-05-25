@@ -33,6 +33,17 @@
                 @Override
 	        public void onFailed()｛｝;
             });
-            
+            或者使用接口适配器：BmLoader.load(uri, imageView, new BackListenerAdapter() {
+                    @Override
+                    public void onSuccess(BitmapDrawable bitmap, Movie movie) {
+                        super.onSuccess(bitmap, movie);
+                    }
+                });
+                
+8.可设置圆形imageView.setCircle().bind(uri);
+
+设置矩形imageView.setRectangle().bind(uri);
+
+设置圆角imageView.setRound(50).bind(uri);
 
 
