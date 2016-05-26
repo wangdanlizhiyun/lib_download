@@ -11,9 +11,11 @@
 
 5.优化了listview等快速滑动时的图片加载
 
-6.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)。是否极致方便？总大小仅200多k
+6.圆角图采用了性能最优的方案
 
-7.支持本地和网络图片，径格式示例为：
+7.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)。是否极致方便？总大小仅200多k
+
+8.支持本地和网络图片，径格式示例为：
 		"http://img.blog.csdn.net/20160114230048304",
     		"assets://anim.gif",
                 "drawable://"+R.drawable.anim,
@@ -40,8 +42,8 @@
                     }
                 });
                 
-8.可设置圆形imageView.setCircle().bind(uri);
+9.可设置圆形imageView.setCircle().bind(uri);
 设置矩形imageView.setRectangle().bind(uri);
 设置圆角imageView.setRound(50).bind(uri);
 
-9.断点下载 ApkLoader.getInstance(this).downApk("");
+10.断点下载 ApkLoader.getInstance(this).downApk("");
