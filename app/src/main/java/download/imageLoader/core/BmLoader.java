@@ -3,6 +3,8 @@ package download.imageLoader.core;
 import android.content.Context;
 import android.view.View;
 import download.imageLoader.listener.BackListener;
+import download.imageLoader.listener.BackListenerAdapter;
+
 /**
  * 为了调用更简单添加此门面
  * @author lizhiyun
@@ -27,6 +29,19 @@ public class BmLoader {
 	 * @param listener
 	 */
 	public static void load(final String path, final View view, BackListener listener) {
+		ImageLoader.getInstance().loadImage(path, view, listener);
+	}
+
+	/**
+	 *
+	 * @param path示例："http://img.blog.csdn.net/20160114230048304",//gif图
+	 * "assets//:test.png",
+	 * "drawable//:"+R.drawable.common_logo,
+	 * "file:///mnt/sdcard/paint.png",
+	 * @param view
+	 * @param listener
+	 */
+	public static void load(final String path, final View view, BackListenerAdapter listener) {
 		ImageLoader.getInstance().loadImage(path, view, listener);
 	}
 

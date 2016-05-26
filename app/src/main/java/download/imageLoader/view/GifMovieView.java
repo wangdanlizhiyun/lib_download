@@ -14,6 +14,8 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -60,16 +62,11 @@ public class GifMovieView extends ImageView {
 
 	public GifMovieView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		setViewAttributes(context, attrs, defStyle);
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mPath = new Path();
+		setBackgroundColor(Color.TRANSPARENT);
 	}
 
-	private void setViewAttributes(Context context, AttributeSet attrs, int defStyle) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-		}
-	}
 
 	public GifMovieView setCircle(){
 		this.type = TYPE_CYCLE;
@@ -92,6 +89,7 @@ public class GifMovieView extends ImageView {
 	public void bind(String path){
 		BmLoader.load(path, this);
 	}
+
 	public void setMovie(Movie movie) {
 		if (Looper.myLooper() != Looper.getMainLooper()) {
 			throw new RuntimeException("only run on ui thread");
@@ -99,7 +97,18 @@ public class GifMovieView extends ImageView {
 		this.mMovie = movie;
 		//至关重要的设置
 		setImageDrawable(null);
+		notifyLayerType();
 		requestLayout();
+	}
+
+	private void notifyLayerType() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			if (mMovie != null && getDrawable() == null){
+				setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+			}else {
+				setLayerType(View.LAYER_TYPE_NONE, null);
+			}
+		}
 	}
 
 
@@ -148,6 +157,33 @@ public class GifMovieView extends ImageView {
 			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
 		}
 	}
+	@Override
+	public void setImageBitmap(Bitmap bm) {
+		super.setImageBitmap(bm);
+		notifyLayerType();
+		invalidateView();
+	}
+
+	@Override
+	public void setImageDrawable(Drawable drawable) {
+		super.setImageDrawable(drawable);
+		notifyLayerType();
+		invalidateView();
+	}
+
+	@Override
+	public void setImageResource(int resId) {
+		super.setImageResource(resId);
+		notifyLayerType();
+		invalidateView();
+	}
+
+	@Override
+	public void setImageURI(Uri uri) {
+		super.setImageURI(uri);
+		notifyLayerType();
+		invalidateView();
+	}
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -160,18 +196,28 @@ public class GifMovieView extends ImageView {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	protected void onDraw(Canvas canvas) {
+		if (!mVisible){
+			Log.v("test","mVisible:"+mVisible);
+			return;
+		}
 		if (mMovie != null && getDrawable() == null) {
 			drawMovieFrame(canvas);
 			invalidateView();
-		}else {//直接修改ImageView源代码
+		}else {
+			//直接修改ImageView源代码
 //			super.onDraw(canvas);
 			if (getDrawable() == null) {
 				return; // couldn't resolve the URI
 			}
 
-			if (getDrawable().getIntrinsicWidth() == 0 || getDrawable().getIntrinsicHeight() == 0) {
+			if (getDrawable().getIntrinsicWidth() <= 0 || getDrawable().getIntrinsicHeight() <= 0) {
 				return;     // nothing to draw (empty bounds)
 			}
+
+			if (getImageMatrix() == null && getPaddingTop() == 0 && getPaddingLeft() == 0) {
+				clipDrawable(canvas);
+				getDrawable().draw(canvas);
+			} else {
 				int saveCount = canvas.getSaveCount();
 				canvas.save();
 
@@ -183,16 +229,18 @@ public class GifMovieView extends ImageView {
 							scrollY + getBottom() - mTop - getPaddingBottom());
 				}
 
-				canvas.translate(getPaddingLeft(), getPaddingTop());
 				clipDrawable(canvas);
+
+				canvas.translate(getPaddingLeft(), getPaddingTop());
+
 				if (getImageMatrix() != null) {
 					canvas.concat(getImageMatrix());
 				}
 
 				getDrawable().draw(canvas);
-
 				canvas.restoreToCount(saveCount);
 			}
+		}
 	}
 	private void clipDrawable(Canvas canvas){
 		mPath.reset();
@@ -217,13 +265,11 @@ public class GifMovieView extends ImageView {
 
 
 	private void invalidateView() {
-		if(mVisible) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 				postInvalidateOnAnimation();
 			} else {
 				invalidate();
 			}
-		}
 	}
 
 	private void drawMovieFrame(Canvas canvas) {
@@ -248,7 +294,7 @@ public class GifMovieView extends ImageView {
 			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
 				canvas.clipPath(mPath); // makes the clip empty
 				RectF rect = new RectF(0,0, (int) (getWidth()/mScale), (int) (getHeight()/mScale));
-				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
+				mPath.addRoundRect(rect, new float[]{boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale,boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale}, Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
 			case TYPE_RECTANGLE:

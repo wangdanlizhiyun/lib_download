@@ -72,9 +72,8 @@ public class BitmapRequest{
 	 * @return
 	 */
 	public Boolean checkEffective(){
-		LoadTask nowTask = ViewTaskUtil.getTask(this.view.get());
-		if (this != null && nowTask != null && nowTask == task.get()){
-			return  true;
+		if (this.view.get() != null && ((String)this.view.get().getTag()).equals(this.path)){
+			return true;
 		}
 		return false;
 	}
@@ -99,7 +98,6 @@ public class BitmapRequest{
 				view.get().setBackgroundDrawable(td);
 			}
 			td.startTransition(500);
-
 		} else {
 			if (view.get() instanceof GifMovieView){
 				if (movie != null){
@@ -117,7 +115,7 @@ public class BitmapRequest{
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	public static void setBitmap(View view,BitmapDrawable bitmap) {
+	public void setBitmap(View view,BitmapDrawable bitmap) {
 		if (view == null) {
 			return;
 		}

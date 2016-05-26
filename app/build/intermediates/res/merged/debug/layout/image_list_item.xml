@@ -5,11 +5,13 @@
     android:gravity="center"
     android:orientation="vertical" >
 
+
     <download.imageLoader.view.GifMovieView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"/>
+
 
 </LinearLayout>
 <!-- From: file:/Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/res/layout/image_list_item.xml -->

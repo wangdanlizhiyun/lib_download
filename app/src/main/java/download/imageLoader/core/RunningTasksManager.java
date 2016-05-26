@@ -2,10 +2,11 @@ package download.imageLoader.core;
 
 import java.util.LinkedHashMap;
 
+import download.imageLoader.loader.UrlType;
 import download.imageLoader.request.BitmapRequest;
 
 /**
- * 该类用于解决较近的2个相同uri造成的可能的bug。
+ * 该类用于解决较近的2个相同uri下载造成的可能的bug。
  * Created by lizhiyun on 16/5/23.
  */
 public class RunningTasksManager {
@@ -16,20 +17,29 @@ public class RunningTasksManager {
         doingMap = new LinkedHashMap<String, String>(
                 threadCount);
     }
-    public synchronized Boolean hasDoingTask(BitmapRequest request) {
+    public Boolean hasDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
+            if (download.imageLoader.util.UrlParser.getUrlType(request.path) != UrlType.HTTP){
+                return false;
+            }
             return doingMap.containsKey(request.path);
         }
     }
 
-    public synchronized void addDoingTask(BitmapRequest request) {
+    public void addDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
+            if (download.imageLoader.util.UrlParser.getUrlType(request.path) != UrlType.HTTP){
+                return;
+            }
             doingMap.put(request.path, request.path);
         }
     }
 
-    public synchronized void removeDoingTask(BitmapRequest request) {
+    public void removeDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
+            if (download.imageLoader.util.UrlParser.getUrlType(request.path) != UrlType.HTTP){
+                return;
+            }
             doingMap.remove(request.path);
         }
     }

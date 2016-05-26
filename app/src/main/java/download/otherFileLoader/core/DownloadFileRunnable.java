@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import download.otherFileLoader.listener.DownloadPercentListener;
 import download.otherFileLoader.request.DownFile;
 
 public class DownloadFileRunnable implements Runnable {
@@ -167,4 +166,8 @@ public class DownloadFileRunnable implements Runnable {
 		return mContentLength;
 	}
 
+	public interface DownloadPercentListener {
+		public long lastTime = 0;
+		void notify(DownFile downFile);
+	}
 }

@@ -4,15 +4,16 @@ import com.litesuits.go.OverloadPolicy;
 import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 import download.imageLoader.config.ImageConfig;
-import download.imageLoader.entity.CustomDrawable;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ViewTaskUtil;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -51,6 +52,7 @@ public class ImageLoader {
 				loadingId);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	protected void loadImage(final String path, final View view,
 			final BackListener listener) {
 		getInstance();
@@ -65,15 +67,16 @@ public class ImageLoader {
 					config.cache.getMemoryCache(request);
 					if (!request.checkIfNeedAsyncLoad()) {
 						request.display();
-					} else if (ViewTaskUtil.cancelOldTask(executor,path,view)){
+					} else {
+						ViewTaskUtil.cancelOldTask(executor,view);
 						LoadTask task = new LoadTask(request,ImageLoader.this);
-						CustomDrawable loadingDrawable = new CustomDrawable(view.getResources(),config.getLoadingBm(),task);
 						if (view instanceof ImageView){
-							((ImageView) view).setImageDrawable(loadingDrawable);
+							((ImageView) view).setImageBitmap(config.getLoadingBm());
 						}else {
-							view.setBackground(loadingDrawable);
-							view.setTag(task);
+							view.setBackground(new BitmapDrawable(view.getResources(),config.getLoadingBm()));
 						}
+
+						view.setTag(request.path);
 						executor.execute(task);
 					}
 				}

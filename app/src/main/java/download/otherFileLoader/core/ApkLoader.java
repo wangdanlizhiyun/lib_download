@@ -8,7 +8,6 @@ import com.litesuits.go.OverloadPolicy;
 import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 import download.otherFileLoader.db.DownFileManager;
-import download.otherFileLoader.listener.DownloadPercentListener;
 import download.otherFileLoader.request.DownFile;
 import download.otherFileLoader.util.PackageUtil;
 import download.otherFileLoader.util.ToastUtils;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 public class ApkLoader {
 	private SmartExecutor executor;
 	private static Context mContext;
-
 	private static Handler mUIHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			DownFile downFile = (DownFile) msg.obj;
@@ -59,7 +57,7 @@ public class ApkLoader {
 	}
 
 	public DownloadFileRunnable buildTask(final DownFile downFile,
-			DownloadPercentListener listener) {
+			DownloadFileRunnable.DownloadPercentListener listener) {
 		try {
 			File saveFile = new File(Util.getDiskCacheDir(mContext, "apkFile")
 					.getAbsolutePath(), Util.getNameFromUrl(downFile.downUrl));
@@ -84,7 +82,7 @@ public class ApkLoader {
 		return null;
 	}
 
-	public void downFile(String path, DownloadPercentListener listener) {
+	public void downFile(String path, DownloadFileRunnable.DownloadPercentListener listener) {
 		DownFile downFile = new DownFile(path);
 		// 本地数据
 		DownFile mDownFileT = DownFileManager.getInstance(mContext).getDownFile(downFile.getDownUrl());
@@ -112,8 +110,8 @@ public class ApkLoader {
 		}
 	}
 
-	public void downApk(String path) {
-		downFile(path, new DownloadPercentListener() {
+	private void downApk(String path, DownloadFileRunnable.DownloadPercentListener downloadPercentListener) {
+		downFile(path, new DownloadFileRunnable.DownloadPercentListener() {
 
 			@Override
 			public void notify(DownFile downFile) {

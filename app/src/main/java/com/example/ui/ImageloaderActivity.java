@@ -4,20 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import download.imageLoader.core.BmLoader;
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.view.GifMovieView;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Bitmap;
-import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +24,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 public class ImageloaderActivity extends Activity implements OnScrollListener {
     private static final String TAG = "MainActivity";
@@ -123,6 +118,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void initView() {
         mImageGridView = (GridView) findViewById(R.id.gridView1);
         mImageAdapter = new ImageAdapter(this);
@@ -189,19 +185,30 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
                 holder = (ViewHolder) convertView.getTag();
             }
             final GifMovieView imageView = holder.imageView;
-//            final String tag = (String)imageView.getTag();
             final String uri = getItem(position);
-//            if (!uri.equals(tag)) {
-//                imageView.setImageResource(R.drawable.ic_launcher);
-//            }
 //            if (mIsGridViewIdle && mCanGetBitmapFromNetWork) {
 //                imageView.setTag(uri);
-//                BmLoader.load(uri, imageView);
+//                BmLoader.load(uri, imageView, new BackListenerAdapter() {
+//                    @Override
+//                    public void onSuccess(BitmapDrawable bitmap, Movie movie) {
+//                        super.onSuccess(bitmap, movie);
+//                    }
+//                });
 
 
-            imageView.setRound(50).bind(uri);
+            if (position == 0){
+            imageView.setCircle().bind(uri);
+
+            }else if (position == 1){
+                imageView.setRectangle().bind(uri);
+
+            }else {
+                imageView.setRound(50).bind(uri);
+
+            }
+//            imageView.setCircle().bind(uri);
+//            imageView.setRectangle().bind(uri);
 //            }
-//            Glide.with(ImageloaderActivity.this).load(uri).into(imageView);
             convertView.getLayoutParams().width = mImageWidth;
             convertView.getLayoutParams().height = mImageWidth;
             return convertView;

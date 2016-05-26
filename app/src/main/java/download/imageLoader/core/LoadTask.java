@@ -11,7 +11,9 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import download.imageLoader.listener.BackListener;
+import download.imageLoader.listener.BackListenerAdapter;
 import download.imageLoader.loader.Load;
+import download.imageLoader.loader.UrlType;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.UrlParser;
@@ -39,11 +41,8 @@ public class LoadTask implements  Runnable {
     @Override
     public void run() {
         while (mImageLoader.getmRunningTasksManager().hasDoingTask(mRequest)) {
-            if (mCancel.get()){
-                return;
-            }
             try {
-                Thread.sleep(20);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -55,7 +54,7 @@ public class LoadTask implements  Runnable {
             mImageLoader.getConfig().cache.getDiskCacheBitmap(mRequest);
         }
         if (mRequest.checkIfNeedAsyncLoad()) {
-            Load.loadBitmap(mRequest, mImageLoader.getConfig(), new BackListener() {
+            Load.loadBitmap(mRequest, mImageLoader.getConfig(), new BackListenerAdapter() {
 
                 @Override
                 public void onProcess(int percent) {
@@ -76,11 +75,6 @@ public class LoadTask implements  Runnable {
                     }
 
                 }
-                @Override
-                public void onSuccess(BitmapDrawable bitmap, Movie movie) {}
-
-                @Override
-                public void onFailed() {}
             });
             if (mRequest.checkIfNeedAsyncLoad()){
                 mImageLoader.getConfig().cache.getDiskCacheBitmap(mRequest);
@@ -103,6 +97,9 @@ public class LoadTask implements  Runnable {
         message.obj = mRequest;
         if (sUIHandler != null){
             sUIHandler.sendMessage(message);
+        }else {
+            Log.v("test","sUIHandler == null");
+
         }
     }
     private static Handler sUIHandler = new Handler(Looper.getMainLooper()) {

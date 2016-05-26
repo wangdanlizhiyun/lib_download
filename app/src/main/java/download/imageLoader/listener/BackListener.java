@@ -7,7 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 
 public interface BackListener {
 	/**
-	 * 下载进度，仅对于网络下载可保存本地的情况下调用
+	 * 下载进度，仅对于网络下载可保存本地的情况下调用，其它情况无回调
 	 * @param percent
 	 */
 	public void onProcess(int percent);
