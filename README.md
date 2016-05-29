@@ -1,5 +1,5 @@
 # lib_download
-这是一个处理异步下载的库，包含图片下载文件下载和ormlite(马天宇的开源)，特点如下：
+这是一个处理异步下载的库，包含图片下载文件下载和ormlite－ormgo(马天宇的开源)，特点如下：
 
 1.全局公用一个线程池
 
@@ -18,11 +18,9 @@
 8.设置自定义显示方法如：BmLoader.loadImage(
 	"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, 
 	new CustomDisplayMethod() {
-	
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public void display(BitmapDrawable bitmap, Movie movie) {
-            
                 mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
             }
         });
