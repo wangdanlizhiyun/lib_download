@@ -14,10 +14,15 @@
 6.圆角图采用了性能最优的方案
 
 7.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
-8.设置自定义显示方法如：BmLoader.loadImage("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, new CustomDisplayMethod() {
+
+8.设置自定义显示方法如：BmLoader.loadImage(
+	"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, 
+	new CustomDisplayMethod() {
+	
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public void display(BitmapDrawable bitmap, Movie movie) {
+            
                 mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
             }
         });
@@ -52,7 +57,7 @@
                 });
                 
 11.可设置圆形imageView.setCircle().bind(uri);
-设置矩形imageView.setRectangle().bind(uri);
-设置圆角imageView.setRound(50).bind(uri);
+	设置矩形imageView.setRectangle().bind(uri);
+	设置圆角imageView.setRound(50).bind(uri);
 
 12.断点下载 ApkLoader.getInstance(this).downApk("");
