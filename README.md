@@ -18,6 +18,7 @@
 8.设置自定义显示方法如：BmLoader.loadImage(
 	"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, 
 	new CustomDisplayMethod() {
+	
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public void display(BitmapDrawable bitmap, Movie movie) {
