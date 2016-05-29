@@ -40,8 +40,8 @@ public class ImageConfig {
 	}
 
 	public void setFailedIdAndLoadingId(Resources res,int failedId,int loadingId) {
+		ifIint = true;
 		this.failedBm = new BitmapDrawable(BitmapFactory.decodeResource(res, failedId));
-
 		this.loadingBm = new BitmapDrawable(BitmapFactory.decodeResource(res, loadingId));
 	}
 

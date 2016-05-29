@@ -29,7 +29,10 @@ public class PowerImageView extends ImageView {
 	private Movie mMovie;
 	private long mMovieStart;
 	private int mCurrentAnimationTime = 0;
-	private Paint mPaint;
+	private final Paint mBitmapPaint = new Paint();
+	private Paint mBorderPaint = new Paint();
+	private float mBorderWidth = 0;
+	private int mBorderColor = Color.BLACK;
 	private final int TYPE_RECTANGLE = 0,TYPE_CYCLE = 1,TYPE_ROUND = 2;
 	private int type = TYPE_RECTANGLE;
 	private int boder_radius = 10;
@@ -60,12 +63,23 @@ public class PowerImageView extends ImageView {
 
 	public PowerImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mPaint.setAntiAlias(true);
+		mBitmapPaint.setAntiAlias(true);
+		mBorderPaint.setStyle(Paint.Style.STROKE);
+		mBorderPaint.setAntiAlias(true);
+		mBorderPaint.setColor(mBorderColor);
+		mBorderPaint.setStrokeWidth(mBorderWidth);
 		mPath = new Path();
 		setBackgroundColor(Color.TRANSPARENT);
 	}
 
+	public PowerImageView setBorder(int color,float borderWidth){
+		this.mBorderColor = color;
+		this.mBorderWidth = borderWidth;
+		mBorderPaint.setColor(mBorderColor);
+		mBorderPaint.setStrokeWidth(mBorderWidth);
+		invalidateView();
+		return this;
+	}
 
 	public PowerImageView setCircle(){
 		this.type = TYPE_CYCLE;
@@ -209,6 +223,9 @@ public class PowerImageView extends ImageView {
 			//直接修改ImageView源代码
 			clipDrawable(canvas);
 			super.onDraw(canvas);
+			if (mBorderWidth > 0){
+				canvas.drawPath(mPath,mBorderPaint);
+			}
 //			if (getDrawable() == null) {
 //				return; // couldn't resolve the URI
 //			}
@@ -247,20 +264,21 @@ public class PowerImageView extends ImageView {
 	}
 	private void clipDrawable(Canvas canvas){
 		mPath.reset();
+		RectF rect = new RectF(0,0, (int) (getWidth()), (int) (getHeight()));
 		switch (type){
 			case TYPE_CYCLE:
-				canvas.clipPath(mPath); // makes the clip empty
+				canvas.clipPath(mPath);
 				mPath.addCircle(getWidth() / 2 , getHeight() / 2 ,
 						Math.min(getWidth(), getHeight()) / 2 , Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
-			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
-				canvas.clipPath(mPath); // makes the clip empty
-				RectF rect = new RectF(0,0, (int) (getWidth()), (int) (getHeight()));
+			case TYPE_ROUND:
+				canvas.clipPath(mPath);
 				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
 			case TYPE_RECTANGLE:
+				mPath.addRect(rect,Path.Direction.CCW);
 
 				break;
 		}
@@ -268,11 +286,12 @@ public class PowerImageView extends ImageView {
 
 
 	private void invalidateView() {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				postInvalidateOnAnimation();
-			} else {
-				invalidate();
-			}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			postInvalidateOnAnimation();
+			invalidate();
+		} else {
+			invalidate();
+		}
 	}
 
 	private void drawMovieFrame(Canvas canvas) {
@@ -281,30 +300,35 @@ public class PowerImageView extends ImageView {
 		clipGif(canvas);
 		updateTime();
 		mMovie.setTime(mCurrentAnimationTime);
-		mMovie.draw(canvas, mLeft / mScale, mTop / mScale, mPaint);
+		mMovie.draw(canvas, mLeft / mScale, mTop / mScale, mBitmapPaint);
+		if (mBorderWidth > 0){
+			canvas.drawPath(mPath,mBorderPaint);
+		}
 		canvas.restore();
+
 	}
 
 	private void clipGif(Canvas canvas){
 		mPath.reset();
+		RectF rect = new RectF(0,0, (int) (getWidth()/mScale), (int) (getHeight()/mScale));
 		switch (type){
 			case TYPE_CYCLE:
-				canvas.clipPath(mPath); // makes the clip empty
+				canvas.clipPath(mPath);
 				mPath.addCircle(getWidth() / 2 / mScale, getHeight() / 2 /mScale,
 						Math.min(getWidth(), getHeight()) / 2 / mScale * Math.max(scaleH,scaleW) / Math.min(scaleH,scaleW), Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
 			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
-				canvas.clipPath(mPath); // makes the clip empty
-				RectF rect = new RectF(0,0, (int) (getWidth()/mScale), (int) (getHeight()/mScale));
+				canvas.clipPath(mPath);
 				mPath.addRoundRect(rect, new float[]{boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale,boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale}, Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
 			case TYPE_RECTANGLE:
-
+				mPath.addRect(rect,Path.Direction.CCW);
 				break;
 		}
 	}
+
 
 	private void updateTime(){
 		nowTime = android.os.SystemClock.uptimeMillis();

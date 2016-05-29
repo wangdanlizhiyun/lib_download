@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_gravity="center_horizontal"
-        android:text="带图片的文本"/>
+        android:textColor="#990000"
+        android:text="带网络图片的文本"/>
     <GridView
         android:id="@+id/gridView1"
         android:layout_width="match_parent"

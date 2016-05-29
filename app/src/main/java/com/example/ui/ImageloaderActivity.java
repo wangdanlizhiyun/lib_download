@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -217,15 +218,14 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //                });
 
 
-
             if (position == 0){
-            imageView.setCircle().bind(uri);
+            imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
 
             }else if (position == 1){
-                imageView.setRectangle().bind(uri);
+                imageView.setRectangle().setBorder(Color.BLUE, 15f).bind(uri);
 
             }else {
-                imageView.setRound(50).bind(uri);
+                imageView.setRound(50).setBorder(Color.GREEN, 20f).bind(uri);
 
             }
 //            imageView.setCircle().bind(uri);
