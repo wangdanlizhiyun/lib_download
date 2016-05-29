@@ -5,18 +5,12 @@ import download.imageLoader.core.LoadTask;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.util.DownloadBitmapUtils;
-import download.imageLoader.util.ViewTaskUtil;
-import download.imageLoader.view.GifMovieView;
+import download.imageLoader.view.PowerImageView;
 
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.ImageSwitcher;
@@ -95,7 +89,7 @@ public class BitmapRequest{
 	 * @return
 	 */
 	public Boolean checkIfNeedAsyncLoad(){
-		return isNoresult() || (bitmap == null && view.get() != null && !(view.get() instanceof GifMovieView)) ;
+		return isNoresult() || (bitmap == null && view.get() != null && !(view.get() instanceof PowerImageView)) ;
 	}
 
 	public Boolean isNoresult(){
@@ -123,8 +117,8 @@ public class BitmapRequest{
 			customDisplayMethod.display(b, movie);
 			return;
 		}
-		if (view.get() instanceof GifMovieView){
-			((GifMovieView) view.get()).setImageDrawable(b);
+		if (view.get() instanceof PowerImageView){
+			((PowerImageView) view.get()).setImageDrawable(b);
 		}else{
 			setBitmap(view.get(), bitmap);
 		}
@@ -140,11 +134,11 @@ public class BitmapRequest{
 			customDisplayMethod.display(drawable,movie);
 			return;
 		}
-		if (view.get() instanceof GifMovieView){
+		if (view.get() instanceof PowerImageView){
 			if (movie != null){
-				((GifMovieView) view.get()).setMovie(movie);
+				((PowerImageView) view.get()).setMovie(movie);
 			}else {
-				((GifMovieView) view.get()).setImageDrawable(drawable);
+				((PowerImageView) view.get()).setImageDrawable(drawable);
 			}
 		}else{
 			setBitmap(view.get(),bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm());

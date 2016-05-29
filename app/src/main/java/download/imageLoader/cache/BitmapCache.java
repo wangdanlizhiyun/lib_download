@@ -4,30 +4,21 @@ package download.imageLoader.cache;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.ImageSizeUtil;
 import download.imageLoader.util.Util;
-import download.imageLoader.util.ImageSizeUtil.ImageSize;
-import download.imageLoader.view.GifMovieView;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.DownloadManager.Request;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StatFs;
 import android.os.Build.VERSION_CODES;
-import android.util.Log;
 import android.util.LruCache;
-import android.view.View;
 
 @SuppressLint("NewApi")
 public class BitmapCache {

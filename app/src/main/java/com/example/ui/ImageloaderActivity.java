@@ -6,7 +6,7 @@ import java.util.List;
 
 import download.imageLoader.core.BmLoader;
 import download.imageLoader.listener.CustomDisplayMethod;
-import download.imageLoader.view.GifMovieView;
+import download.imageLoader.view.PowerImageView;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -29,8 +29,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
 
 public class ImageloaderActivity extends Activity implements OnScrollListener {
     private static final String TAG = "MainActivity";
@@ -202,12 +200,12 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.image_list_item,parent, false);
                 holder = new ViewHolder();
-                holder.imageView = (GifMovieView) convertView.findViewById(R.id.image);
+                holder.imageView = (PowerImageView) convertView.findViewById(R.id.image);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            final GifMovieView imageView = holder.imageView;
+            final PowerImageView imageView = holder.imageView;
             final String uri = getItem(position);
 //            if (mIsGridViewIdle && mCanGetBitmapFromNetWork) {
 //                imageView.setTag(uri);
@@ -241,7 +239,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
     }
 
     private static class ViewHolder {
-        public GifMovieView imageView;
+        public PowerImageView imageView;
     }
 
     @Override

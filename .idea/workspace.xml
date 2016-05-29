@@ -62,20 +62,33 @@
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/ui/ImageloaderActivity.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="51" column="47" selection-start-line="51" selection-start-column="47" selection-end-line="51" selection-end-column="47" />
+              <caret line="200" column="63" selection-start-line="200" selection-start-column="63" selection-end-line="200" selection-end-column="63" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#7828#8122#0" expanded="true" />
-                <element signature="e#8121#8122#0" expanded="true" />
+                <element signature="e#7796#8090#0" expanded="true" />
+                <element signature="e#8089#8090#0" expanded="true" />
               </folding>
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="image_list_item.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/image_list_item.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.06818182">
+              <caret line="1" column="72" selection-start-line="1" selection-start-column="72" selection-end-line="1" selection-end-column="72" />
+              <folding />
+            </state>
+          </provider>
+          <provider editor-type-id="android-designer">
+            <state />
           </provider>
         </entry>
       </file>
       <file leaf-file-name="activity_imageloader.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_imageloader.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-1.0344827">
+            <state vertical-scroll-proportion="-3.482143">
               <caret line="13" column="50" selection-start-line="13" selection-start-column="50" selection-end-line="13" selection-end-column="50" />
               <folding />
             </state>
@@ -85,11 +98,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GifMovieView.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/download/imageLoader/view/GifMovieView.java">
+      <file leaf-file-name="PowerImageView.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/download/imageLoader/view/PowerImageView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.2048193">
-              <caret line="65" column="38" selection-start-line="65" selection-start-column="38" selection-end-line="65" selection-end-column="38" />
+            <state vertical-scroll-proportion="-11.111111">
+              <caret line="62" column="38" selection-start-line="62" selection-start-column="38" selection-end-line="62" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -1198,7 +1211,7 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="4392122406000" />
+        <entry key="$PROJECT_DIR$" value="4392354098000" />
       </map>
     </option>
     <option name="projectBuildClasspath">
@@ -1550,6 +1563,7 @@
         <option value="$PROJECT_DIR$/app/src/main/java/download/imageLoader/core/LoadTask.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_imageloader.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/download/imageLoader/view/GifMovieView.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/download/imageLoader/view/PowerImageView.java" />
       </list>
     </option>
   </component>
@@ -2323,7 +2337,7 @@
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32918397" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Android Monitor" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.61687416" sideWeight="0.4899857" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.61687416" sideWeight="0.4899857" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39834026" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.6680498" sideWeight="0.5100143" order="7" side_tool="true" content_ui="tabs" />
@@ -2499,17 +2513,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/image_list_item.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.51724136">
-          <caret line="1" column="72" selection-start-line="1" selection-start-column="72" selection-end-line="1" selection-end-column="72" />
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/android-sdk-macosx/sources/android-19/android/animation/ObjectAnimator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.4964029">
@@ -2638,7 +2641,7 @@
         <state vertical-scroll-proportion="0.21582733">
           <caret line="10" column="33" selection-start-line="10" selection-start-column="33" selection-end-line="10" selection-end-column="33" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -2743,8 +2746,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="58" column="6" selection-start-line="58" selection-start-column="6" selection-end-line="58" selection-end-column="6" />
           <folding>
-            <element signature="e#631#632#0" expanded="true" />
-            <element signature="e#677#678#0" expanded="true" />
+            <element signature="e#631#632#0" expanded="false" />
+            <element signature="e#677#678#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -2799,21 +2802,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/ui/ImageloaderActivity.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/download/imageLoader/view/PowerImageView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="51" column="47" selection-start-line="51" selection-start-column="47" selection-end-line="51" selection-end-column="47" />
+        <state vertical-scroll-proportion="-11.111111">
+          <caret line="62" column="38" selection-start-line="62" selection-start-column="38" selection-end-line="62" selection-end-column="38" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#7828#8122#0" expanded="true" />
-            <element signature="e#8121#8122#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_imageloader.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.0344827">
+        <state vertical-scroll-proportion="-3.482143">
           <caret line="13" column="50" selection-start-line="13" selection-start-column="50" selection-end-line="13" selection-end-column="50" />
           <folding />
         </state>
@@ -2822,14 +2823,27 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/download/imageLoader/view/GifMovieView.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/ui/ImageloaderActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.2048193">
-          <caret line="65" column="38" selection-start-line="65" selection-start-column="38" selection-end-line="65" selection-end-column="38" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="200" column="63" selection-start-line="200" selection-start-column="63" selection-end-line="200" selection-end-column="63" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#7796#8090#0" expanded="true" />
+            <element signature="e#8089#8090#0" expanded="true" />
           </folding>
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/image_list_item.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06818182">
+          <caret line="1" column="72" selection-start-line="1" selection-start-column="72" selection-end-line="1" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
       </provider>
     </entry>
   </component>
