@@ -60,3 +60,5 @@
 	设置圆角imageView.setRound(50).bind(uri);
 
 12.断点下载 ApkLoader.getInstance(this).downApk("");
+
+
