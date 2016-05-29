@@ -13,9 +13,18 @@
 
 6.圆角图采用了性能最优的方案
 
-7.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)。是否极致方便？总大小仅200多k
+7.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
+8.设置自定义显示方法如：BmLoader.loadImage("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, new CustomDisplayMethod() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+            @Override
+            public void display(BitmapDrawable bitmap, Movie movie) {
+                mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
+            }
+        });
+  这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
+9.如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)，圆形图view.setCircle().bind(uri)，矩形图view.setRectangle().bind(uri)，圆角图view.setRound(50).bind(uri)是否极致方便？总大小仅200多k
 
-8.支持本地和网络图片，径格式示例为：
+10.支持本地和网络图片，径格式示例为：
 		"http://img.blog.csdn.net/20160114230048304",
     		"assets://anim.gif",
                 "drawable://"+R.drawable.anim,
@@ -42,8 +51,8 @@
                     }
                 });
                 
-9.可设置圆形imageView.setCircle().bind(uri);
+11.可设置圆形imageView.setCircle().bind(uri);
 设置矩形imageView.setRectangle().bind(uri);
 设置圆角imageView.setRound(50).bind(uri);
 
-10.断点下载 ApkLoader.getInstance(this).downApk("");
+12.断点下载 ApkLoader.getInstance(this).downApk("");
