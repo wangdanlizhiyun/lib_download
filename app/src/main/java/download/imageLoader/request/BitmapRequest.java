@@ -3,10 +3,12 @@ package download.imageLoader.request;
 import download.imageLoader.core.ImageLoader;
 import download.imageLoader.core.LoadTask;
 import download.imageLoader.listener.BackListener;
+import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.ViewTaskUtil;
 import download.imageLoader.view.GifMovieView;
 
+import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -35,7 +37,19 @@ public class BitmapRequest{
 	public int percent;
 	public long totalSize;
 	public BackListener listener;
+	public CustomDisplayMethod customDisplayMethod;
 
+	private BitmapRequest(){}
+	public BitmapRequest(View view, String path,int width,int height, BackListener listener) {
+		super();
+		this.isFirstDown = false;
+		this.view = new WeakReference<View>(view);
+		this.path = path;
+		this.listener = listener;
+		this.width = width;
+		this.height = height;
+		this.task = new WeakReference<LoadTask>(null);
+	}
 	public BitmapRequest(View view, String path, BackListener listener) {
 		super();
 		this.isFirstDown = false;
@@ -43,9 +57,30 @@ public class BitmapRequest{
 		this.path = path;
 		this.listener = listener;
 		this.task = new WeakReference<LoadTask>(null);
+
 	}
 	public BitmapRequest(View view, String path) {
-		new BitmapRequest(view,path,null);
+		super();
+		this.isFirstDown = false;
+		this.view = new WeakReference<View>(view);
+		this.path = path;
+		this.task = new WeakReference<LoadTask>(null);
+	}
+	public BitmapRequest(String path) {
+		this.isFirstDown = false;
+		this.view = new WeakReference<View>(null);
+		this.path = path;
+		this.task = new WeakReference<LoadTask>(null);
+	}
+
+	public BitmapRequest(View view, String path,int width,int height) {
+		super();
+		this.isFirstDown = false;
+		this.view = new WeakReference<View>(view);
+		this.path = path;
+		this.width = width;
+		this.height = height;
+		this.task = new WeakReference<LoadTask>(null);
 	}
 
 	/**
@@ -79,39 +114,43 @@ public class BitmapRequest{
 	}
 
 
-	public void display() {
-		if (view.get() == null){
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void displayLoading(BitmapDrawable b) {
+		if (view == null || view.get() == null){
 			return;
 		}
-		if (this != null && isFirstDown != null && isFirstDown && !isBigBitmap() && bitmap != null) {
-			// 作为独立jar包不便用属性动画
-			final TransitionDrawable td = new TransitionDrawable(
-					new Drawable[] {
-							new ColorDrawable(
-									Color.TRANSPARENT),
-							bitmap });
+		if (customDisplayMethod != null){
+			customDisplayMethod.display(b, movie);
+			return;
+		}
+		if (view.get() instanceof GifMovieView){
+			((GifMovieView) view.get()).setImageDrawable(b);
+		}else{
+			setBitmap(view.get(), bitmap);
+		}
+	}
 
-			if (view.get() instanceof ImageView) {
-				((ImageView) view.get())
-						.setImageDrawable(td);
-			} else {
-				view.get().setBackgroundDrawable(td);
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void display() {
+		BitmapDrawable drawable = bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm();
+		if (view == null || view.get() == null){
+			return;
+		}
+		if (customDisplayMethod != null){
+			customDisplayMethod.display(drawable,movie);
+			return;
+		}
+		if (view.get() instanceof GifMovieView){
+			if (movie != null){
+				((GifMovieView) view.get()).setMovie(movie);
+			}else {
+				((GifMovieView) view.get()).setImageDrawable(drawable);
 			}
-			td.startTransition(500);
-		} else {
-			if (view.get() instanceof GifMovieView){
-				if (movie != null){
-					((GifMovieView) view.get()).setMovie(movie);
-				}else {
-					if (bitmap != null){
-						((GifMovieView) view.get()).setImageDrawable(bitmap);
-					}else {
-						((GifMovieView) view.get()).setImageBitmap(ImageLoader.getInstance().getConfig().getFailedBm());
-					}
-				}
-			}else{
-				setBitmap(view.get(),bitmap);
-			}
+		}else{
+			setBitmap(view.get(),bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm());
+		}
+		if (this != null && isFirstDown != null && isFirstDown && !isBigBitmap() && bitmap != null) {
+			ObjectAnimator.ofFloat(view.get(),"alpha",0,1f).setDuration(500).start();
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -123,7 +162,7 @@ public class BitmapRequest{
 			((ImageView) view).setImageDrawable(bitmap);
 		} else if (view instanceof ImageSwitcher) {
 			((ImageSwitcher) view).setImageDrawable(bitmap);
-		} else {// 对于其他自定义view
+		} else {// 对于其他view设置背景
 			view.setBackground(bitmap);
 		}
 	}

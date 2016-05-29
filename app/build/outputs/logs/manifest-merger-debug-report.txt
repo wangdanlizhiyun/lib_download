@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:2:1-37:12
+ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:2:1-38:12
 	package
 		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:3:5-29
 		INJECTED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml
@@ -44,7 +44,7 @@ ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/Andro
 	android:name
 		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:18:22-64
 application
-ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:20:8-35:19
+ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:20:8-36:19
 	android:label
 		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:23:9-41
 	android:allowBackup
@@ -54,18 +54,20 @@ ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/Andro
 	android:theme
 		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:24:9-62
 activity#com.example.ui.ImageloaderActivity
-ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:25:9-33:20
+ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:25:9-34:20
 	android:label
-		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:27:13-45
+		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:28:13-45
+	android:hardwareAccelerated
+		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:27:13-47
 	android:name
 		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:26:13-48
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:28:13-32:29
+ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:29:13-33:29
 action#android.intent.action.MAIN
-ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:29:17-69
+ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:30:17-69
 	android:name
-		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:29:25-66
+		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:30:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:31:17-77
+ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:32:17-77
 	android:name
-		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:31:27-74
+		ADDED from /Users/lizhiyun/AndroidStudioProjects/lib_download/app/src/main/AndroidManifest.xml:32:27-74

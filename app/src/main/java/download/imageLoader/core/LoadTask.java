@@ -43,6 +43,9 @@ public class LoadTask implements  Runnable {
         while (mImageLoader.getmRunningTasksManager().hasDoingTask(mRequest)) {
             try {
                 Thread.sleep(50);
+                if (mCancel.get()){
+                    return;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -61,7 +64,7 @@ public class LoadTask implements  Runnable {
                     if (mCancel.get()){
                         return;
                     }
-                    if (mRequest.view == null) {
+                    if (mRequest.view == null || mRequest.view.get() == null) {
                         return;
                     }
                     if (mRequest.isBigBitmap()) {
@@ -110,7 +113,7 @@ public class LoadTask implements  Runnable {
                         if (!request.checkEffective()) {
                             return;
                         }
-                        if (request.view.get() == null){
+                        if (request.view == null || request.view.get() == null){
                             return;
                         }
                         if (request.listener == null) {

@@ -22,8 +22,7 @@ public class ViewTaskUtil {
             if (r instanceof LoadTask){
                 LoadTask t = (LoadTask) r;
                 if (t.mRequest.view.get() != null && t.mRequest.view.get() == view){
-                    executor.cancelWaitingTask(t);
-                    break;
+                    t.cancel();
                 }
             }
         }

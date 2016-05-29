@@ -174,4 +174,19 @@ public class BitmapCache {
 		File file = new File(diskCacheDir.getAbsolutePath()+ File.separator + key + ".0");
 		return file.exists() && file.length() > 0;
 	}
+
+	public void clearMemory(){
+		mMemoryBitmapLruCache.evictAll();
+		mPercentLruCache.evictAll();
+		mMemoryMovieLruCache.evictAll();
+	}
+	public void clearDiskMemory(){
+		try {
+			if (mDiskLruCache != null){
+				mDiskLruCache.delete();
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
 }

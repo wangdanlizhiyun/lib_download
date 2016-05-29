@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import download.imageLoader.cache.BitmapCache;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,9 +12,8 @@ import android.graphics.drawable.BitmapDrawable;
 
 @SuppressLint("NewApi")
 public class ImageConfig {
-	public static ImageConfig mInstance;
 	public BitmapCache cache;
-	private Bitmap loadingBm = null,failedBm = null;
+	private BitmapDrawable loadingBm = null,failedBm = null;
 	/**
 	 *只在wifi下下载
 	 */
@@ -40,17 +40,26 @@ public class ImageConfig {
 	}
 
 	public void setFailedIdAndLoadingId(Resources res,int failedId,int loadingId) {
-		this.failedBm = BitmapFactory.decodeResource(res, failedId);
+		this.failedBm = new BitmapDrawable(BitmapFactory.decodeResource(res, failedId));
 
-		this.loadingBm = BitmapFactory.decodeResource(res, loadingId);
+		this.loadingBm = new BitmapDrawable(BitmapFactory.decodeResource(res, loadingId));
 	}
 
 
-	public Bitmap getLoadingBm() {
+	private Boolean ifIint = false;
+	public void initDefault(Context context){
+		if (!ifIint){
+			ifIint = true;
+			loadingBm = new BitmapDrawable(context.getResources(),getBitmapFormSrc("image/loading.png"));
+			failedBm = new BitmapDrawable(context.getResources(),getBitmapFormSrc("image/loadfailed.png"));
+
+		}
+	}
+	public BitmapDrawable getLoadingBm() {
 		return loadingBm;
 	}
 
-	public Bitmap getFailedBm() {
+	public BitmapDrawable getFailedBm() {
 		return failedBm;
 	}
 
@@ -58,8 +67,6 @@ public class ImageConfig {
 	public ImageConfig() {
 		super();
 		cache = new BitmapCache();
-		loadingBm = getBitmapFormSrc("image/loading.png");
-		failedBm = getBitmapFormSrc("image/loadfailed.png");
 	}
 
 	public static Bitmap getBitmapFormSrc(String src){
@@ -71,4 +78,5 @@ public class ImageConfig {
 		}
 		return bit;
 	}
+
 }

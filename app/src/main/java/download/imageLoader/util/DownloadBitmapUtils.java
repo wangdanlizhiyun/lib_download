@@ -108,7 +108,7 @@ public class DownloadBitmapUtils {
 		String name = request.path.substring(9);
 		InputStream is = null;
 		try {
-			if (request.view.get() == null){
+			if (request.view == null || request.view.get() == null){
 				return;
 			}
 			is = request.view.get().getContext().getAssets().open(name);
@@ -133,6 +133,9 @@ public class DownloadBitmapUtils {
 
 
 	public static void loadImageFromLocal(final String path, BitmapRequest request) {
+		if (request.view == null || request.view.get() == null){
+			return;
+		}
 		if (!new File(path).exists()) {
 			return ;
 		}
@@ -159,6 +162,9 @@ public class DownloadBitmapUtils {
 	}
 
 	public static void loadImageFromDrawable(BitmapRequest request) {
+		if (request.view == null || request.view.get() == null){
+			return;
+		}
 		int id = 0;
 		try {
 			id = Integer.parseInt(request.path.substring(11));
@@ -172,9 +178,6 @@ public class DownloadBitmapUtils {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 
-		if (request.view.get() == null){
-			return;
-		}
 		BitmapFactory.decodeResource(request.view.get().getResources(), id, options);
 		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 				request.width, request.height);

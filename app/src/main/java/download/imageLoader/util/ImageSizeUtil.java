@@ -46,7 +46,7 @@ public class ImageSizeUtil {
 		if (request.width > 0 && request.height > 0) {
 			return;
 		}
-		if (request.view.get() == null) {
+		if (request.view == null || request.view.get() == null) {
 			request.width = 300;
 			request.height = 300;
 			return;

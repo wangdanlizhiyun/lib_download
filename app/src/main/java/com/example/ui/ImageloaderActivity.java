@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import download.imageLoader.core.BmLoader;
+import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.view.GifMovieView;
 
 import android.annotation.TargetApi;
@@ -12,6 +14,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Movie;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +28,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 public class ImageloaderActivity extends Activity implements OnScrollListener {
     private static final String TAG = "MainActivity";
@@ -36,10 +43,12 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
     private int mImageWidth = 0;
     private boolean mIsWifi = false;
     private boolean mCanGetBitmapFromNetWork = false;
+    private TextView mTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_imageloader);
         initData();
         initView();
@@ -55,6 +64,12 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
                 "http://img.blog.csdn.net/20160114230048304",//gif图
                 "http://img.blog.csdn.net/20160114230048304",//gif图
     			"assets://anim.gif",
+                "assets://a.gif",
+                "assets://c.gif",
+                "assets://c.gif",
+                "assets://c.gif",
+                "assets://d.gif",
+                "assets://d.gif",
                 "drawable://"+R.drawable.anim,
                 	"drawable://"+R.drawable.ic_launcher,
                 	"file:///mnt/sdcard/paint.png",
@@ -148,6 +163,14 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             builder.setNegativeButton("否", null);
             builder.show();
         }
+        mTv = (TextView) findViewById(R.id.tv);
+        BmLoader.loadImage("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, new CustomDisplayMethod() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+            @Override
+            public void display(BitmapDrawable bitmap, Movie movie) {
+                mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
+            }
+        });
     }
 
     private class ImageAdapter extends BaseAdapter {
@@ -194,6 +217,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //                        super.onSuccess(bitmap, movie);
 //                    }
 //                });
+
 
 
             if (position == 0){

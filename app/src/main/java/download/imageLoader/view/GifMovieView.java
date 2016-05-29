@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import download.imageLoader.core.BmLoader;
+import download.imageLoader.listener.CustomDisplayMethod;
 
 
 public class GifMovieView extends ImageView {
@@ -63,6 +64,7 @@ public class GifMovieView extends ImageView {
 	public GifMovieView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		mPaint.setAntiAlias(true);
 		mPath = new Path();
 		setBackgroundColor(Color.TRANSPARENT);
 	}
@@ -89,15 +91,18 @@ public class GifMovieView extends ImageView {
 	public void bind(String path){
 		BmLoader.load(path, this);
 	}
+	public void bind(String path,CustomDisplayMethod customDisplayMethod){
+		BmLoader.load(path, this, customDisplayMethod);
+	}
 
 	public void setMovie(Movie movie) {
 		if (Looper.myLooper() != Looper.getMainLooper()) {
 			throw new RuntimeException("only run on ui thread");
 		}
+		notifyLayerType();
 		this.mMovie = movie;
 		//至关重要的设置
 		setImageDrawable(null);
-		notifyLayerType();
 		requestLayout();
 	}
 
@@ -106,7 +111,7 @@ public class GifMovieView extends ImageView {
 			if (mMovie != null && getDrawable() == null){
 				setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 			}else {
-				setLayerType(View.LAYER_TYPE_NONE, null);
+				setLayerType(View.LAYER_TYPE_HARDWARE, null);
 			}
 		}
 	}
@@ -205,41 +210,42 @@ public class GifMovieView extends ImageView {
 			invalidateView();
 		}else {
 			//直接修改ImageView源代码
-//			super.onDraw(canvas);
-			if (getDrawable() == null) {
-				return; // couldn't resolve the URI
-			}
-
-			if (getDrawable().getIntrinsicWidth() <= 0 || getDrawable().getIntrinsicHeight() <= 0) {
-				return;     // nothing to draw (empty bounds)
-			}
-
-			if (getImageMatrix() == null && getPaddingTop() == 0 && getPaddingLeft() == 0) {
-				clipDrawable(canvas);
-				getDrawable().draw(canvas);
-			} else {
-				int saveCount = canvas.getSaveCount();
-				canvas.save();
-
-				if (getCropToPadding()) {
-					final int scrollX = getScrollX();
-					final int scrollY = getScrollY();
-					canvas.clipRect(scrollX + getPaddingLeft(), scrollY + getPaddingTop(),
-							scrollX + getRight() - mLeft - getPaddingRight(),
-							scrollY + getBottom() - mTop - getPaddingBottom());
-				}
-
-				clipDrawable(canvas);
-
-				canvas.translate(getPaddingLeft(), getPaddingTop());
-
-				if (getImageMatrix() != null) {
-					canvas.concat(getImageMatrix());
-				}
-
-				getDrawable().draw(canvas);
-				canvas.restoreToCount(saveCount);
-			}
+			clipDrawable(canvas);
+			super.onDraw(canvas);
+//			if (getDrawable() == null) {
+//				return; // couldn't resolve the URI
+//			}
+//
+//			if (getDrawable().getIntrinsicWidth() <= 0 || getDrawable().getIntrinsicHeight() <= 0) {
+//				return;     // nothing to draw (empty bounds)
+//			}
+//
+//			if (getImageMatrix() == null && getPaddingTop() == 0 && getPaddingLeft() == 0) {
+//				clipDrawable(canvas);
+//				getDrawable().draw(canvas);
+//			} else {
+//				int saveCount = canvas.getSaveCount();
+//				canvas.save();
+//
+//				if (getCropToPadding()) {
+//					final int scrollX = getScrollX();
+//					final int scrollY = getScrollY();
+//					canvas.clipRect(scrollX + getPaddingLeft(), scrollY + getPaddingTop(),
+//							scrollX + getRight() - mLeft - getPaddingRight(),
+//							scrollY + getBottom() - mTop - getPaddingBottom());
+//				}
+//
+//				clipDrawable(canvas);
+//
+//				canvas.translate(getPaddingLeft(), getPaddingTop());
+//
+//				if (getImageMatrix() != null) {
+//					canvas.concat(getImageMatrix());
+//				}
+//
+//				getDrawable().draw(canvas);
+//				canvas.restoreToCount(saveCount);
+//			}
 		}
 	}
 	private void clipDrawable(Canvas canvas){
