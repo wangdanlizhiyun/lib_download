@@ -7,7 +7,7 @@
 
 3.初次从网络下载的图第一次显示为淡入效果，对于1m以上的大图在使用本地缓存的情况下边下载边显示
 
-4.支持预加载：BmLoader.preLoad(uri);
+4.支持预加载：```javaBmLoader.preLoad(uri);```
 
 5.优化了listview等快速滑动时的图片加载
 
@@ -15,7 +15,8 @@
 
 7.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
 
-8.设置自定义显示方法如：BmLoader.loadImage(
+8.设置自定义显示方法如：
+```javaBmLoader.loadImage(
 	"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, 
 	new CustomDisplayMethod() {
 	
@@ -25,6 +26,7 @@
                 mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
             }
         });
+        ```
   这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
 9.如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)，圆形图view.setCircle().bind(uri)，矩形图view.setRectangle().bind(uri)，圆角图view.setRound(50).bind(uri)是否极致方便？总大小仅200多k
 
