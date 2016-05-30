@@ -1,21 +1,28 @@
 # lib_download
 这是一个处理异步下载的库，包含图片下载文件下载和ormlite－ormgo(马天宇的开源)，特点如下：
 
-1.全局公用一个线程池
+全局公用一个线程池
 
-2.非ImageView的view也支持哦
+非ImageView的view也支持哦
 
-3.初次从网络下载的图第一次显示为淡入效果，对于1m以上的大图在使用本地缓存的情况下边下载边显示
+初次从网络下载的图第一次显示为淡入效果，对于1m以上的大图在使用本地缓存的情况下边下载边显示
 
-4.支持预加载：```javaBmLoader.preLoad(uri);```
+支持预加载：```javaBmLoader.preLoad(uri);```
 
-5.优化了listview等快速滑动时的图片加载
+支持本地和网络图片，径格式示例为：
+		```xml
+		"http://img.blog.csdn.net/20160114230048304",
+    		"assets://anim.gif",
+                "drawable://"+R.drawable.anim,
+                "file:///mnt/sdcard/paint.png",
+                ```
+优化了listview等快速滑动时的图片加载
 
-6.圆角图采用了性能最优的方案
+圆角图采用了性能最优的方案
 
-7.如果view使用或者继承```javadownload.imageLoader.view.GifMovieView```这个类的话支持gif图，否则只能用回调自己自定义view实现。
+如果view使用或者继承```javadownload.imageLoader.view.GifMovieView```这个类的话支持gif图，否则只能用回调自己自定义view实现。
 
-8.设置自定义显示方法如：
+设置自定义显示方法这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
 ```javaBmLoader.loadImage(
 	"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, 
 	new CustomDisplayMethod() {
@@ -27,16 +34,15 @@
             }
         });
         ```
-  这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
-9.如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：```javaview.bind(uri)```，圆形图```javaview.setCircle().bind(uri)```，矩形图```javaview.setRectangle().bind(uri)```，圆角图```javaview.setRound(50).bind(uri)```是否极致方便？总大小仅200多k
+  如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：
+```java
+view.bind(uri)
+view.setCircle().bind(uri)
+view.setRectangle().bind(uri)
+javaview.setRound(50).bind(uri)
+```
 
-10.支持本地和网络图片，径格式示例为：
-		```xml
-		"http://img.blog.csdn.net/20160114230048304",
-    		"assets://anim.gif",
-                "drawable://"+R.drawable.anim,
-                "file:///mnt/sdcard/paint.png",
-                ```
+
 		
 
 对于特殊的需求可以使用回调自己处理：
@@ -68,7 +74,7 @@
             });
             ```
                 
-11.可设置圆形
+可设置圆形
 ```java
 imageView.setCircle().bind(uri);
 ```
@@ -85,7 +91,7 @@ imageView.setCircle().bind(uri);
 	imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
 	```
 
-12.断点下载 
+断点下载 
 ```java
 ApkLoader.getInstance(this).downApk("");
 ```
