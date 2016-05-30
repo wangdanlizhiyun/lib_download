@@ -13,7 +13,7 @@
 
 6.圆角图采用了性能最优的方案
 
-7.如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
+7.如果view使用或者继承```javadownload.imageLoader.view.GifMovieView```这个类的话支持gif图，否则只能用回调自己自定义view实现。
 
 8.设置自定义显示方法如：
 ```javaBmLoader.loadImage(
@@ -28,34 +28,45 @@
         });
         ```
   这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
-9.如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：view.bind(uri)，圆形图view.setCircle().bind(uri)，矩形图view.setRectangle().bind(uri)，圆角图view.setRound(50).bind(uri)是否极致方便？总大小仅200多k
+9.如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：```javaview.bind(uri)```，圆形图```javaview.setCircle().bind(uri)```，矩形图```javaview.setRectangle().bind(uri)```，圆角图```javaview.setRound(50).bind(uri)```是否极致方便？总大小仅200多k
 
 10.支持本地和网络图片，径格式示例为：
+		```xml
 		"http://img.blog.csdn.net/20160114230048304",
     		"assets://anim.gif",
                 "drawable://"+R.drawable.anim,
                 "file:///mnt/sdcard/paint.png",
-		BmLoader.load(uri, imageView);
+                ```
+		
 
 对于特殊的需求可以使用回调自己处理：
-        BmLoader.load(uri, imageView, new BackListener() {
-        
+	```java 
+	BmLoader.load(uri, imageView, new BackListener() {
                 @Override
-                
-                public void onProcess(int percent) {}
-               
+                public void onProcess(int percent) {
+                    
+                }
+
                 @Override
-                public void onSuccess(Bitmap bitmap, Movie movie) {｝
-        
+                public void onSuccess(BitmapDrawable bitmap, Movie movie) {
+
+                }
+
                 @Override
-	        public void onFailed()｛｝;
+                public void onFailed() {
+
+                }
             });
-            或者使用接口适配器：BmLoader.load(uri, imageView, new BackListenerAdapter() {
-                    @Override
-                    public void onSuccess(BitmapDrawable bitmap, Movie movie) {
-                        super.onSuccess(bitmap, movie);
-                    }
-                });
+            ```
+            或者使用接口适配器：
+            ```java
+            BmLoader.load(uri, imageView, new BackListenerAdapter() {
+                @Override
+                public void onSuccess(BitmapDrawable bitmap, Movie movie) {
+                    super.onSuccess(bitmap, movie);
+                }
+            });
+            ```
                 
 11.可设置圆形imageView.setCircle().bind(uri);
 	设置矩形imageView.setRectangle().bind(uri);
