@@ -20,7 +20,7 @@
 
 圆角图采用了性能最优的方案
 
-如果view使用或者继承```javadownload.imageLoader.view.GifMovieView```这个类的话支持gif图，否则只能用回调自己自定义view实现。
+如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
 
 设置自定义显示方法这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
 ```javaBmLoader.loadImage(
@@ -34,7 +34,7 @@
             }
         });
         ```
-  如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：
+如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：
 ```java
 view.bind(uri)
 view.setCircle().bind(uri)
@@ -44,7 +44,6 @@ javaview.setRound(50).bind(uri)
 
 
 		
-
 对于特殊的需求可以使用回调自己处理：
 	```java 
 	BmLoader.load(uri, imageView, new BackListener() {
@@ -63,9 +62,7 @@ javaview.setRound(50).bind(uri)
 
                 }
             });
-            ```
-            或者使用接口适配器：
-            ```java
+            
             BmLoader.load(uri, imageView, new BackListenerAdapter() {
                 @Override
                 public void onSuccess(BitmapDrawable bitmap, Movie movie) {
@@ -78,15 +75,15 @@ javaview.setRound(50).bind(uri)
 ```java
 imageView.setCircle().bind(uri);
 ```
-	设置矩形
+设置矩形
 	```java
 	imageView.setRectangle().bind(uri);
 	```
-	设置圆角
+设置圆角
 	```java
 	imageView.setRound(50).bind(uri);
 	```
-	可设置包边
+可设置包边
 	```java
 	imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
 	```
