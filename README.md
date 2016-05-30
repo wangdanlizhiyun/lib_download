@@ -23,7 +23,8 @@
 如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
 
 设置自定义显示方法这样就可以实现各种功能如给textviw设置上下左右的图，给子view设置网络图片，给remoteview设置网络图片等等。
-```javaBmLoader.loadImage(
+```java
+	BmLoader.loadImage(
 	"http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, 
 	new CustomDisplayMethod() {
 	
@@ -39,7 +40,7 @@
 view.bind(uri)
 view.setCircle().bind(uri)
 view.setRectangle().bind(uri)
-javaview.setRound(50).bind(uri)
+view.setRound(50).bind(uri)
 ```
 
 
