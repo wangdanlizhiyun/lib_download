@@ -68,12 +68,27 @@
             });
             ```
                 
-11.可设置圆形imageView.setCircle().bind(uri);
-	设置矩形imageView.setRectangle().bind(uri);
-	设置圆角imageView.setRound(50).bind(uri);
-	可设置包边imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
+11.可设置圆形
+```java
+imageView.setCircle().bind(uri);
+```
+	设置矩形
+	```java
+	imageView.setRectangle().bind(uri);
+	```
+	设置圆角
+	```java
+	imageView.setRound(50).bind(uri);
+	```
+	可设置包边
+	```java
+	imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
+	```
 
-12.断点下载 ApkLoader.getInstance(this).downApk("");
+12.断点下载 
+```java
+ApkLoader.getInstance(this).downApk("");
+```
 
 
 
