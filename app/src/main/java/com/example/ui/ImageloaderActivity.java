@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import download.imageLoader.core.BmLoader;
+import download.imageLoader.listener.BackListenerAdapter;
 import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.view.PowerImageView;
 
@@ -64,11 +65,13 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
                 "http://img.blog.csdn.net/20160114230048304",//gif图
     			"assets://anim.gif",
                 "assets://a.gif",
-                "assets://c.gif",
-                "assets://c.gif",
+                "assets://e.gif",
+                "assets://f.gif",
                 "assets://c.gif",
                 "assets://d.gif",
                 "assets://d.gif",
+                "assets://g.gif",
+                "assets://h.gif",
                 "drawable://"+R.drawable.anim,
                 	"drawable://"+R.drawable.ic_launcher,
                 	"file:///mnt/sdcard/paint.png",
@@ -208,14 +211,6 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             }
             final PowerImageView imageView = holder.imageView;
             final String uri = getItem(position);
-//            if (mIsGridViewIdle && mCanGetBitmapFromNetWork) {
-//                imageView.setTag(uri);
-//                BmLoader.load(uri, imageView, new BackListenerAdapter() {
-//                    @Override
-//                    public void onSuccess(BitmapDrawable bitmap, Movie movie) {
-//                        super.onSuccess(bitmap, movie);
-//                    }
-//                });
 
 
             if (position == 0){
@@ -224,8 +219,11 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             }else if (position == 1){
                 imageView.setRectangle().setBorder(Color.BLUE, 15f).bind(uri);
 
-            }else {
+            }else if (position == 2){
                 imageView.setRound(50).setBorder(Color.GREEN, 20f).bind(uri);
+
+            }else {
+                imageView.setRound(50).setBorder(Color.GREEN, 0f).bind(uri);
 
             }
 //            imageView.setCircle().bind(uri);
