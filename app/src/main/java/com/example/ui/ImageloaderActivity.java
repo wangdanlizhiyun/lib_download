@@ -214,9 +214,11 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 
 
             if (position == 0){
+                imageView.setPadding(20,20,20,20);
             imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
 
             }else if (position == 1){
+                imageView.setPadding(20,20,20,20);
                 imageView.setRectangle().setBorder(Color.BLUE, 15f).bind(uri);
 
             }else if (position == 2){

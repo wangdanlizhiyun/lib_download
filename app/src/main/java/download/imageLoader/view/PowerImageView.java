@@ -40,9 +40,6 @@ public class PowerImageView extends ImageView {
 	float scaleH = 1f;
 	float scaleW = 1f;
 
-	private float mLeft;
-	private float mTop;
-
 	private Path mPath;
 
 	private long nowTime,dur;
@@ -70,6 +67,15 @@ public class PowerImageView extends ImageView {
 		mBorderPaint.setStrokeWidth(mBorderWidth);
 		mPath = new Path();
 		setBackgroundColor(Color.TRANSPARENT);
+		setPadding(0,0,0,0);
+	}
+
+	/**
+	 * 禁用padding，因为意义不大，请用margin代替效果
+	 */
+	@Override
+	public void setPadding(int left, int top, int right, int bottom) {
+		super.setPadding(0, 0, 0, 0);
 	}
 
 	public PowerImageView setBorder(int color,float borderWidth){
@@ -143,8 +149,8 @@ public class PowerImageView extends ImageView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measureModeWidth = MeasureSpec.getMode(widthMeasureSpec);
-		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
-		int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec) - getPaddingTop() - getPaddingBottom();
+		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec);
+		int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec);
 		float maximumHeight = MeasureSpec.getSize(heightMeasureSpec);
 		if (mMovie != null && getDrawable() == null){
 			float movieWidth = mMovie.width();
@@ -204,8 +210,6 @@ public class PowerImageView extends ImageView {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		mLeft = (getWidth() - mMeasuredMovieWidth + getPaddingLeft() + getPaddingRight()) / 2f;
-		mTop = (getHeight() - mMeasuredMovieHeight + getPaddingTop() + getPaddingBottom()) / 2f;
 		mVisible = getVisibility() == View.VISIBLE;
 	}
 
@@ -213,7 +217,6 @@ public class PowerImageView extends ImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (!mVisible){
-			Log.v("test","mVisible:"+mVisible);
 			return;
 		}
 		if (mMovie != null && getDrawable() == null) {
@@ -300,7 +303,7 @@ public class PowerImageView extends ImageView {
 		clipGif(canvas);
 		updateTime();
 		mMovie.setTime(mCurrentAnimationTime);
-		mMovie.draw(canvas, mLeft / mScale, mTop / mScale, mBitmapPaint);
+		mMovie.draw(canvas, 0, 0, mBitmapPaint);
 		if (mBorderWidth > 0){
 			canvas.drawPath(mPath,mBorderPaint);
 		}
