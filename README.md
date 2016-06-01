@@ -20,6 +20,8 @@
 
 圆角图采用了性能最优的方案
 
+通过各种手段保障gridview等在有圆角的情况下快速滑动无卡顿
+
 通过自定义的方式确保默认的加载中和加载失败的图片在任何形状的view中都能显示完整并且大小适当。
 
 如果view使用或者继承download.imageLoader.view.GifMovieView这个类的话支持gif图，否则只能用回调自己自定义view实现。
