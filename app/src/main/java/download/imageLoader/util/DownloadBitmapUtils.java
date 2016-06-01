@@ -41,6 +41,7 @@ public class DownloadBitmapUtils {
 					try {
 						URL url = new URL(request.path);
 						conn = (HttpURLConnection) url.openConnection();
+						conn.setConnectTimeout(10*1000);
 						request.totalSize = conn.getContentLength();
 						in = new BufferedInputStream(conn.getInputStream(), 8 * 1024);
 						out = new BufferedOutputStream(outputStream, 8 * 1024);
@@ -84,6 +85,7 @@ public class DownloadBitmapUtils {
 		try {
 			URL url = new URL(request.path);
 			conn = (HttpURLConnection) url.openConnection();
+			conn.setConnectTimeout(10*1000);
 			is = new BufferedInputStream(conn.getInputStream());
 			is.mark(is.available());
 			Options options = new Options();

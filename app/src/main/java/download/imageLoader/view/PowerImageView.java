@@ -172,6 +172,7 @@ public class PowerImageView extends ImageView {
 			}else {
 				mScale = 1.0f;
 			}
+			//强行完全显示
 			mMeasuredMovieWidth = (int) (movieWidth * mScale);
 			mMeasuredMovieHeight = (int) (movieHeight * mScale);
 			setMeasuredDimension(mMeasuredMovieWidth, mMeasuredMovieHeight);
@@ -229,40 +230,6 @@ public class PowerImageView extends ImageView {
 			if (mBorderWidth > 0){
 				canvas.drawPath(mPath,mBorderPaint);
 			}
-//			if (getDrawable() == null) {
-//				return; // couldn't resolve the URI
-//			}
-//
-//			if (getDrawable().getIntrinsicWidth() <= 0 || getDrawable().getIntrinsicHeight() <= 0) {
-//				return;     // nothing to draw (empty bounds)
-//			}
-//
-//			if (getImageMatrix() == null && getPaddingTop() == 0 && getPaddingLeft() == 0) {
-//				clipDrawable(canvas);
-//				getDrawable().draw(canvas);
-//			} else {
-//				int saveCount = canvas.getSaveCount();
-//				canvas.save();
-//
-//				if (getCropToPadding()) {
-//					final int scrollX = getScrollX();
-//					final int scrollY = getScrollY();
-//					canvas.clipRect(scrollX + getPaddingLeft(), scrollY + getPaddingTop(),
-//							scrollX + getRight() - mLeft - getPaddingRight(),
-//							scrollY + getBottom() - mTop - getPaddingBottom());
-//				}
-//
-//				clipDrawable(canvas);
-//
-//				canvas.translate(getPaddingLeft(), getPaddingTop());
-//
-//				if (getImageMatrix() != null) {
-//					canvas.concat(getImageMatrix());
-//				}
-//
-//				getDrawable().draw(canvas);
-//				canvas.restoreToCount(saveCount);
-//			}
 		}
 	}
 	private void clipDrawable(Canvas canvas){

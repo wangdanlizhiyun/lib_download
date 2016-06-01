@@ -95,14 +95,12 @@ public class LoadTask implements  Runnable {
         if (mCancel.get()){
             return;
         }
+        //使用消息缓存
         Message message = Message.obtain();
         message.what = REFRESH;
         message.obj = mRequest;
         if (sUIHandler != null){
             sUIHandler.sendMessage(message);
-        }else {
-            Log.v("test","sUIHandler == null");
-
         }
     }
     private static Handler sUIHandler = new Handler(Looper.getMainLooper()) {

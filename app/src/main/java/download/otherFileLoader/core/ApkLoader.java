@@ -120,7 +120,7 @@ public class ApkLoader {
 					ApkLoader.this.update(downFile);
 				}
 				if (downFile.state == 1 || System.currentTimeMillis() - downFile.lastNotifyTime > 2000) {
-					Message msg = new Message();
+					Message msg = Message.obtain();
 					msg.obj = downFile;
 					mUIHandler.sendMessage(msg);
 					downFile.lastNotifyTime = System.currentTimeMillis();

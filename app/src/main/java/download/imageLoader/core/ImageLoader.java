@@ -89,7 +89,7 @@ public class ImageLoader {
 		loadImage(request);
 	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	protected void loadImage(BitmapRequest request) {
+	protected void loadImage(final BitmapRequest request) {
 		if (Looper.myLooper() == Looper.getMainLooper()) {
 			if (request.view == null || request.view.get() == null){
 
@@ -103,10 +103,18 @@ public class ImageLoader {
 					request.display();
 				} else {
 					ViewTaskUtil.cancelOldTask(executor, request.view.get());
-					LoadTask task = new LoadTask(request, ImageLoader.this);
+					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
 					request.view.get().setTag(request.path);
-					executor.execute(task);
+					//通过延迟异步任务的执行，更大程度上减少ui的繁重绘制任务
+					request.view.get().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							if (request.checkEffective()){
+								executor.execute(task);
+							}
+						}
+					},500);
 				}
 
 			}
