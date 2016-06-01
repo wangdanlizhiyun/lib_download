@@ -8,12 +8,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 @SuppressLint("NewApi")
 public class ImageConfig {
 	public BitmapCache cache;
-	private BitmapDrawable loadingBm = null,failedBm = null;
+	private Drawable loadingBm = null;
+	private Drawable failedBm;
 	/**
 	 *只在wifi下下载
 	 */
@@ -41,8 +44,8 @@ public class ImageConfig {
 
 	public void setFailedIdAndLoadingId(Resources res,int failedId,int loadingId) {
 		ifIint = true;
-		this.failedBm = new BitmapDrawable(BitmapFactory.decodeResource(res, failedId));
-		this.loadingBm = new BitmapDrawable(BitmapFactory.decodeResource(res, loadingId));
+		this.failedBm = new BitmapDrawable(res,BitmapFactory.decodeResource(res, failedId));
+		this.loadingBm = new BitmapDrawable(res,BitmapFactory.decodeResource(res, loadingId));
 	}
 
 
@@ -50,16 +53,15 @@ public class ImageConfig {
 	public void initDefault(Context context){
 		if (!ifIint){
 			ifIint = true;
-			loadingBm = new BitmapDrawable(context.getResources(),getBitmapFormSrc("image/loading.png"));
-			failedBm = new BitmapDrawable(context.getResources(),getBitmapFormSrc("image/loadfailed.png"));
-
+			loadingBm = new LoadingDrawable();
+			failedBm = new FailedDrawable(Color.RED);
 		}
 	}
-	public BitmapDrawable getLoadingBm() {
+	public Drawable getLoadingBm() {
 		return loadingBm;
 	}
 
-	public BitmapDrawable getFailedBm() {
+	public Drawable getFailedBm() {
 		return failedBm;
 	}
 
@@ -67,16 +69,6 @@ public class ImageConfig {
 	public ImageConfig() {
 		super();
 		cache = new BitmapCache();
-	}
-
-	public static Bitmap getBitmapFormSrc(String src){
-		Bitmap bit = null;
-		try {
-			InputStream is = ImageConfig.class.getResourceAsStream(src);
-			bit = BitmapFactory.decodeStream(is);
-	    } catch (Exception e) {
-		}
-		return bit;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import download.imageLoader.config.FailedDrawable;
 import download.imageLoader.core.BmLoader;
 import download.imageLoader.listener.BackListenerAdapter;
 import download.imageLoader.listener.CustomDisplayMethod;
@@ -29,6 +30,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -169,10 +171,12 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         BmLoader.loadImage("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, new CustomDisplayMethod() {
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
-            public void display(BitmapDrawable bitmap, Movie movie) {
+            public void display(Drawable bitmap, Movie movie) {
                 mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
             }
         });
+        Button button = (Button) findViewById(R.id.button);
+        button.setBackground(new FailedDrawable(Color.RED));
     }
 
     private class ImageAdapter extends BaseAdapter {

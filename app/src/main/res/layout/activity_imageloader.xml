@@ -14,6 +14,10 @@
         android:layout_gravity="center_horizontal"
         android:textColor="#990000"
         android:text="带网络图片的文本"/>
+    <Button
+        android:id="@+id/button"
+        android:layout_width="100dp"
+        android:layout_height="40dp" />
     <GridView
         android:id="@+id/gridView1"
         android:layout_width="match_parent"

@@ -11,6 +11,7 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.ImageSwitcher;
@@ -109,7 +110,7 @@ public class BitmapRequest{
 
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void displayLoading(BitmapDrawable b) {
+	public void displayLoading(Drawable b) {
 		if (view == null || view.get() == null){
 			return;
 		}
@@ -126,7 +127,7 @@ public class BitmapRequest{
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void display() {
-		BitmapDrawable drawable = bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm();
+		Drawable drawable = bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm();
 		if (view == null || view.get() == null){
 			return;
 		}
@@ -141,14 +142,17 @@ public class BitmapRequest{
 				((PowerImageView) view.get()).setImageDrawable(drawable);
 			}
 		}else{
-			setBitmap(view.get(),bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm());
+//			setBitmap(view.get(),bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm());
+			setBitmap(view.get(),bitmap);
+			view.get().setBackgroundDrawable(ImageLoader.getInstance().getConfig().getFailedBm());
+
 		}
 		if (this != null && isFirstDown != null && isFirstDown && !isBigBitmap() && bitmap != null) {
 			ObjectAnimator.ofFloat(view.get(),"alpha",0,1f).setDuration(500).start();
 		}
 	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	public void setBitmap(View view,BitmapDrawable bitmap) {
+	public void setBitmap(View view,Drawable bitmap) {
 		if (view == null) {
 			return;
 		}
