@@ -1,13 +1,11 @@
 package download.imageLoader.loader;
 
 
-import java.io.File;
-import java.net.URI;
+import java.util.HashMap;
+
 import download.imageLoader.config.ImageConfig;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
-import download.imageLoader.util.DownloadBitmapUtils;
-import android.graphics.Bitmap;
 
 /**
  * 图片加载器
@@ -16,37 +14,41 @@ import android.graphics.Bitmap;
  *
  */
 public class Load {
+	private static String[] keys = null;
+	private static Class[] loadClass = null;
+	private static HashMap<String,LoadInterface> map;
+	static {
+		if (keys == null){
+			keys = new String[]{"http:","https:","assets:","drawable:","file:"};
+		}
+		if (loadClass == null){
+			loadClass = new Class[]{HttpLoader.class,HttpLoader.class,AssetsLoader.class,DrawableLoader.class,FileLoader.class};
+		}
+		if (map == null){
+			map = new HashMap<String, LoadInterface>();
+		}
+
+
+	}
 	public static void loadBitmap(BitmapRequest request, ImageConfig config,
 			BackListener listener) {
-		UrlType urlType = download.imageLoader.util.UrlParser.getUrlType(request.path);
-		switch (urlType) {
-		case HTTP:
-			request.isFirstDown = true;
-			if (!config.getOnlyMemoryMode()){
-				if (!config.getOnlyWifiMode()){
-					DownloadBitmapUtils.downloadBitmapToDisk(request, config.cache.getmDiskLruCacheBitmap(), listener);
-				}
-				config.cache.getDiskCacheBitmap(request);
-			}
-			if (request.checkIfNeedAsyncLoad() && !config.getOnlyWifiMode()) {
-				DownloadBitmapUtils.downloadImgByUrl(request);
-			}
-			break;
-		case ASSETS:
-			DownloadBitmapUtils.loadImageFromAssets(request);
-			break;
-		case DRAWABLE:
-			DownloadBitmapUtils.loadImageFromDrawable(request);
-			break;
-		case FILE:
-			DownloadBitmapUtils.loadImageFromLocal(new File(URI.create(request.path))
-					.getAbsolutePath().substring(1), request);
-			break;
-		case UNKNOWN:
-			break;
+		for (int i = 0; i < keys.length; i++) {
+			if (request.path.contains(keys[i])){
+				if (map.get(keys[i]) == null){
+					try {
+						map.put(keys[i],((LoadInterface) loadClass[i].newInstance()));
 
-		default:
-			break;
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+				if (map.get(keys[i]) != null){
+					map.get(keys[i]).load(request,config,listener);
+				}
+				break;
+			}
 		}
 	}
 }

@@ -2,7 +2,6 @@ package download.imageLoader.core;
 
 import java.util.LinkedHashMap;
 
-import download.imageLoader.loader.UrlType;
 import download.imageLoader.request.BitmapRequest;
 
 /**
@@ -19,27 +18,18 @@ public class RunningTasksManager {
     }
     public Boolean hasDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
-            if (download.imageLoader.util.UrlParser.getUrlType(request.path) != UrlType.HTTP){
-                return false;
-            }
             return doingMap.containsKey(request.path);
         }
     }
 
     public void addDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
-            if (download.imageLoader.util.UrlParser.getUrlType(request.path) != UrlType.HTTP){
-                return;
-            }
             doingMap.put(request.path, request.path);
         }
     }
 
     public void removeDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
-            if (download.imageLoader.util.UrlParser.getUrlType(request.path) != UrlType.HTTP){
-                return;
-            }
             doingMap.remove(request.path);
         }
     }

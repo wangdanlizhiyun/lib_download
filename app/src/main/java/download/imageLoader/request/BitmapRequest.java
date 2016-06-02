@@ -4,7 +4,6 @@ import download.imageLoader.core.ImageLoader;
 import download.imageLoader.core.LoadTask;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.listener.CustomDisplayMethod;
-import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.view.PowerImageView;
 
 import android.animation.ObjectAnimator;
@@ -20,6 +19,7 @@ import android.widget.ImageView;
 import java.lang.ref.WeakReference;
 
 public class BitmapRequest{
+	public static final int bigSize = 1024 * 1024;
 	public WeakReference<View> view;
 	public WeakReference<LoadTask> task;
 	public BitmapDrawable percentBitmap;
@@ -83,7 +83,7 @@ public class BitmapRequest{
 	 * @return
 	 */
 	public Boolean isBigBitmap(){
-		return totalSize > DownloadBitmapUtils.bigSize;
+		return totalSize > bigSize;
 	}
 	/**
 	 * 检测是否需要异步获取
@@ -106,6 +106,9 @@ public class BitmapRequest{
 			return true;
 		}
 		return false;
+	}
+	public Boolean isNetWork() {
+		return path.contains("http:") || path.contains("https:");
 	}
 
 

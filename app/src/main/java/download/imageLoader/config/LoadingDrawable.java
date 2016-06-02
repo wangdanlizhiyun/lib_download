@@ -20,6 +20,13 @@ public class LoadingDrawable extends Drawable {
     private int txsize;
     private Bitmap bitmap;
 
+    final Rect r = null;
+    float cx;
+    float cy;
+    int size;
+    Rect src;
+    RectF dst;
+
     public LoadingDrawable() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         bitmap = getBitmapFormSrc("image/loading.png");
@@ -27,12 +34,12 @@ public class LoadingDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        final Rect r = getBounds();
-        float cx = r.exactCenterX();
-        float cy = r.exactCenterY();
-        int size = (int) Math.min(cx,cy);
-        Rect src = new Rect(0,0, bitmap.getWidth(),bitmap.getHeight());
-        RectF dst = new RectF(cx - size / 2, cy - size / 2,cx + size / 2, cy + size / 2);
+        Rect r = getBounds();
+        cx = r.exactCenterX();
+        cy = r.exactCenterY();
+        size = (int) Math.min(cx,cy);
+        src = new Rect(0,0, bitmap.getWidth(),bitmap.getHeight());
+        dst = new RectF(cx - size / 2, cy - size / 2,cx + size / 2, cy + size / 2);
         canvas.drawBitmap(bitmap,src,dst,mPaint);
     }
 

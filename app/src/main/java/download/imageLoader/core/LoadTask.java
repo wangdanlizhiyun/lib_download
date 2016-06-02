@@ -1,22 +1,15 @@
 package download.imageLoader.core;
 
-import android.graphics.Movie;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.listener.BackListenerAdapter;
 import download.imageLoader.loader.Load;
-import download.imageLoader.loader.UrlType;
 import download.imageLoader.request.BitmapRequest;
-import download.imageLoader.util.DownloadBitmapUtils;
-import download.imageLoader.util.UrlParser;
 
 /**
  * Created by lizhiyun on 16/5/23.

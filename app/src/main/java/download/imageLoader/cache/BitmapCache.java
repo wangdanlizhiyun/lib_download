@@ -2,17 +2,18 @@ package download.imageLoader.cache;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
 import download.imageLoader.request.BitmapRequest;
-import download.imageLoader.util.DownloadBitmapUtils;
 import download.imageLoader.util.ImageSizeUtil;
 import download.imageLoader.util.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
@@ -151,13 +152,42 @@ public class BitmapCache {
 		try {
 			DiskLruCache.Snapshot snapShot = mDiskLruCache.get(key);
 			if (snapShot != null) {
-				DownloadBitmapUtils.loadImageFromLocal(diskCacheDir.getAbsolutePath()
+				loadImageFromLocal(diskCacheDir.getAbsolutePath()
 						+ File.separator + key + ".0", request);
 
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void loadImageFromLocal(String path, BitmapRequest request) {
+		if (request.view == null || request.view.get() == null){
+			return;
+		}
+		if (!new File(path).exists()) {
+			return ;
+		}
+		ImageSizeUtil.getImageViewSize(request);
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(path, options);
+		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
+				request.width, request.height);
+		options.inJustDecodeBounds = false;
+		if (request.totalSize > BitmapRequest.bigSize && request.percent > 0 && request.percent < 100){//大图获取百分比
+			request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
+		}else {
+			try{
+				request.movie = Movie.decodeStream(new FileInputStream(new File(path)));
+			}catch (Exception e){
+
+			}
+			if (request.checkIfNeedAsyncLoad()){
+				request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
+			}
+		}
+
 	}
 
 	public Boolean hasDiskBm(String path) {
