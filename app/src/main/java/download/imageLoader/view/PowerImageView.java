@@ -49,6 +49,7 @@ public class PowerImageView extends ImageView {
 	private int mMeasuredMovieHeight;
 
 	private boolean mVisible = true;
+	private float mLeft,mTop;
 
 	public PowerImageView(Context context) {
 		this(context, null);
@@ -66,16 +67,6 @@ public class PowerImageView extends ImageView {
 		mBorderPaint.setColor(mBorderColor);
 		mBorderPaint.setStrokeWidth(mBorderWidth);
 		mPath = new Path();
-		setBackgroundColor(Color.TRANSPARENT);
-		setPadding(0,0,0,0);
-	}
-
-	/**
-	 * 禁用padding，因为意义不大，请用margin代替效果
-	 */
-	@Override
-	public void setPadding(int left, int top, int right, int bottom) {
-		super.setPadding(0, 0, 0, 0);
 	}
 
 	public PowerImageView setBorder(int color,float borderWidth){
@@ -149,9 +140,9 @@ public class PowerImageView extends ImageView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measureModeWidth = MeasureSpec.getMode(widthMeasureSpec);
-		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec);
+		float maximumWidth = MeasureSpec.getSize(widthMeasureSpec)-getPaddingLeft()-getPaddingRight();
 		int measureModeHeight = MeasureSpec.getMode(heightMeasureSpec);
-		float maximumHeight = MeasureSpec.getSize(heightMeasureSpec);
+		float maximumHeight = MeasureSpec.getSize(heightMeasureSpec)-getPaddingTop()-getPaddingBottom();
 		if (mMovie != null && getDrawable() == null){
 			float movieWidth = mMovie.width();
 			float movieHeight = mMovie.height();
@@ -175,7 +166,8 @@ public class PowerImageView extends ImageView {
 			//强行完全显示
 			mMeasuredMovieWidth = (int) (movieWidth * mScale);
 			mMeasuredMovieHeight = (int) (movieHeight * mScale);
-			setMeasuredDimension(mMeasuredMovieWidth, mMeasuredMovieHeight);
+			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
+//			setMeasuredDimension(mMeasuredMovieWidth+getPaddingLeft()+getPaddingRight(), mMeasuredMovieHeight+getPaddingTop()+getPaddingBottom());
 		} else {
 			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
 		}
@@ -212,6 +204,15 @@ public class PowerImageView extends ImageView {
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
 		mVisible = getVisibility() == View.VISIBLE;
+
+		if (mMovie != null && getDrawable() == null) {
+			mLeft = (getWidth() - mMeasuredMovieWidth - getPaddingLeft() - getPaddingRight()) / 2f + getPaddingLeft();
+			mTop = (getHeight() - mMeasuredMovieHeight - getPaddingTop() - getPaddingBottom()) / 2f + getPaddingTop();
+
+		}else {
+			mLeft = getPaddingLeft();
+			mTop = getPaddingTop();
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -230,30 +231,66 @@ public class PowerImageView extends ImageView {
 			if (mBorderWidth > 0){
 				canvas.drawPath(mPath,mBorderPaint);
 			}
+			canvas.restore();
 		}
 	}
-	private void clipDrawable(Canvas canvas){
+	private int getShowWidth(){
+		if (mMovie != null && getDrawable() == null) {
+			return mMeasuredMovieWidth-getPaddingLeft()-getPaddingRight();
+		}else {
+			return getWidth()-getPaddingLeft()-getPaddingRight();
+		}
+	}
+	private int getShowHeight(){
+		if (mMovie != null && getDrawable() == null) {
+			return mMeasuredMovieHeight-getPaddingLeft()-getPaddingRight();
+		}else {
+			return getHeight()-getPaddingTop()-getPaddingBottom();
+		}
+	}
+	private void clipDrawable(Canvas canvas) {
+		canvas.save();
+		canvas.translate(mLeft, mTop);
 		mPath.reset();
-		RectF rect = new RectF(0,0, (int) (getWidth()), (int) (getHeight()));
+		RectF rect = new RectF(getPaddingLeft(),getPaddingTop(), getShowWidth(), getShowHeight());
+		canvas.clipPath(mPath);
 		switch (type){
 			case TYPE_CYCLE:
-				canvas.clipPath(mPath);
-				mPath.addCircle(getWidth() / 2 , getHeight() / 2 ,
-						Math.min(getWidth(), getHeight()) / 2 , Path.Direction.CCW);
-				canvas.clipPath(mPath, Region.Op.REPLACE);
+
+				mPath.addCircle(rect.centerX(), rect.centerY(),
+						Math.min(getWidth()/2-getPaddingLeft()-getPaddingRight(), getHeight()/2-getPaddingTop()-getPaddingBottom()), Path.Direction.CCW);
 				break;
 			case TYPE_ROUND:
-				canvas.clipPath(mPath);
 				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
+				break;
+			case TYPE_RECTANGLE:
+				mPath.addRect(rect, Path.Direction.CCW);
+				break;
+		}
+		canvas.clipPath(mPath, Region.Op.REPLACE);
+	}
+
+	private void clipGif(Canvas canvas){
+		canvas.translate(mLeft/mScale,mTop/mScale);
+		mPath.reset();
+		RectF rect = new RectF(getPaddingLeft()/2, getPaddingTop()/2, (int) (getShowWidth()/mScale), (int) (getShowHeight()/mScale));
+		canvas.clipPath(mPath);
+		switch (type){
+			case TYPE_CYCLE:
+				mPath.addCircle(getShowWidth() / 2 / mScale, getShowHeight() / 2 /mScale,
+						Math.min(getShowWidth(), getShowHeight()) / 2 / mScale * Math.max(scaleH,scaleW) / Math.min(scaleH,scaleW), Path.Direction.CCW);
+				canvas.clipPath(mPath, Region.Op.REPLACE);
+				break;
+			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
+				mPath.addRoundRect(rect, new float[]{boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale,boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale}, Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
 			case TYPE_RECTANGLE:
 				mPath.addRect(rect,Path.Direction.CCW);
-
 				break;
 		}
+		canvas.clipPath(mPath, Region.Op.REPLACE);
 	}
-
 
 	private void invalidateView() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -270,7 +307,7 @@ public class PowerImageView extends ImageView {
 		clipGif(canvas);
 		updateTime();
 		mMovie.setTime(mCurrentAnimationTime);
-		mMovie.draw(canvas, 0, 0, mBitmapPaint);
+		mMovie.draw(canvas, getPaddingLeft()/2, getPaddingTop()/2, mBitmapPaint);
 		if (mBorderWidth > 0){
 			canvas.drawPath(mPath,mBorderPaint);
 		}
@@ -278,26 +315,6 @@ public class PowerImageView extends ImageView {
 
 	}
 
-	private void clipGif(Canvas canvas){
-		mPath.reset();
-		RectF rect = new RectF(0,0, (int) (getWidth()/mScale), (int) (getHeight()/mScale));
-		switch (type){
-			case TYPE_CYCLE:
-				canvas.clipPath(mPath);
-				mPath.addCircle(getWidth() / 2 / mScale, getHeight() / 2 /mScale,
-						Math.min(getWidth(), getHeight()) / 2 / mScale * Math.max(scaleH,scaleW) / Math.min(scaleH,scaleW), Path.Direction.CCW);
-				canvas.clipPath(mPath, Region.Op.REPLACE);
-				break;
-			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
-				canvas.clipPath(mPath);
-				mPath.addRoundRect(rect, new float[]{boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale,boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale}, Path.Direction.CCW);
-				canvas.clipPath(mPath, Region.Op.REPLACE);
-				break;
-			case TYPE_RECTANGLE:
-				mPath.addRect(rect,Path.Direction.CCW);
-				break;
-		}
-	}
 
 
 	private void updateTime(){

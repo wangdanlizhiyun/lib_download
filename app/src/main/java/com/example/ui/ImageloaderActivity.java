@@ -137,7 +137,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void initView() {
         mImageGridView = (GridView) findViewById(R.id.gridView1);
         mImageAdapter = new ImageAdapter(this);
@@ -216,13 +216,13 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             final PowerImageView imageView = holder.imageView;
             final String uri = getItem(position);
 
+            imageView.setPadding(20,20,0,0);
+            imageView.setBackgroundColor(Color.RED);
 
             if (position == 0){
-                imageView.setPadding(20,20,20,20);
-            imageView.setCircle().setBorder(Color.BLACK, 10f).bind(uri);
+            imageView.setCircle().setBorder(Color.BLACK, 0f).bind(uri);
 
             }else if (position == 1){
-                imageView.setPadding(20,20,20,20);
                 imageView.setRectangle().setBorder(Color.BLUE, 15f).bind(uri);
 
             }else if (position == 2){
