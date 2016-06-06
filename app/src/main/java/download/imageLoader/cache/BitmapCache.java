@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ImageSizeUtil;
-import download.imageLoader.util.Util;
+import download.utils.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -49,7 +49,7 @@ public class BitmapCache {
 		mMemoryBitmapLruCache = new LruCache<String, BitmapDrawable>(maxMemory) {
 			@Override
 			protected int sizeOf(String key, BitmapDrawable value) {
-				return Util.getBitmapByteSize(value);
+				return getBitmapByteSize(value);
 			}
 		};
 		mMemoryMovieLruCache = new LruCache<String, Movie>(10){
@@ -61,7 +61,7 @@ public class BitmapCache {
 		mPercentLruCache = new LruCache<String, BitmapDrawable>(maxMemory / 5) {
 			@Override
 			protected int sizeOf(String key, BitmapDrawable value) {
-				return Util.getBitmapByteSize(value);
+				return getBitmapByteSize(value);
 			}
 		};
 	}
@@ -209,5 +209,23 @@ public class BitmapCache {
 		}catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+	private int getBitmapByteSize(BitmapDrawable bitmap) {
+		// The return value of getAllocationByteCount silently changes for recycled bitmaps from the
+		// internal buffer size to row bytes * height. To avoid random inconsistencies in caches, we
+		// instead assert here.
+		if (bitmap.getBitmap().isRecycled()) {
+			throw new IllegalStateException("Cannot obtain size for recycled Bitmap: " + bitmap
+					+ "[" + bitmap.getBitmap().getWidth() + "x" + bitmap.getBitmap().getHeight() + "] " + bitmap.getBitmap().getConfig());
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			// Workaround for KitKat initial release NPE in Bitmap, fixed in MR1. See issue #148.
+			try {
+				return bitmap.getBitmap().getAllocationByteCount();
+			} catch (NullPointerException e) {
+				// Do nothing.
+			}
+		}
+		return bitmap.getBitmap().getHeight() * bitmap.getBitmap().getRowBytes();
 	}
 }

@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import download.http.core.HttpManager;
+import download.http.entity.ResultData;
+import download.http.listener.JsonCallback;
+import download.http.request.IfNeedLoginBaseHandleRequest;
+import download.http.request.Request;
 import download.imageLoader.config.FailedDrawable;
 import download.imageLoader.core.BmLoader;
-import download.imageLoader.listener.BackListenerAdapter;
 import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.view.PowerImageView;
 
@@ -18,10 +22,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Color;
 import android.graphics.Movie;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +58,39 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         setContentView(R.layout.activity_imageloader);
         initData();
         initView();
+        String url = "http://api.stay4it.com/v1/public/core/?service=user.login";
+        String content = "account=stay4it&password=123456";
+
+        final IfNeedLoginBaseHandleRequest request = new IfNeedLoginBaseHandleRequest(url, Request.RequestMethod.POST);
+        request.content = content;
+        request.enableProgressUpdate = true;
+        request.setCallback(new JsonCallback<ResultData>() {
+
+            @Override
+            public void onSuccess(ResultData result) {
+                Log.e("test", "result=" + result == null ? "null" : result.data.toString());
+            }
+        });
+//        request.setCallback(new FileCallback() {
+//            @Override
+//            public void onProgressUpdate(int curLength, int totalLength) {
+//
+//            }
+//
+//            @Override
+//            public void onSuccess(String result) {
+//
+//            }
+//
+//            @Override
+//            public void onFailure(AppException exception) {
+//
+//            }
+//        });
+
+        request.tag = this.toString();
+        HttpManager.getInstance().request(request);
+
     }
 
     private void initData() {

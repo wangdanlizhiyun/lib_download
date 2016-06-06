@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import download.imageLoader.core.BmLoader;
+import download.imageLoader.core.ImageLoader;
 import download.imageLoader.listener.CustomDisplayMethod;
 
 
@@ -124,13 +125,13 @@ public class PowerImageView extends ImageView {
 		}
 	}
 
-
 	@Override
 	protected void onDetachedFromWindow() {
-		super.onDetachedFromWindow();
 		this.clearAnimation();
 		this.mMovie = null;
 		this.setImageDrawable(null);
+		ImageLoader.getInstance().cancelOldTask(this);
+		super.onDetachedFromWindow();
 	}
 
 	public void setMovieTime(int time) {

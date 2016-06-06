@@ -88,6 +88,9 @@ public class ImageLoader {
 		BitmapRequest request = new BitmapRequest(view, path);
 		loadImage(request);
 	}
+	public void cancelOldTask(View view){
+		ViewTaskUtil.cancelOldTask(executor, view);
+	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	protected void loadImage(final BitmapRequest request) {
 		if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -102,7 +105,7 @@ public class ImageLoader {
 				if (!request.checkIfNeedAsyncLoad()) {
 					request.display();
 				} else {
-					ViewTaskUtil.cancelOldTask(executor, request.view.get());
+					cancelOldTask(request.view.get());
 					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
 					request.view.get().setTag(request.path);

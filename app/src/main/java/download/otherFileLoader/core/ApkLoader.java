@@ -11,7 +11,8 @@ import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.request.DownFile;
 import download.otherFileLoader.util.PackageUtil;
 import download.otherFileLoader.util.ToastUtils;
-import download.otherFileLoader.util.Util;
+import download.utils.Util;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;

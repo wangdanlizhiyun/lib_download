@@ -18,7 +18,7 @@ import download.imageLoader.config.ImageConfig;
 import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ImageSizeUtil;
-import download.imageLoader.util.Util;
+import download.utils.Util;
 
 /**
  * Created by lizhiyun on 16/6/2.

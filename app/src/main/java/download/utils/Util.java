@@ -1,4 +1,11 @@
-package download.imageLoader.util;
+package download.utils;
+
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.os.Environment;
 
 import java.io.Closeable;
 import java.io.File;
@@ -6,36 +13,7 @@ import java.net.HttpURLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
-import android.os.Environment;
-import android.view.View;
-
-@TargetApi(Build.VERSION_CODES.KITKAT)
 public class Util {
-	  public static int getBitmapByteSize(BitmapDrawable bitmap) {
-	    // The return value of getAllocationByteCount silently changes for recycled bitmaps from the
-	    // internal buffer size to row bytes * height. To avoid random inconsistencies in caches, we
-	    // instead assert here.
-	    if (bitmap.getBitmap().isRecycled()) {
-	      throw new IllegalStateException("Cannot obtain size for recycled Bitmap: " + bitmap
-	          + "[" + bitmap.getBitmap().getWidth() + "x" + bitmap.getBitmap().getHeight() + "] " + bitmap.getBitmap().getConfig());
-	    }
-	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-	      // Workaround for KitKat initial release NPE in Bitmap, fixed in MR1. See issue #148.
-	      try {
-	        return bitmap.getBitmap().getAllocationByteCount();
-	      } catch (NullPointerException e) {
-	        // Do nothing.
-	      }
-	    }
-	    return bitmap.getBitmap().getHeight() * bitmap.getBitmap().getRowBytes();
-	  }
 	/**
 	 * 利用签名辅助类，将字符串字节数组
 	 * 
@@ -79,7 +57,6 @@ public class Util {
 
 	}
 
-
 	public static File getDiskCacheDir(Context context, String uniqueName) {
 		String cachePath = null;
 		if (Environment.MEDIA_MOUNTED.equals(Environment
@@ -96,6 +73,9 @@ public class Util {
 		}
 		File file = new File(cachePath + File.separator + uniqueName);
 		return file;
+	}
+	public static String getNameFromUrl(String url){
+		return url.substring(url.lastIndexOf("/")+1);
 	}
 
 	public static int getAppVersion(Context context) {
@@ -138,4 +118,6 @@ public class Util {
 		close(out);
 		close(in);
 	}
+
+
 }
