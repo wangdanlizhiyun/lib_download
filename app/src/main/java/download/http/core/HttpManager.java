@@ -1,6 +1,7 @@
 package download.http.core;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 
 import com.litesuits.go.OverloadPolicy;
@@ -8,6 +9,7 @@ import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 
 import download.http.request.Request;
+import download.http.request.RequestBuilder;
 
 public class HttpManager {
 	private SmartExecutor executor;

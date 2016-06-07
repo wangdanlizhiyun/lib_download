@@ -1,29 +1,22 @@
 package download.http.core;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import download.http.exception.AppException;
 import download.http.listener.OnProgressListener;
 import download.http.request.Request;
 import download.http.util.HttpUrlConnectionUtil;
-import download.imageLoader.core.ImageLoader;
-import download.imageLoader.listener.BackListenerAdapter;
-import download.imageLoader.loader.Load;
-import download.imageLoader.request.BitmapRequest;
 
 /**
  * Created by lizhiyun on 16/5/23.
  */
 public class HttpTask implements  Runnable {
-    public final static int PROGRESS = 1;
+    public final static int UPDATEPROGRESS = 0;
+    public final static int DOWNLOADPROGRESS = 1;
     public final static int RESULT = 2;
     public Request mRequest;
     int retryTime;
@@ -41,19 +34,19 @@ public class HttpTask implements  Runnable {
     private Object request(int retryTime) {
         try {
             HttpURLConnection connection = HttpUrlConnectionUtil.execute(mRequest);
-            if (mRequest.enableProgressUpdate){
-                return mRequest.callback.parse(mRequest,connection, new OnProgressListener() {
+            if (mRequest.isEnableProgressUpdate()){
+                return mRequest.getCallback().parse(mRequest, connection, new OnProgressListener() {
                     @Override
                     public void onProgressUpdate(int curLength, int totalLength) {
-                        publishProgress(curLength,totalLength);
+                        downloadProgress(curLength, totalLength);
                     }
                 });
             }else {
-                return mRequest.callback.parse(mRequest,connection,null);
+                return mRequest.getCallback().parse(mRequest, connection, null);
             }
         } catch (AppException e) {
             if (e.errorType == AppException.ErrorType.IO){
-                if (retryTime < mRequest.maxRetryTime){
+                if (retryTime < mRequest.getMaxRetryTime()){
                     retryTime++;
                     return request(retryTime);
                 }
@@ -62,9 +55,19 @@ public class HttpTask implements  Runnable {
         }
     }
 
-    private void publishProgress(int curLength, int totalLength) {
+    private void updateProgress(int curLength, int totalLength) {
         Message message = Message.obtain();
-        message.what = PROGRESS;
+        message.what = UPDATEPROGRESS;
+        message.obj = mRequest;
+        message.arg1 = curLength;
+        message.arg2 = totalLength;
+        if (sUIHandler != null){
+            sUIHandler.sendMessage(message);
+        }
+    }
+    private void downloadProgress(int curLength, int totalLength) {
+        Message message = Message.obtain();
+        message.what = DOWNLOADPROGRESS;
         message.obj = mRequest;
         message.arg1 = curLength;
         message.arg2 = totalLength;
@@ -76,7 +79,7 @@ public class HttpTask implements  Runnable {
     private void notifyFinish(Object object) {
         Message message = Message.obtain();
         message.what = RESULT;
-        mRequest.returnObject = object;
+        mRequest.setReturnObject(object);
         message.obj = mRequest;
         if (sUIHandler != null){
             sUIHandler.sendMessage(message);
@@ -86,22 +89,25 @@ public class HttpTask implements  Runnable {
         public void handleMessage(Message msg) {
             final Request request = (Request) msg.obj;
             switch (msg.what) {
-                case HttpTask.PROGRESS:
-                    request.callback.onProgressUpdate(msg.arg1,msg.arg2);
+                case HttpTask.UPDATEPROGRESS:
+                    request.getCallback().onProgressDownload(msg.arg1, msg.arg2);
+                    break;
+                case HttpTask.DOWNLOADPROGRESS:
+                    request.getCallback().onProgressUpdate(msg.arg1, msg.arg2);
                     break;
                 case HttpTask.RESULT:
-                    if (request.returnObject instanceof Exception){
-                        if (request.isCanceled){
-                            request.callback.onCancel();
+                    if (request.getReturnObject() instanceof Exception){
+                        if (request.isCanceled()){
+                            request.getCallback().onCancel();
                             return;
                         }
-                        if (request.globalExceptionListener != null){
-                            if (!request.globalExceptionListener.handleException((AppException) request.returnObject)){
-                                request.callback.onFailure((AppException) request.returnObject);
+                        if (request.getGlobalExceptionListener() != null){
+                            if (!request.getGlobalExceptionListener().handleException((AppException) request.getReturnObject())){
+                                request.getCallback().onFailure((AppException) request.getReturnObject());
                             }
                         }
                     }else {
-                        request.callback.onSuccess(request.returnObject);
+                        request.getCallback().onSuccess(request.getReturnObject());
                     }
                     break;
 

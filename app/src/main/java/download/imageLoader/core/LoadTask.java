@@ -1,15 +1,17 @@
 package download.imageLoader.core;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import download.imageLoader.listener.BackListenerAdapter;
 import download.imageLoader.loader.Load;
 import download.imageLoader.request.BitmapRequest;
+import download.imageLoader.util.GaussianBlur;
 
 /**
  * Created by lizhiyun on 16/5/23.
@@ -25,20 +27,23 @@ public class LoadTask implements  Runnable {
         this.mRequest = request;
         this.mImageLoader = loader;
         this.mCancel.set(false);
-        this.mRequest.task = new WeakReference<LoadTask>(this);
     }
 
     public void cancel(){
         mCancel.set(true);
     }
+
     @Override
     public void run() {
+        if (mCancel.get()){
+            return;
+        }
         while (mImageLoader.getmRunningTasksManager().hasDoingTask(mRequest)) {
             try {
-                Thread.sleep(50);
                 if (mCancel.get()){
                     return;
                 }
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -50,38 +55,30 @@ public class LoadTask implements  Runnable {
             mImageLoader.getConfig().cache.getDiskCacheBitmap(mRequest);
         }
         if (mRequest.checkIfNeedAsyncLoad()) {
-            Load.loadBitmap(mRequest, mImageLoader.getConfig(), new BackListenerAdapter() {
-
-                @Override
-                public void onProcess(int percent) {
-                    if (mCancel.get()){
-                        return;
-                    }
-                    if (mRequest.view == null || mRequest.view.get() == null) {
-                        return;
-                    }
-                    if (mRequest.isBigBitmap()) {
-                        if (percent % 10 != 0) {
-                            return;
-                        }
-                        mImageLoader.getConfig().cache.getDiskCacheBitmap(mRequest);
-                        mImageLoader.getConfig().cache.addPercentBitmap(mRequest.path,
-                                mRequest.percentBitmap);
-                        refreashBitmap();
-                    }
-
-                }
-            });
+            Load.loadBitmap(mRequest, mImageLoader.getConfig());
             if (mRequest.checkIfNeedAsyncLoad()){
                 mImageLoader.getConfig().cache.getDiskCacheBitmap(mRequest);
             }
 
+        }
+        if (mCancel.get()){
+            return;
+        }
+        blur();
+        if (mCancel.get()){
+            return;
         }
         refreashBitmap();
         mImageLoader.getConfig().cache.addMemoryBitmap(mRequest);
         mImageLoader.getmRunningTasksManager().removeDoingTask(mRequest);
     }
 
+
+    private void blur() {
+        if (mRequest.isBlur && mRequest.movie == null && mRequest.bitmap != null) {
+            mRequest.bitmap = new BitmapDrawable(new GaussianBlur().blur(mRequest.bitmap.getBitmap(), 3));
+        }
+    }
 
 
     private void refreashBitmap() {
@@ -107,20 +104,7 @@ public class LoadTask implements  Runnable {
                         if (request.view == null || request.view.get() == null){
                             return;
                         }
-                        if (request.listener == null) {
-                            request.display();
-                        } else {
-                            // 设置了回调监听的自己处理
-                            if (request.percent > 0){
-                                request.listener.onProcess(request.percent);
-                            }
-                            if (request.isNoresult()){
-                                request.listener.onFailed();
-                            }else {
-                                request.listener.onSuccess(request.bitmap,request.movie);
-                            }
-                        }
-
+                        request.display();
                     break;
 
                 default:

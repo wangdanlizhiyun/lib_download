@@ -4,22 +4,20 @@ import com.litesuits.go.OverloadPolicy;
 import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 import download.imageLoader.config.ImageConfig;
-import download.imageLoader.listener.BackListener;
-import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ViewTaskUtil;
+import download.imageLoader.view.PowerImageView;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 
 public class ImageLoader {
 	private SmartExecutor executor;
+
+
 	private static class InstanceHoler {
 		private static final ImageLoader instance = new ImageLoader();
 	}
@@ -41,7 +39,7 @@ public class ImageLoader {
 	}
 	private ImageLoader() {
 		mRunningTasksManager = new RunningTasksManager(threadCount);
-		executor = new SmartExecutor(threadCount, 200);
+		executor = new SmartExecutor(threadCount, 400);
 		executor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
 		executor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
 		config = new ImageConfig();
@@ -53,46 +51,18 @@ public class ImageLoader {
 				loadingId);
 	}
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	protected void loadImage(String path, View view,BackListener listener) {
-		BitmapRequest request = new BitmapRequest(view, path,listener);
-		loadImage(request);
-	}
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	protected void loadImage(String path, View view,
-							 CustomDisplayMethod customDisplayMethod) {
-		BitmapRequest request = new BitmapRequest(view, path);
-		request.customDisplayMethod = customDisplayMethod;
-		loadImage(request);
-	}
-
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	protected void loadImage(String path, View view,int width,int height,
-							 CustomDisplayMethod customDisplayMethod) {
-		BitmapRequest request = new BitmapRequest(view, path);
-		request.customDisplayMethod = customDisplayMethod;
-		loadImage(request);
-	}
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	protected void loadImage(String path, View view,int width,int height,BackListener listener) {
-		BitmapRequest request = new BitmapRequest(view, path,listener);
-		loadImage(request);
-	}
 
 	protected void preLoad(String path) {
-		BitmapRequest request = new BitmapRequest(path);
+		BitmapRequest request = new BitmapRequest();
+		request.path = path;
 		loadImage(request);
 	}
 
-	protected void loadImage(String path,View view) {
-		BitmapRequest request = new BitmapRequest(view, path);
-		loadImage(request);
-	}
-	public void cancelOldTask(View view){
-		ViewTaskUtil.cancelOldTask(executor, view);
+	public void cancelOldTask(PowerImageView powerImageView) {
+		ViewTaskUtil.cancelOldTask(executor, powerImageView);
 	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	protected void loadImage(final BitmapRequest request) {
+	public void loadImage(final BitmapRequest request) {
 		if (Looper.myLooper() == Looper.getMainLooper()) {
 			if (request.view == null || request.view.get() == null){
 
@@ -105,19 +75,19 @@ public class ImageLoader {
 				if (!request.checkIfNeedAsyncLoad()) {
 					request.display();
 				} else {
-					cancelOldTask(request.view.get());
+					ViewTaskUtil.cancelOldTask(executor, request.view.get());
 					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
-					request.view.get().setTag(request.path);
+					request.view.get().setTag(request.path+request.isBlur);
 					//通过延迟异步任务的执行，更大程度上减少ui的繁重绘制任务
-					request.view.get().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							if (request.checkEffective()){
-								executor.execute(task);
-							}
-						}
-					},500);
+//					request.view.get().postDelayed(new Runnable() {
+//						@Override
+//						public void run() {
+//						if (request.checkEffective()){
+							executor.execute(task);
+//						}
+//						}
+//					},0);
 				}
 
 			}

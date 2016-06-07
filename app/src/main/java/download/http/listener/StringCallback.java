@@ -10,6 +10,4 @@ public abstract class StringCallback extends AbsCallback<String> {
     protected String parseData(String result) {
         return result;
     }
-    public void onCancel(){};
-    public void onPost(){};
 }

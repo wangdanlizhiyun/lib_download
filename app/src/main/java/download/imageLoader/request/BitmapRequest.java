@@ -2,7 +2,6 @@ package download.imageLoader.request;
 
 import download.imageLoader.core.ImageLoader;
 import download.imageLoader.core.LoadTask;
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.view.PowerImageView;
 
@@ -19,71 +18,22 @@ import android.widget.ImageView;
 import java.lang.ref.WeakReference;
 
 public class BitmapRequest{
-	public static final int bigSize = 1024 * 1024;
 	public WeakReference<View> view;
-	public WeakReference<LoadTask> task;
-	public BitmapDrawable percentBitmap;
+//	public WeakReference<LoadTask> task;
 	public BitmapDrawable bitmap;
 	public Movie movie;
 	public int width;
 	public int height;
 	public Boolean isFirstDown;
+	public Boolean isBlur;
 	public String path;
-	public int percent;
 	public long totalSize;
-	public BackListener listener;
 	public CustomDisplayMethod customDisplayMethod;
 
-	private BitmapRequest(){}
-	public BitmapRequest(View view, String path,int width,int height, BackListener listener) {
-		super();
-		this.isFirstDown = false;
-		this.view = new WeakReference<View>(view);
-		this.path = path;
-		this.listener = listener;
-		this.width = width;
-		this.height = height;
-		this.task = new WeakReference<LoadTask>(null);
-	}
-	public BitmapRequest(View view, String path, BackListener listener) {
-		super();
-		this.isFirstDown = false;
-		this.view = new WeakReference<View>(view);
-		this.path = path;
-		this.listener = listener;
-		this.task = new WeakReference<LoadTask>(null);
 
-	}
-	public BitmapRequest(View view, String path) {
-		super();
-		this.isFirstDown = false;
-		this.view = new WeakReference<View>(view);
-		this.path = path;
-		this.task = new WeakReference<LoadTask>(null);
-	}
-	public BitmapRequest(String path) {
-		this.isFirstDown = false;
-		this.view = new WeakReference<View>(null);
-		this.path = path;
-		this.task = new WeakReference<LoadTask>(null);
-	}
-
-	public BitmapRequest(View view, String path,int width,int height) {
-		super();
-		this.isFirstDown = false;
-		this.view = new WeakReference<View>(view);
-		this.path = path;
-		this.width = width;
-		this.height = height;
-		this.task = new WeakReference<LoadTask>(null);
-	}
-
-	/**
-	 * 是否是需要边下载边显示的图
-	 * @return
-	 */
-	public Boolean isBigBitmap(){
-		return totalSize > bigSize;
+	public BitmapRequest(){
+		isFirstDown = false;
+		isBlur = false;
 	}
 	/**
 	 * 检测是否需要异步获取
@@ -102,7 +52,7 @@ public class BitmapRequest{
 	 * @return
 	 */
 	public Boolean checkEffective(){
-		if (this.view.get() != null && ((String)this.view.get().getTag()).equals(this.path)){
+		if (this.view.get() != null && ((String)this.view.get().getTag()).equals(this.path+this.isBlur)){
 			return true;
 		}
 		return false;
@@ -145,12 +95,11 @@ public class BitmapRequest{
 				((PowerImageView) view.get()).setImageDrawable(drawable);
 			}
 		}else{
-//			setBitmap(view.get(),bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm());
 			setBitmap(view.get(),bitmap);
 			view.get().setBackgroundDrawable(ImageLoader.getInstance().getConfig().getFailedBm());
 
 		}
-		if (this != null && isFirstDown != null && isFirstDown && !isBigBitmap() && bitmap != null) {
+		if (this != null && isFirstDown != null && isFirstDown && bitmap != null) {
 			ObjectAnimator.ofFloat(view.get(),"alpha",0,1f).setDuration(500).start();
 		}
 	}

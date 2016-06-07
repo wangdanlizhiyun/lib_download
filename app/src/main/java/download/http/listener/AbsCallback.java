@@ -16,6 +16,14 @@ import download.utils.Util;
  */
 public abstract class AbsCallback<T> implements ICallback<T> {
 
+    public void onProgressUpdate(int curLength, int totalLength){}
+    public void onProgressDownload(int curLength, int totalLength){}
+
+    public void onCancel(){}
+    public T onPost(T t){return t;}
+
+    public void onFailure(AppException exception){}
+
     private String path;
 
     @Override

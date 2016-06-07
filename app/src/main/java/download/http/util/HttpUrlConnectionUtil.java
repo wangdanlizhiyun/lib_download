@@ -17,10 +17,10 @@ import download.http.request.Request;
  */
 public class HttpUrlConnectionUtil {
     public static HttpURLConnection execute(Request request) throws AppException {
-        if (!URLUtil.isNetworkUrl(request.url)){
-            throw new AppException(AppException.ErrorType.IO,"the url :"+request.url + "is not valid");
+        if (!URLUtil.isNetworkUrl(request.getUrl())){
+            throw new AppException(AppException.ErrorType.IO,"the url :"+request.getUrl() + "is not valid");
         }
-        switch (request.method){
+        switch (request.getMethod()){
             case GET:
             case DELETE:
                 return get(request);
@@ -35,11 +35,11 @@ public class HttpUrlConnectionUtil {
     private static HttpURLConnection get(Request request) throws AppException {
         try {
             request.checkIfCanceled();
-            HttpURLConnection connection = (HttpURLConnection) new URL(request.url+"?"+request.content).openConnection();
-            connection.setRequestMethod(request.method.name());
+            HttpURLConnection connection = (HttpURLConnection) new URL(request.getUrl()+"?"+request.getContent()).openConnection();
+            connection.setRequestMethod(request.getMethod().name());
             connection.setConnectTimeout(15 * 1000);
             connection.setReadTimeout(10 * 1000);
-            addHeader(connection, request.headers);
+            addHeader(connection, request.getHeaders());
             request.checkIfCanceled();
             return connection;
 
@@ -56,15 +56,15 @@ public class HttpUrlConnectionUtil {
     private static HttpURLConnection post(Request request) throws AppException {
         try {
             request.checkIfCanceled();
-            HttpURLConnection connection = (HttpURLConnection) new URL(request.url).openConnection();
-            connection.setRequestMethod(request.method.name());
+            HttpURLConnection connection = (HttpURLConnection) new URL(request.getUrl()).openConnection();
+            connection.setRequestMethod(request.getMethod().name());
             connection.setConnectTimeout(15 * 1000);
             connection.setReadTimeout(10 * 1000);
             connection.setDoOutput(true);
-            addHeader(connection, request.headers);
+            addHeader(connection, request.getHeaders());
             request.checkIfCanceled();
             OutputStream os = connection.getOutputStream();
-            os.write(request.content.getBytes());
+            os.write(request.getContent().getBytes());
             request.checkIfCanceled();
             return connection;
         }

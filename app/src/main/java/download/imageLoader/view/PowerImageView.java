@@ -16,11 +16,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import download.imageLoader.core.BmLoader;
+import download.imageLoader.core.BmManager;
+import download.imageLoader.core.Image;
 import download.imageLoader.core.ImageLoader;
 import download.imageLoader.listener.CustomDisplayMethod;
 
@@ -34,8 +34,8 @@ public class PowerImageView extends ImageView {
 	private Paint mBorderPaint = new Paint();
 	private float mBorderWidth = 0;
 	private int mBorderColor = Color.BLACK;
-	private final int TYPE_RECTANGLE = 0,TYPE_CYCLE = 1,TYPE_ROUND = 2;
-	private int type = TYPE_RECTANGLE;
+	public static final int SHAPE_RECTANGLE = 0,SHAPE_CYCLE = 1,SHAPE_ROUND = 2;
+	private int SHAPE = SHAPE_RECTANGLE;
 	private int boder_radius = 10;
 
 	float scaleH = 1f;
@@ -79,29 +79,32 @@ public class PowerImageView extends ImageView {
 		return this;
 	}
 
-	public PowerImageView setCircle(){
-		this.type = TYPE_CYCLE;
+	public PowerImageView circle(){
+		this.SHAPE = SHAPE_CYCLE;
 		requestLayout();
 		return this;
 	}
-	public PowerImageView setRectangle(){
-		this.type = TYPE_RECTANGLE;
+	public PowerImageView rectangle(){
+		this.SHAPE = SHAPE_RECTANGLE;
 		requestLayout();
 		return this;
 	}
-	public PowerImageView setRound(int round){
-		this.type = TYPE_ROUND;
+	public PowerImageView round(int round){
+		this.SHAPE = SHAPE_ROUND;
 		if (round > 0){
 			boder_radius = round;
 		}
 		requestLayout();
 		return this;
 	}
-	public void bind(String path){
-		BmLoader.load(path, this);
+	public Boolean isBlur;
+
+	public PowerImageView blur(Boolean b){
+		isBlur = b;
+		return this;
 	}
-	public void bind(String path,CustomDisplayMethod customDisplayMethod){
-		BmLoader.load(path, this, customDisplayMethod);
+	public void bind(String path){
+		Image.with(getContext()).blur(isBlur).load(path).into(this);
 	}
 
 	public void setMovie(Movie movie) {
@@ -255,16 +258,16 @@ public class PowerImageView extends ImageView {
 		mPath.reset();
 		RectF rect = new RectF(getPaddingLeft(),getPaddingTop(), getShowWidth(), getShowHeight());
 		canvas.clipPath(mPath);
-		switch (type){
-			case TYPE_CYCLE:
+		switch (SHAPE){
+			case SHAPE_CYCLE:
 
 				mPath.addCircle(rect.centerX(), rect.centerY(),
 						Math.min(getWidth()/2-getPaddingLeft()-getPaddingRight(), getHeight()/2-getPaddingTop()-getPaddingBottom()), Path.Direction.CCW);
 				break;
-			case TYPE_ROUND:
+			case SHAPE_ROUND:
 				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
 				break;
-			case TYPE_RECTANGLE:
+			case SHAPE_RECTANGLE:
 				mPath.addRect(rect, Path.Direction.CCW);
 				break;
 		}
@@ -276,17 +279,17 @@ public class PowerImageView extends ImageView {
 		mPath.reset();
 		RectF rect = new RectF(getPaddingLeft()/2, getPaddingTop()/2, (int) (getShowWidth()/mScale), (int) (getShowHeight()/mScale));
 		canvas.clipPath(mPath);
-		switch (type){
-			case TYPE_CYCLE:
+		switch (SHAPE){
+			case SHAPE_CYCLE:
 				mPath.addCircle(getShowWidth() / 2 / mScale, getShowHeight() / 2 /mScale,
 						Math.min(getShowWidth(), getShowHeight()) / 2 / mScale * Math.max(scaleH,scaleW) / Math.min(scaleH,scaleW), Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
-			case TYPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
+			case SHAPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
 				mPath.addRoundRect(rect, new float[]{boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale,boder_radius/mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale}, Path.Direction.CCW);
 				canvas.clipPath(mPath, Region.Op.REPLACE);
 				break;
-			case TYPE_RECTANGLE:
+			case SHAPE_RECTANGLE:
 				mPath.addRect(rect,Path.Direction.CCW);
 				break;
 		}

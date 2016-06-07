@@ -6,24 +6,23 @@ import download.http.exception.AppException;
 import download.http.listener.ICallback;
 import download.http.listener.OnGlobalExceptionListener;
 
+import static download.http.request.RequestBuilder.*;
+
 /**
  * Created by lizhiyun on 16/6/3.
  */
 public class Request {
-    public Object returnObject;
-    public  String tag;
-    public ICallback callback;
-    public boolean enableProgressUpdate = false;
-    public int maxRetryTime = 3;
-    public volatile boolean isCanceled = false;
-    public void setCallback(ICallback callback){
-        this.callback = callback;
-    }
 
-    public OnGlobalExceptionListener globalExceptionListener;
-    public void setGlobalExceptionListener(OnGlobalExceptionListener globalExceptionListener) {
-        this.globalExceptionListener = globalExceptionListener;
-    }
+    private Object returnObject;
+    private String tag;
+    private ICallback callback;
+    private boolean enableProgressUpdate = false;
+    private boolean enableProgressDownload = false;
+    private int maxRetryTime = 0;
+    private volatile boolean isCanceled = false;
+
+    private OnGlobalExceptionListener globalExceptionListener;
+
 
     public void checkIfCanceled() throws AppException {
         if (isCanceled){
@@ -35,21 +34,108 @@ public class Request {
         isCanceled = true;
     }
 
-    public enum RequestMethod{GET,POST,PUT,DELETE}
-    public RequestMethod method;
+    private RequestMethod method;
 
-    public String url;
-    public Map<String ,String> headers;
-    public String content;
+    private String url;
+    private Map<String ,String> headers;
+    private String content;
 
-    public Request(String url,RequestMethod method){
-        this.url = url;
+    public  Request(){
+    }
+
+    public Object getReturnObject() {
+        return returnObject;
+    }
+
+    public void setReturnObject(Object returnObject) {
+        this.returnObject = returnObject;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public ICallback getCallback() {
+        return callback;
+    }
+
+    protected void setCallback(ICallback callback) {
+        this.callback = callback;
+    }
+
+    public boolean isEnableProgressDownload() {
+        return enableProgressDownload;
+    }
+
+    public void setEnableProgressDownload(boolean enableProgressDownload) {
+        this.enableProgressDownload = enableProgressDownload;
+    }
+
+    public boolean isEnableProgressUpdate() {
+        return enableProgressUpdate;
+    }
+
+    protected void setEnableProgressUpdate(boolean enableProgressUpdate) {
+        this.enableProgressUpdate = enableProgressUpdate;
+    }
+
+    public int getMaxRetryTime() {
+        return maxRetryTime;
+    }
+
+    public void setMaxRetryTime(int maxRetryTime) {
+        this.maxRetryTime = maxRetryTime;
+    }
+
+    public boolean isCanceled() {
+        return isCanceled;
+    }
+
+    public void setIsCanceled(boolean isCanceled) {
+        this.isCanceled = isCanceled;
+    }
+
+    public OnGlobalExceptionListener getGlobalExceptionListener() {
+        return globalExceptionListener;
+    }
+
+    protected void setGlobalExceptionListener(OnGlobalExceptionListener globalExceptionListener) {
+        this.globalExceptionListener = globalExceptionListener;
+    }
+
+    public RequestMethod getMethod() {
+        return method;
+    }
+
+    protected void setMethod(RequestMethod method) {
         this.method = method;
     }
-    public  Request(String url){
-        this.url = url;
-        this.method = RequestMethod.GET;
+
+    public String getUrl() {
+        return url;
     }
 
+    protected void setUrl(String url) {
+        this.url = url;
+    }
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    protected void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    protected void setContent(String content) {
+        this.content = content;
+    }
 }

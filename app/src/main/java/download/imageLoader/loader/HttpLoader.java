@@ -15,7 +15,6 @@ import java.net.URL;
 
 import download.imageLoader.cache.DiskLruCache;
 import download.imageLoader.config.ImageConfig;
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ImageSizeUtil;
 import download.utils.Util;
@@ -26,11 +25,11 @@ import download.utils.Util;
 public class HttpLoader implements LoadInterface {
 
     @Override
-    public void load(BitmapRequest request, ImageConfig config, BackListener listener) {
+    public void load(BitmapRequest request, ImageConfig config) {
         request.isFirstDown = true;
         if (!config.getOnlyMemoryMode()){
             if (!config.getOnlyWifiMode()){
-                downloadBitmapToDisk(request, config.cache.getmDiskLruCacheBitmap(), listener);
+                downloadBitmapToDisk(request, config.cache.getmDiskLruCacheBitmap());
             }
             config.cache.getDiskCacheBitmap(request);
         }
@@ -39,7 +38,7 @@ public class HttpLoader implements LoadInterface {
         }
     }
     public void downloadBitmapToDisk(BitmapRequest request,
-                                            DiskLruCache diskLruCache, BackListener listener) {
+                                            DiskLruCache diskLruCache) {
         if (diskLruCache == null) {
             return ;
         }
@@ -52,8 +51,6 @@ public class HttpLoader implements LoadInterface {
                 BufferedOutputStream out = null;
                 BufferedInputStream in = null;
                 HttpURLConnection conn = null;
-                int sum = 0;
-                int p = 1;
                 try {
                     URL url = new URL(request.path);
                     conn = (HttpURLConnection) url.openConnection();
@@ -64,14 +61,6 @@ public class HttpLoader implements LoadInterface {
                     int b = 0;
                     while ((b = in.read()) != -1) {
                         out.write(b);
-                        sum++;
-                        request.percent = (int) (sum * 100 / request.totalSize);
-                        if (request.percent >= p) {
-                            p += 1;
-                            if (request.percent <= 100){
-                                listener.onProcess(request.percent);
-                            }
-                        }
                     }
                     editor.commit();
                 } catch (Exception e) {

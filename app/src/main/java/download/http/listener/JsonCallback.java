@@ -18,10 +18,4 @@ public abstract class JsonCallback<T> extends AbsCallback<T> {
         Class c = (Class) p.getActualTypeArguments()[0];
         return (T) new Gson().fromJson(result, c);
     }
-    public void onProgressUpdate(int curLength, int totalLength){}
-
-    public void onCancel(){}
-    public T onPost(T t){return t;}
-
-    public void onFailure(AppException exception){}
 }

@@ -25,7 +25,6 @@ import android.util.LruCache;
 public class BitmapCache {
 	private LruCache<String, BitmapDrawable> mMemoryBitmapLruCache;
 	private LruCache<String, Movie> mMemoryMovieLruCache;
-	private LruCache<String, BitmapDrawable> mPercentLruCache;
 	private DiskLruCache mDiskLruCache = null;
     private static final long DISK_CACHE_SIZE = 1024 * 1024 * 60;
 	private class Size{
@@ -56,12 +55,6 @@ public class BitmapCache {
 			@Override
 			protected int sizeOf(String key, Movie value) {
 				return 1;
-			}
-		};
-		mPercentLruCache = new LruCache<String, BitmapDrawable>(maxMemory / 5) {
-			@Override
-			protected int sizeOf(String key, BitmapDrawable value) {
-				return getBitmapByteSize(value);
 			}
 		};
 	}
@@ -109,27 +102,20 @@ public class BitmapCache {
 			if (oldSize == null || ( newSize.width * newSize.height > oldSize.width * oldSize.height )){
 				mHistoryMaxSize.put(request.path,newSize);
 			}
-			mMemoryBitmapLruCache.put(key, request.bitmap);
+			mMemoryBitmapLruCache.put(key+request.isBlur, request.bitmap);
 		}
 		if (request.movie != null){
 			mMemoryMovieLruCache.put(key,request.movie);
 		}
 	}
 
-	public void addPercentBitmap(String path, BitmapDrawable bm) {
-		String key = Util.md5(path);
-		mPercentLruCache.remove(key);
-		if (bm != null){
-			mPercentLruCache.put(key, bm);
-		}
-	}
 
 	public void getMemoryCache(BitmapRequest request) {
 		String key = Util.md5(request.path);
 		ImageSizeUtil.getImageViewSize(request);
 		request.movie = mMemoryMovieLruCache.get(key);
 		if (request.checkIfNeedAsyncLoad()){
-			request.bitmap = mMemoryBitmapLruCache.get(key);
+			request.bitmap = mMemoryBitmapLruCache.get(key+request.isBlur);
 
 			Size oldSize = mHistoryMaxSize.get(request.path);
 			if (oldSize != null && request.view != null && request.bitmap != null && (request.width > oldSize.width || request.height > oldSize.height)) {
@@ -175,17 +161,13 @@ public class BitmapCache {
 		options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
 				request.width, request.height);
 		options.inJustDecodeBounds = false;
-		if (request.totalSize > BitmapRequest.bigSize && request.percent > 0 && request.percent < 100){//大图获取百分比
-			request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
-		}else {
-			try{
-				request.movie = Movie.decodeStream(new FileInputStream(new File(path)));
-			}catch (Exception e){
+		try{
+			request.movie = Movie.decodeStream(new FileInputStream(new File(path)));
+		}catch (Exception e){
 
-			}
-			if (request.checkIfNeedAsyncLoad()){
-				request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
-			}
+		}
+		if (request.checkIfNeedAsyncLoad()){
+			request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
 		}
 
 	}
@@ -198,7 +180,6 @@ public class BitmapCache {
 
 	public void clearMemory(){
 		mMemoryBitmapLruCache.evictAll();
-		mPercentLruCache.evictAll();
 		mMemoryMovieLruCache.evictAll();
 	}
 	public void clearDiskMemory(){

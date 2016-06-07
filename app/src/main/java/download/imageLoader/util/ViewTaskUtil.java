@@ -17,15 +17,20 @@ public class ViewTaskUtil {
      * @param view
      */
     public static void cancelOldTask(SmartExecutor executor,View view){
-        List<Runnable> list = executor.getWaitingList();
-        for (Runnable r : list) {
-            if (r instanceof LoadTask){
-                LoadTask t = (LoadTask) r;
-                if (t.mRequest.view.get() != null && t.mRequest.view.get() == view){
-                    t.cancel();
+        try {
+            List<Runnable> list = executor.getWaitingList();
+            for (Runnable r : list) {
+                if (r instanceof LoadTask){
+                    LoadTask t = (LoadTask) r;
+                    if (t.mRequest.view.get() != null && t.mRequest.view.get() == view){
+                        t.cancel();
+                    }
                 }
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
 }

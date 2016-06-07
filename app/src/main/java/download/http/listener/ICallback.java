@@ -10,6 +10,7 @@ import download.http.request.Request;
  */
 public interface ICallback<T> {
     void onProgressUpdate(int curLength, int totalLength);
+    void onProgressDownload(int curLength, int totalLength);
 
     /**
      * 获取数据后的耗时预处理，在子线程

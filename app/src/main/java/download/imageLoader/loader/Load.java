@@ -4,7 +4,6 @@ package download.imageLoader.loader;
 import java.util.HashMap;
 
 import download.imageLoader.config.ImageConfig;
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 
 /**
@@ -30,8 +29,7 @@ public class Load {
 
 
 	}
-	public static void loadBitmap(BitmapRequest request, ImageConfig config,
-			BackListener listener) {
+	public static void loadBitmap(BitmapRequest request, ImageConfig config) {
 		for (int i = 0; i < keys.length; i++) {
 			if (request.path.contains(keys[i])){
 				if (map.get(keys[i]) == null){
@@ -45,7 +43,7 @@ public class Load {
 					}
 				}
 				if (map.get(keys[i]) != null){
-					map.get(keys[i]).load(request,config,listener);
+					map.get(keys[i]).load(request,config);
 				}
 				break;
 			}

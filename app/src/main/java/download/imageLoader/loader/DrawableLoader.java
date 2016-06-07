@@ -4,11 +4,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import download.imageLoader.config.ImageConfig;
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ImageSizeUtil;
 
@@ -18,7 +14,7 @@ import download.imageLoader.util.ImageSizeUtil;
 public class DrawableLoader implements LoadInterface {
 
     @Override
-    public void load(BitmapRequest request, ImageConfig config, BackListener listener) {
+    public void load(BitmapRequest request, ImageConfig config) {
         if (request.view == null || request.view.get() == null){
             return;
         }

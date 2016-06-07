@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import download.imageLoader.config.ImageConfig;
-import download.imageLoader.listener.BackListener;
 import download.imageLoader.request.BitmapRequest;
 import download.imageLoader.util.ImageSizeUtil;
 
@@ -18,7 +17,7 @@ import download.imageLoader.util.ImageSizeUtil;
 public class AssetsLoader implements LoadInterface {
 
     @Override
-    public void load(BitmapRequest request, ImageConfig config, BackListener listener) {
+    public void load(BitmapRequest request, ImageConfig config) {
         String name = request.path.substring(9);
         InputStream is = null;
         try {

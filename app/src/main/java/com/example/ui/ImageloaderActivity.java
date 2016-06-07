@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import download.http.core.HttpManager;
+import download.http.core.Http;
 import download.http.entity.ResultData;
+import download.http.exception.IfNeedLoginGlobalException;
 import download.http.listener.JsonCallback;
-import download.http.request.IfNeedLoginBaseHandleRequest;
-import download.http.request.Request;
 import download.imageLoader.config.FailedDrawable;
-import download.imageLoader.core.BmLoader;
+import download.imageLoader.core.BmManager;
+import download.imageLoader.core.Image;
 import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.view.PowerImageView;
 
@@ -60,36 +60,20 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         initView();
         String url = "http://api.stay4it.com/v1/public/core/?service=user.login";
         String content = "account=stay4it&password=123456";
+        Http.with(this).url(url).post().content(content).downloadProcess()
+                .globalException(new IfNeedLoginGlobalException())
+                .callback(new JsonCallback<ResultData>() {
 
-        final IfNeedLoginBaseHandleRequest request = new IfNeedLoginBaseHandleRequest(url, Request.RequestMethod.POST);
-        request.content = content;
-        request.enableProgressUpdate = true;
-        request.setCallback(new JsonCallback<ResultData>() {
+                    @Override
+                    public ResultData onPost(ResultData resultData) {
+                        return super.onPost(resultData);
+                    }
 
-            @Override
-            public void onSuccess(ResultData result) {
-                Log.e("test", "result=" + result == null ? "null" : result.data.toString());
-            }
-        });
-//        request.setCallback(new FileCallback() {
-//            @Override
-//            public void onProgressUpdate(int curLength, int totalLength) {
-//
-//            }
-//
-//            @Override
-//            public void onSuccess(String result) {
-//
-//            }
-//
-//            @Override
-//            public void onFailure(AppException exception) {
-//
-//            }
-//        });
-
-        request.tag = this.toString();
-        HttpManager.getInstance().request(request);
+                    @Override
+                    public void onSuccess(ResultData result) {
+                        Log.e("test", "result=" + result == null ? "null" : result.data.toString());
+                    }
+                }).execute();
 
     }
 
@@ -205,13 +189,16 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             builder.show();
         }
         mTv = (TextView) findViewById(R.id.tv);
-        BmLoader.loadImage("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg", mTv, 30, 30, new CustomDisplayMethod() {
-            @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-            @Override
-            public void display(Drawable bitmap, Movie movie) {
-                mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap,null,null,null);
-            }
-        });
+
+        Image.with(this).load("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg")
+                .size(130, 130).blur(false)
+                .customDisplay(new CustomDisplayMethod() {
+                    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+                    @Override
+                    public void display(Drawable bitmap, Movie movie) {
+                        mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap, null, null, null);
+                    }
+                }).into(mTv);
         Button button = (Button) findViewById(R.id.button);
         button.setBackground(new FailedDrawable(Color.RED));
     }
@@ -253,20 +240,22 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             final PowerImageView imageView = holder.imageView;
             final String uri = getItem(position);
 
-            imageView.setPadding(20,20,0,0);
             imageView.setBackgroundColor(Color.RED);
 
             if (position == 0){
-            imageView.setCircle().setBorder(Color.BLACK, 0f).bind(uri);
+            imageView.circle().blur(false).setBorder(Color.BLACK, 0f).bind(uri);
 
             }else if (position == 1){
-                imageView.setRectangle().setBorder(Color.BLUE, 15f).bind(uri);
+                imageView.rectangle().blur(false).setBorder(Color.BLUE, 15f).bind(uri);
 
             }else if (position == 2){
-                imageView.setRound(50).setBorder(Color.GREEN, 20f).bind(uri);
+                imageView.round(50).blur(false).setBorder(Color.GREEN, 20f).bind(uri);
+
+            }else if (position == 3){
+                imageView.round(50).blur(true).setBorder(Color.GREEN, 20f).bind(uri);
 
             }else {
-                imageView.setRound(50).setBorder(Color.GREEN, 0f).bind(uri);
+                imageView.round(50).blur(false).setBorder(Color.GREEN, 0f).bind(uri);
 
             }
 //            imageView.setCircle().bind(uri);
