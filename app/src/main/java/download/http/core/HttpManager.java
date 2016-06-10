@@ -26,6 +26,7 @@ public class HttpManager {
 		executor = new SmartExecutor(threadCount, 200);
 		executor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
 		executor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
+		executor.setDebug(false);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)

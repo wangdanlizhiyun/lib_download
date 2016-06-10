@@ -7,9 +7,10 @@ import android.os.Message;
 import java.net.HttpURLConnection;
 
 import download.http.exception.AppException;
-import download.http.listener.OnProgressListener;
+import download.http.listener.OnProgressDownloadListener;
 import download.http.request.Request;
 import download.http.util.HttpUrlConnectionUtil;
+import download.imageLoader.listener.OnProgressUpdatedListener;
 
 /**
  * Created by lizhiyun on 16/5/23.
@@ -33,9 +34,16 @@ public class HttpTask implements  Runnable {
 
     private Object request(int retryTime) {
         try {
-            HttpURLConnection connection = HttpUrlConnectionUtil.execute(mRequest);
+            HttpURLConnection connection = HttpUrlConnectionUtil.execute(mRequest, new OnProgressUpdatedListener() {
+                @Override
+                public void onProgressUpdated(int curLen, int totalLen) {
+                    if (mRequest.isEnableProgressUpdate()){
+                        updateProgress(curLen,totalLen);
+                    }
+                }
+            });
             if (mRequest.isEnableProgressUpdate()){
-                return mRequest.getCallback().parse(mRequest, connection, new OnProgressListener() {
+                return mRequest.getCallback().parse(mRequest, connection, new OnProgressDownloadListener() {
                     @Override
                     public void onProgressUpdate(int curLength, int totalLength) {
                         downloadProgress(curLength, totalLength);

@@ -21,5 +21,5 @@ public interface ICallback<T> {
     void onSuccess(T result);
     void onFailure(AppException exception);
     void onCancel();
-    T parse(Request request, HttpURLConnection connection, OnProgressListener listener) throws AppException;
+    T parse(Request request, HttpURLConnection connection, OnProgressDownloadListener listener) throws AppException;
 }

@@ -6,8 +6,10 @@ import java.util.List;
 
 import download.http.core.Http;
 import download.http.entity.ResultData;
+import download.http.exception.AppException;
 import download.http.exception.IfNeedLoginGlobalException;
 import download.http.listener.JsonCallback;
+import download.http.listener.JsonReaderCallback;
 import download.imageLoader.config.FailedDrawable;
 import download.imageLoader.core.BmManager;
 import download.imageLoader.core.Image;
@@ -60,20 +62,37 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         initView();
         String url = "http://api.stay4it.com/v1/public/core/?service=user.login";
         String content = "account=stay4it&password=123456";
+//        Http.with(this).url(url).post().content(content).downloadProcess()
+//                .globalException(new IfNeedLoginGlobalException())
+//                .callback(new JsonCallback<ResultData>() {
+//
+//                    @Override
+//                    public ResultData onPost(ResultData resultData) {
+//                        return super.onPost(resultData);
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(ResultData result) {
+//                        Log.e("test", "result=" + result == null ? "null" : result.data.toString());
+//                    }
+//                }).execute();
         Http.with(this).url(url).post().content(content).downloadProcess()
                 .globalException(new IfNeedLoginGlobalException())
-                .callback(new JsonCallback<ResultData>() {
-
-                    @Override
-                    public ResultData onPost(ResultData resultData) {
-                        return super.onPost(resultData);
-                    }
+                .callback(new JsonReaderCallback<ResultData>() {
 
                     @Override
                     public void onSuccess(ResultData result) {
                         Log.e("test", "result=" + result == null ? "null" : result.data.toString());
                     }
+
+                    @Override
+                    public void onFailure(AppException exception) {
+                        super.onFailure(exception);
+
+                        Log.e("test", "exception="+exception.errorType + exception.getMessage());
+                    }
                 }).execute();
+
 
     }
 

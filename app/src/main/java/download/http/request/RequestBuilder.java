@@ -2,9 +2,11 @@ package download.http.request;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import download.http.core.HttpManager;
+import download.http.entity.FileEntity;
 import download.http.exception.AppException;
 import download.http.listener.ICallback;
 import download.http.listener.OnGlobalExceptionListener;
@@ -20,6 +22,8 @@ public class RequestBuilder {
     private OnGlobalExceptionListener globalExceptionListener;
     public enum RequestMethod{GET,POST,PUT,DELETE}
     private RequestMethod method;
+    public String filePath;
+    public ArrayList<FileEntity> fileEntities;
 
     private String url;
     private Map<String ,String> headers;
@@ -87,7 +91,15 @@ public class RequestBuilder {
         return this;
     }
 
+    public RequestBuilder filePath(String filePath){
+        this.filePath = filePath;
+        return this;
+    }
 
+    public RequestBuilder fileEntities(ArrayList<FileEntity> fileEntities){
+        this.fileEntities = fileEntities;
+        return this;
+    }
     public void execute(){
         Request request = new Request();
         request.setUrl(url);
@@ -99,6 +111,8 @@ public class RequestBuilder {
         request.setMaxRetryTime(maxRetryTime);
         request.setEnableProgressUpdate(enableProgressUpdate);
         request.setEnableProgressDownload(enableProgressDownload);
+        request.setFilePath(filePath);
+        request.setFileEntities(fileEntities);
         HttpManager.getInstance().request(request);
     }
 

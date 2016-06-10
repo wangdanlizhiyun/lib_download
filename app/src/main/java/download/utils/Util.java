@@ -72,6 +72,9 @@ public class Util {
 			cachePath = Environment.getExternalStorageDirectory().getAbsolutePath();
 		}
 		File file = new File(cachePath + File.separator + uniqueName);
+		if (!file.exists()){
+			file.mkdirs();
+		}
 		return file;
 	}
 	public static String getNameFromUrl(String url){

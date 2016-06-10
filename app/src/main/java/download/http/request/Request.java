@@ -1,7 +1,9 @@
 package download.http.request;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import download.http.entity.FileEntity;
 import download.http.exception.AppException;
 import download.http.listener.ICallback;
 import download.http.listener.OnGlobalExceptionListener;
@@ -20,11 +22,13 @@ public class Request {
     private boolean enableProgressDownload = false;
     private int maxRetryTime = 0;
     private volatile boolean isCanceled = false;
+    public String filePath;
+    public ArrayList<FileEntity> fileEntities;
 
     private OnGlobalExceptionListener globalExceptionListener;
 
 
-    public void checkIfCanceled() throws AppException {
+    public void checkIfCancelled() throws AppException {
         if (isCanceled){
             throw new AppException(AppException.ErrorType.CANCEL,"canceled");
         }
@@ -105,6 +109,22 @@ public class Request {
 
     protected void setGlobalExceptionListener(OnGlobalExceptionListener globalExceptionListener) {
         this.globalExceptionListener = globalExceptionListener;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public ArrayList<FileEntity> getFileEntities() {
+        return fileEntities;
+    }
+
+    public void setFileEntities(ArrayList<FileEntity> fileEntities) {
+        this.fileEntities = fileEntities;
     }
 
     public RequestMethod getMethod() {

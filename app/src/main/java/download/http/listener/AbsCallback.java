@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import download.http.exception.AppException;
 import download.http.request.Request;
@@ -27,20 +29,28 @@ public abstract class AbsCallback<T> implements ICallback<T> {
     private String path;
 
     @Override
-    public T parse(Request request,HttpURLConnection connection,OnProgressListener listener) throws AppException {
+    public T parse(Request request,HttpURLConnection connection,OnProgressDownloadListener listener) throws AppException {
         try {
-            request.checkIfCanceled();
+            request.checkIfCancelled();
             int status = connection.getResponseCode();
+            InputStream is = null;
             if (status == HttpStatus.SC_OK){
+                String encode = connection.getContentEncoding();
+                if (encode != null && "gzip".equalsIgnoreCase(encode)){
+                    is = new GZIPInputStream(connection.getInputStream());
+                }else if (encode != null && "deflate".equalsIgnoreCase(encode)){
+                    is = new InflaterInputStream(connection.getInputStream());
+                }else {
+                    is = connection.getInputStream();
+                }
                 if (path == null){
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    InputStream is = connection.getInputStream();
                     int totalLength = connection.getContentLength();
                     int curLength = 0;
                     byte[] buffer = new byte[2048];
                     int len;
                     while ((len = is.read(buffer)) != -1){
-                        request.checkIfCanceled();
+                        request.checkIfCancelled();
                         out.write(buffer, 0, len);
                         curLength += len;
                         if (listener != null){
@@ -52,13 +62,12 @@ public abstract class AbsCallback<T> implements ICallback<T> {
                     return onPost(parseData(result));
                 }else {
                     FileOutputStream out = new FileOutputStream(path);
-                    InputStream is = connection.getInputStream();
                     int totalLength = connection.getContentLength();
                     int curLength = 0;
                     byte[] buffer = new byte[2048];
                     int len;
                     while ((len = is.read(buffer)) != -1){
-                        request.checkIfCanceled();
+                        request.checkIfCancelled();
                         out.write(buffer,0,len);
                         curLength += len;
                         if (listener != null){
@@ -78,7 +87,7 @@ public abstract class AbsCallback<T> implements ICallback<T> {
     }
 
 
-    protected abstract T parseData(String result);
+    protected abstract T parseData(String result) throws AppException;
 
     public ICallback setCachePath(String path){
         this.path = path;

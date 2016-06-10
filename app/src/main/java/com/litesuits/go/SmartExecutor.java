@@ -301,8 +301,6 @@ public class SmartExecutor implements Executor {
             //}
             if (!suc) {
                 runningList.clear();
-                Log.e(TAG,
-                        "SmartExecutor scheduler remove failed, so clear all(running list) to avoid unpreditable error : " + scheduler);
             }
             if (waitingList.size() > 0) {
                 WrappedRunnable waitingRun;
@@ -320,10 +318,7 @@ public class SmartExecutor implements Executor {
                 if (waitingRun != null) {
                     runningList.add(waitingRun);
                     threadPool.execute(waitingRun);
-                    Log.v(TAG, "Thread " + Thread.currentThread().getName() + " execute next task..");
                 } else {
-                    Log.e(TAG,
-                            "SmartExecutor get a NULL task from waiting queue: " + Thread.currentThread().getName());
                 }
             } else {
                 if (debug) {
