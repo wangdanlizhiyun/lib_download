@@ -1,24 +1,94 @@
 package download.otherFileLoader.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import android.content.Context;
-import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.litesuits.go.OverloadPolicy;
+import com.litesuits.go.SchedulePolicy;
+import com.litesuits.go.SmartExecutor;
 import com.litesuits.orm.LiteOrm;
-import com.litesuits.orm.db.assit.QueryBuilder;
-import com.litesuits.orm.db.assit.WhereBuilder;
 
 import download.otherFileLoader.core.Constants;
-import download.otherFileLoader.core.DownloadService;
-import download.otherFileLoader.listener.DownloadListener;
+import download.otherFileLoader.core.DownloadTask;
 import download.otherFileLoader.request.DownFile;
+import download.otherFileLoader.util.PackageUtil;
+import download.otherFileLoader.util.ToastUtils;
 import download.utils.Util;
 
 
 public class DownFileManager {
-	private LiteOrm orm;
+	private LiteOrm orm;private SmartExecutor executor;
+	private ArrayList<DownFile> downingFiles = new ArrayList<DownFile>();
+
+	private Handler sHandler = new Handler(Looper.getMainLooper()){
+		@Override
+		public void handleMessage(Message msg) {
+			DownFile downFile = (DownFile) msg.obj;
+			if (downFile == null) {
+				return;
+			}
+			switch (msg.what){
+				case Constants.WHAT_DOWNLOADING:
+					for (DownFile df:downingFiles
+							) {
+						if (df.equals(downFile)) {
+							if (df.listener != null) {
+								df = downFile;
+								df.listener.progress(df.downLength,df.totalLength);
+							}
+						}
+					}
+					break;
+				case Constants.WHAT_FINISH:
+					if (downFile.isAutoInstall) {
+						Boolean code = PackageUtil.install(context, new File(downFile.downPath));
+						if (!code) {
+							ToastUtils.showToast(context, "安装失败");
+						}
+					}
+					for (DownFile df:downingFiles
+							) {
+						if (df.equals(downFile)){
+							if (df.listener != null){
+								df = downFile;
+								df.listener.success(df.downPath);
+							}
+						}
+					}
+					break;
+				case Constants.WHAT_PROCESS:
+					for (DownFile df:downingFiles
+							) {
+						if (df.equals(downFile)){
+							if (df.listener != null){
+								df.listener.progress(downFile.downLength,downFile.totalLength);
+							}
+						}
+					}
+					break;
+				case Constants.WHAT_ERROR:
+					for (DownFile df:downingFiles
+							) {
+						if (df.equals(downFile)){
+							if (df.listener != null){
+								Bundle b = msg.getData();
+								df.listener.error(b.getString("error"));
+							}
+						}
+					}
+					break;
+			}
+			save(downFile);
+
+		}
+	};
 
 	private static volatile DownFileManager instance = null;
 	public static DownFileManager getInstance(Context context) {
@@ -35,6 +105,9 @@ public class DownFileManager {
 	private DownFileManager(Context context){
 		this.context = context;
 		orm = LiteOrm.newSingleInstance(context, "downfile");
+		executor = new SmartExecutor(4, 100);
+		executor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
+		executor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
 	}
 
 	public void initData(DownFile downFile){
@@ -52,30 +125,38 @@ public class DownFileManager {
 	public DownFile getDownFile(DownFile downFile){
 		return orm.queryById(downFile.url, DownFile.class);
 	}
-	public synchronized void  save(DownFile mDownFile){
+	public void  save(DownFile mDownFile){
 		orm.save(mDownFile);
 	}
 
 
-	public void down(DownFile build) {
-		Log.e("test","build.downPath="+build.downPath);
-		Intent intent = new Intent(context, DownloadService.class);
-		intent.putExtra(Constants.KEY_DOWNLOAD_ENTRY, build);
-		intent.putExtra(Constants.KEY_DOWNLOAD_ACTION, Constants.KEY_DOWNLOAD_ACTION_ADD);
-		context.startService(intent);
+	public void down(DownFile downFile) {
+		Log.e("test","downFile.downPath="+downFile.downPath);
+
+		Boolean exist = hasIntasks(downFile);
+		DownFileManager.getInstance(context).initData(downFile);
+		downingFiles.add(downFile);
+		if (!exist){
+			new DownloadTask(downFile,sHandler,executor).start();
+		}
 	}
-	public void pause(DownFile build) {
-		Intent intent = new Intent(context, DownloadService.class);
-		intent.putExtra(Constants.KEY_DOWNLOAD_ENTRY, build);
-		intent.putExtra(Constants.KEY_DOWNLOAD_ACTION, Constants.KEY_DOWNLOAD_ACTION_PAUSE);
-		context.startService(intent);
+	public void pause(DownFile downFile) {
+		for (DownFile df:downingFiles
+				) {
+			if (df.equals(downFile)){
+				df.isPaused = true;
+			}
+		}
 	}
-	public void cancel(DownFile build) {
-		Intent intent = new Intent(context, DownloadService.class);
-		intent.putExtra(Constants.KEY_DOWNLOAD_ENTRY, build);
-		intent.putExtra(Constants.KEY_DOWNLOAD_ACTION, Constants.KEY_DOWNLOAD_ACTION_CANCEL);
-		context.startService(intent);
+	public void cancel(DownFile downFile) {
+		for (DownFile df:downingFiles
+				) {
+			if (df.equals(downFile)){
+				df.isCanceled = true;
+			}
+		}
 	}
+
 
 	public void pauseAll() {
 
@@ -84,5 +165,14 @@ public class DownFileManager {
 
 	public void recoverAll() {
 
+	}
+	private Boolean hasIntasks(DownFile downFile){
+		for (DownFile df:downingFiles
+				) {
+			if (df.equals(downFile)){
+				return true;
+			}
+		}
+		return false;
 	}
 }

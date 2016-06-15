@@ -52,6 +52,7 @@ public class PowerImageView extends ImageView {
 	private boolean mVisible = true;
 	private float mLeft,mTop;
 	private boolean isNeedSetPath = true;
+	private Runnable mDelayShowRunnable;
 
 	public PowerImageView(Context context) {
 		this(context, null);
@@ -69,6 +70,12 @@ public class PowerImageView extends ImageView {
 		mBorderPaint.setColor(mBorderColor);
 		mBorderPaint.setStrokeWidth(mBorderWidth);
 		mPath = new Path();
+		mDelayShowRunnable = new Runnable() {
+			@Override
+			public void run() {
+				mVisible = true;
+			}
+		};
 	}
 
 	public PowerImageView setBorder(int color,float borderWidth){
@@ -116,11 +123,10 @@ public class PowerImageView extends ImageView {
 		if (Looper.myLooper() != Looper.getMainLooper()) {
 			throw new RuntimeException("only run on ui thread");
 		}
-		notifyLayerType();
 		this.mMovie = movie;
-		//至关重要的设置
 		setImageDrawable(null);
 		requestLayout();
+		notifySetedBitmap();
 	}
 
 	private void notifyLayerType() {
@@ -180,32 +186,35 @@ public class PowerImageView extends ImageView {
 			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
 		}
 	}
+	private void notifySetedBitmap(){
+		notifyLayerType();
+		invalidateView();
+		mVisible = false;
+		removeCallbacks(mDelayShowRunnable);
+		postDelayed(mDelayShowRunnable, 60);
+	}
 	@Override
 	public void setImageBitmap(Bitmap bm) {
 		super.setImageBitmap(bm);
-		notifyLayerType();
-		invalidateView();
+		notifySetedBitmap();
 	}
 
 	@Override
 	public void setImageDrawable(Drawable drawable) {
 		super.setImageDrawable(drawable);
-		notifyLayerType();
-		invalidateView();
+		notifySetedBitmap();
 	}
 
 	@Override
 	public void setImageResource(int resId) {
 		super.setImageResource(resId);
-		notifyLayerType();
-		invalidateView();
+		notifySetedBitmap();
 	}
 
 	@Override
 	public void setImageURI(Uri uri) {
 		super.setImageURI(uri);
-		notifyLayerType();
-		invalidateView();
+		notifySetedBitmap();
 	}
 
 	@Override

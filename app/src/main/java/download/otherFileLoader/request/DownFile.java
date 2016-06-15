@@ -65,6 +65,6 @@ public class DownFile implements Serializable{
 
 	@Override
 	public int hashCode() {
-		return url.hashCode()+downPath.hashCode()*16;
+		return url.hashCode()+downPath.hashCode()*31;
 	}
 }

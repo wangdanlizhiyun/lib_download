@@ -1,23 +1,22 @@
 package download.otherFileLoader.request;
 
 import android.content.Context;
-import android.text.TextUtils;
+
+import java.io.Serializable;
 
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
-import download.utils.Util;
 
 
 @SuppressWarnings("serial")
-public class Builder {
+public class DownBuilder {
 	private Context context;
-	private  Builder(){
+	private DownBuilder(){
 
 	}
-	public Builder(Context context) {
+	public DownBuilder(Context context) {
 		this.context = context;
 		this.isAutoInstall = false;
-
 	}
 
 	public Boolean isAutoInstall;
@@ -27,21 +26,21 @@ public class Builder {
 	public String downPath;
 	public DownloadListener listener;
 
-	public Builder url(String url){
+	public DownBuilder url(String url){
 		this.downUrl = url;
 		return this;
 	}
 
-	public Builder savePath(String path){
+	public DownBuilder savePath(String path){
 		this.downPath = path;
 		return this;
 	}
-	public Builder listen(DownloadListener listener){
+	public DownBuilder listen(DownloadListener listener){
 		this.listener = listener;
 		return this;
 	}
 
-	public Builder autoInstanll(){
+	public DownBuilder autoInstanll(){
 		this.isAutoInstall = true;
 		return this;
 	}

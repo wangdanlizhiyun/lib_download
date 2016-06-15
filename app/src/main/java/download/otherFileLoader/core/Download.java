@@ -2,9 +2,7 @@ package download.otherFileLoader.core;
 
 import android.content.Context;
 
-import download.http.request.RequestBuilder;
-import download.otherFileLoader.request.Builder;
-import download.utils.Util;
+import download.otherFileLoader.request.DownBuilder;
 
 /**
  * Created by lizhiyun on 16/6/7.
@@ -12,7 +10,7 @@ import download.utils.Util;
 public class Download {
     public static String tempFileRootPath;
 
-    public static Builder with(Context context){
-        return new Builder(context);
+    public static DownBuilder with(Context context){
+        return new DownBuilder(context);
     }
 }
