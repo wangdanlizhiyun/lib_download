@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
        <application
+           android:name=".App"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -32,7 +33,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+           <activity android:name=".FileDownloadActivity">
+
+           </activity>
+        <service android:name="download.otherFileLoader.core.DownloadService"></service>
     </application>
     
 </manifest>

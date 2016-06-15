@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
-
 import download.imageLoader.core.ImageLoader;
 import download.imageLoader.core.LoadTask;
 import download.imageLoader.listener.CustomDisplayMethod;
@@ -38,6 +37,7 @@ public class BitmapRequestBuilder {
         bitmapRequest.isBlur = isBlur;
 
         ImageLoader.getInstance().loadImage(bitmapRequest);
+
 
 
     }

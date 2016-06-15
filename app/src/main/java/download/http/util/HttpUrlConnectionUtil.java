@@ -36,7 +36,7 @@ public class HttpUrlConnectionUtil {
     private static HttpURLConnection get(Request request) throws AppException {
         try {
             request.checkIfCancelled();
-            HttpURLConnection connection = (HttpURLConnection) new URL(request.getUrl()+"?"+request.getContent()).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL(request.getUrl()).openConnection();
             connection.setRequestMethod(request.getMethod().name());
             connection.setConnectTimeout(15 * 1000);
             connection.setReadTimeout(10 * 1000);
@@ -67,9 +67,9 @@ public class HttpUrlConnectionUtil {
             request.checkIfCancelled();
             os = connection.getOutputStream();
             if (request.filePath != null){
-                UploadUtil.upload(os,request.filePath);
+                UploadUtil.upload(os, request.filePath);
             }else if (request.fileEntities != null){
-                UploadUtil.upload(os,request.getContent(),request.getFileEntities(),listener);
+                UploadUtil.upload(os, request.getContent(), request.getFileEntities(), listener);
             }else if (request.getContent() != null){
                 os.write(request.getContent().getBytes());
             }else {
@@ -85,8 +85,10 @@ public class HttpUrlConnectionUtil {
             throw new AppException(AppException.ErrorType.IO,e.getMessage());
         }finally {
             try {
-                os.flush();
-                os.close();
+                if (os != null){
+                    os.flush();
+                    os.close();
+                }
             }catch (IOException e){
                 throw  new AppException(AppException.ErrorType.IO,"the post outputstream cannot close");
             }

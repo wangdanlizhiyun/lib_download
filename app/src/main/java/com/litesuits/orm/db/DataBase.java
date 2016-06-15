@@ -38,7 +38,7 @@ import java.util.List;
 public interface DataBase {
 
     /**
-     * {@link #openOrCreateDatabase(String, android.database.sqlite.SQLiteDatabase.CursorFactory)}
+     * {@link #openOrCreateDatabase(String, SQLiteDatabase.CursorFactory)}
      *
      * @return true if create successfully.
      */
@@ -307,7 +307,7 @@ public interface DataBase {
      * <p/>
      * <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
      * <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-     * Equivalent to {@link SQLiteDatabase#openDatabase(String, android.database.sqlite.SQLiteDatabase.CursorFactory, int)}.
+     * Equivalent to {@link SQLiteDatabase#openDatabase(String, SQLiteDatabase.CursorFactory, int)}.
      */
     SQLiteDatabase openOrCreateDatabase(String path, SQLiteDatabase.CursorFactory factory);
 

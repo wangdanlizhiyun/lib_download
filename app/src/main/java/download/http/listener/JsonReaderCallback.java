@@ -4,7 +4,6 @@ package download.http.listener;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-//import android.util.JsonReader;
 import com.google.gson.stream.JsonReader;
 
 import java.io.File;

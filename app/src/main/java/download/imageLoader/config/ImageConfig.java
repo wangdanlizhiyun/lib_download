@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+
 @SuppressLint("NewApi")
 public class ImageConfig {
 	public BitmapCache cache;

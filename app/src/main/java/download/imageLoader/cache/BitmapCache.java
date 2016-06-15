@@ -21,6 +21,7 @@ import android.os.StatFs;
 import android.os.Build.VERSION_CODES;
 import android.util.LruCache;
 
+
 @SuppressLint("NewApi")
 public class BitmapCache {
 	private LruCache<String, BitmapDrawable> mMemoryBitmapLruCache;
@@ -37,7 +38,7 @@ public class BitmapCache {
 	}
 	private HashMap<String, Size> mHistoryMaxSize = new HashMap<String, Size>();
 
-	
+
 
 	@SuppressLint("NewApi")
 	public BitmapCache() {
@@ -75,7 +76,7 @@ public class BitmapCache {
 				}
 		        if (getUsableSpace(diskCacheDir) > DISK_CACHE_SIZE) {
 		        	mDiskLruCache = DiskLruCache.open(diskCacheDir,
-		        			1, 1, DISK_CACHE_SIZE);
+							1, 1, DISK_CACHE_SIZE);
 		        }
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -199,7 +200,7 @@ public class BitmapCache {
 			throw new IllegalStateException("Cannot obtain size for recycled Bitmap: " + bitmap
 					+ "[" + bitmap.getBitmap().getWidth() + "x" + bitmap.getBitmap().getHeight() + "] " + bitmap.getBitmap().getConfig());
 		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+		if (Build.VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
 			// Workaround for KitKat initial release NPE in Bitmap, fixed in MR1. See issue #148.
 			try {
 				return bitmap.getBitmap().getAllocationByteCount();

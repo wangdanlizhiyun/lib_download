@@ -10,6 +10,7 @@ import download.http.exception.AppException;
 import download.http.exception.IfNeedLoginGlobalException;
 import download.http.listener.JsonCallback;
 import download.http.listener.JsonReaderCallback;
+import download.http.listener.OnProgressDownloadListener;
 import download.imageLoader.config.FailedDrawable;
 import download.imageLoader.core.BmManager;
 import download.imageLoader.core.Image;
@@ -22,6 +23,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
@@ -76,7 +78,12 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //                        Log.e("test", "result=" + result == null ? "null" : result.data.toString());
 //                    }
 //                }).execute();
-        Http.with(this).url(url).post().content(content).downloadProcess()
+        Http.with(this).url(url).post().content(content).progressDownload(new OnProgressDownloadListener() {
+            @Override
+            public void onProgressDownload(int curLength, int totalLength) {
+
+            }
+        })
                 .globalException(new IfNeedLoginGlobalException())
                 .callback(new JsonReaderCallback<ResultData>() {
 
@@ -218,8 +225,14 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
                         mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap, null, null, null);
                     }
                 }).into(mTv);
+
         Button button = (Button) findViewById(R.id.button);
-        button.setBackground(new FailedDrawable(Color.RED));
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ImageloaderActivity.this,FileDownloadActivity.class));
+            }
+        });
     }
 
     private class ImageAdapter extends BaseAdapter {

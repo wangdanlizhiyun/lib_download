@@ -7,17 +7,18 @@ import java.util.Map;
 
 import download.http.core.HttpManager;
 import download.http.entity.FileEntity;
-import download.http.exception.AppException;
 import download.http.listener.ICallback;
 import download.http.listener.OnGlobalExceptionListener;
+import download.http.listener.OnProgressDownloadListener;
+import download.http.listener.OnProgressUpdateListener;
 
 /**
  * Created by lizhiyun on 16/6/3.
  */
 public class RequestBuilder {
     private ICallback callback;
-    private boolean enableProgressUpdate = false;
-    private boolean enableProgressDownload = false;
+    public OnProgressUpdateListener onProgressUpdatedListener;
+    public OnProgressDownloadListener onProgressDownloadListener;
     private int maxRetryTime = 3;
     private OnGlobalExceptionListener globalExceptionListener;
     public enum RequestMethod{GET,POST,PUT,DELETE}
@@ -31,8 +32,8 @@ public class RequestBuilder {
 
 
     public RequestBuilder(Context context){
-        this.method = RequestMethod.POST;
-        this.maxRetryTime = 3;
+        this.method = RequestMethod.GET;
+        this.maxRetryTime = 2;
     }
     public RequestBuilder url(String url){
         this.url = url;
@@ -59,14 +60,6 @@ public class RequestBuilder {
         this.callback = callback;
         return this;
     }
-    public RequestBuilder updateProcess(){
-        this.enableProgressUpdate = true;
-        return this;
-    }
-    public RequestBuilder downloadProcess(){
-        this.enableProgressDownload = true;
-        return this;
-    }
 
     public RequestBuilder globalException(OnGlobalExceptionListener globalExceptionListener){
         this.globalExceptionListener = globalExceptionListener;
@@ -91,10 +84,19 @@ public class RequestBuilder {
         return this;
     }
 
+    public RequestBuilder progressUpdate(OnProgressUpdateListener listener){
+        this.onProgressUpdatedListener = listener;
+        return this;
+    }
+    public RequestBuilder progressDownload(OnProgressDownloadListener listener){
+        this.onProgressDownloadListener = listener;
+        return this;
+    }
     public RequestBuilder filePath(String filePath){
         this.filePath = filePath;
         return this;
     }
+
 
     public RequestBuilder fileEntities(ArrayList<FileEntity> fileEntities){
         this.fileEntities = fileEntities;
@@ -109,8 +111,8 @@ public class RequestBuilder {
         request.setMethod(method);
         request.setGlobalExceptionListener(globalExceptionListener);
         request.setMaxRetryTime(maxRetryTime);
-        request.setEnableProgressUpdate(enableProgressUpdate);
-        request.setEnableProgressDownload(enableProgressDownload);
+        request.onProgressDownloadListener = onProgressDownloadListener;
+        request.onProgressUpdatedListener = onProgressUpdatedListener;
         request.setFilePath(filePath);
         request.setFileEntities(fileEntities);
         HttpManager.getInstance().request(request);

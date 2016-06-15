@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 
 import java.lang.reflect.ParameterizedType;
 
-import download.http.exception.AppException;
 
 /**
  * Created by lizhiyun on 16/6/3.

@@ -142,14 +142,14 @@ public abstract class LiteOrm extends SQLiteClosable implements DataBase {
     /**
      * get a single data operator based on SQLite
      *
-     * @return {@link com.litesuits.orm.db.impl.CascadeSQLiteImpl}
+     * @return {@link CascadeSQLiteImpl}
      */
     public abstract LiteOrm single();
 
     /**
      * get a cascade data operator based on SQLite
      *
-     * @return {@link com.litesuits.orm.db.impl.CascadeSQLiteImpl}
+     * @return {@link CascadeSQLiteImpl}
      */
     public abstract LiteOrm cascade();
 

@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +184,7 @@ public class PackageUtil {
     /**
      * 获取已安装的全部应用信息
      */
-    public static List<android.content.pm.PackageInfo> getInsatalledPackages(Context context) {
+    public static List<PackageInfo> getInsatalledPackages(Context context) {
         return context.getPackageManager().getInstalledPackages(0);
     }
 
@@ -202,7 +203,7 @@ public class PackageUtil {
     /**
      * 获取指定程序信息
      */
-    public static android.content.pm.PackageInfo getPackageInfo(Context context, String pkg) {
+    public static PackageInfo getPackageInfo(Context context, String pkg) {
         try {
             return context.getPackageManager().getPackageInfo(pkg, 0);
         } catch (NameNotFoundException e) {
@@ -222,7 +223,7 @@ public class PackageUtil {
      * 启动应用
      */
     public static boolean startAppByPackageName(Context context, String packageName, Map<String, String> param) {
-        android.content.pm.PackageInfo pi = null;
+        PackageInfo pi = null;
         try {
             pi = context.getPackageManager().getPackageInfo(packageName, 0);
             Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);

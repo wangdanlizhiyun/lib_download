@@ -1,5 +1,6 @@
 package download.otherFileLoader.core;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,23 +9,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import download.otherFileLoader.listener.DownloadListener;
 import download.otherFileLoader.request.DownFile;
 
-public class DownloadFileRunnable implements Runnable {
+public class SingleRunnable implements Runnable {
 	private DownFile mDownFile;
 	private File saveFile;
 	private final AtomicBoolean flag = new AtomicBoolean();
 	private volatile HttpURLConnection http;
-	private ApkLoader downloader;
 
-	private DownloadPercentListener listener;
+	private DownloadListener listener;
 
-	public DownloadFileRunnable(DownFile mDownFile, File saveFile,
-			ApkLoader downloader, DownloadPercentListener listener) {
+	public SingleRunnable(DownFile mDownFile, DownloadListener listener) {
 		super();
 		this.mDownFile = mDownFile;
-		this.saveFile = saveFile;
-		this.downloader = downloader;
 		this.listener = listener;
 
 	}
@@ -43,15 +41,13 @@ public class DownloadFileRunnable implements Runnable {
 	@Override
 	public void run() {
 		flag.set(true);
-		mDownFile
-				.setTotalLength(getContentLengthFormUrl(mDownFile.getDownUrl()));
 		InputStream inStream = null;
 		RandomAccessFile threadfile = null;
 		// 未下载完成
 		if (mDownFile.state != 1) {
 			try {
 				// 使用Get方式下载
-				URL mUrl = new URL(mDownFile.getDownUrl());
+				URL mUrl = new URL(mDownFile.url);
 				http = (HttpURLConnection) mUrl.openConnection();
 				http.setConnectTimeout(5 * 1000);
 
@@ -60,13 +56,13 @@ public class DownloadFileRunnable implements Runnable {
 						"Accept",
 						"image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
 				http.setRequestProperty("Accept-Language", "zh-CN");
-				http.setRequestProperty("Referer", mDownFile.getDownUrl());
+				http.setRequestProperty("Referer", mDownFile.url);
 				http.setRequestProperty("Charset", "UTF-8");
 				// 设置获取实体数据的范围
 				http.setRequestProperty(
 						"Range",
-						"bytes=" + mDownFile.getDownLength() + "-"
-								+ mDownFile.getTotalLength());
+						"bytes=" + mDownFile.downLength + "-"
+								+ mDownFile.totalLength);
 				http.setRequestProperty(
 						"User-Agent",
 						"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
@@ -74,46 +70,31 @@ public class DownloadFileRunnable implements Runnable {
 				try {
 					inStream = http.getInputStream();
 				} catch (Exception e) {
-					if (mDownFile.getDownLength() > 0
-							&& mDownFile.getDownLength() >= mDownFile
-									.getTotalLength()) {
-						flag.set(false);
-						mDownFile.state = 1;
-						if (listener != null) {
-							listener.notify(mDownFile);
-						}
-					}
 					e.printStackTrace();
 				}
 				byte[] buffer = new byte[1024];
 				int offset = 0;
 				threadfile = new RandomAccessFile(this.saveFile, "rwd");
-				threadfile.seek(mDownFile.getDownLength());
+				threadfile.seek(mDownFile.downLength);
 				while (flag.get()) {
 					offset = inStream.read(buffer, 0, 1024);
 					if (offset == -1) {
 						flag.set(false);
 						mDownFile.state = 1;
 						if (listener != null) {
-							listener.notify(mDownFile);
 						}
 						break;
 					}
 					if (offset >= 0) {
 						threadfile.write(buffer, 0, offset);
-						mDownFile.setDownLength(mDownFile.getDownLength()
-								+ offset);
 						offset = 0;
 						mDownFile.state = 2;
-						downloader.update(mDownFile);
 						if (listener != null) {
-							listener.notify(mDownFile);
 						}
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				mDownFile.setDownLength(-1);
 			} finally {
 				try {
 					if (threadfile != null) {
@@ -166,8 +147,4 @@ public class DownloadFileRunnable implements Runnable {
 		return mContentLength;
 	}
 
-	public interface DownloadPercentListener {
-		public long lastTime = 0;
-		void notify(DownFile downFile);
-	}
 }

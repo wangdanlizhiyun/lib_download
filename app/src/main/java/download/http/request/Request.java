@@ -7,6 +7,8 @@ import download.http.entity.FileEntity;
 import download.http.exception.AppException;
 import download.http.listener.ICallback;
 import download.http.listener.OnGlobalExceptionListener;
+import download.http.listener.OnProgressDownloadListener;
+import download.http.listener.OnProgressUpdateListener;
 
 import static download.http.request.RequestBuilder.*;
 
@@ -18,8 +20,8 @@ public class Request {
     private Object returnObject;
     private String tag;
     private ICallback callback;
-    private boolean enableProgressUpdate = false;
-    private boolean enableProgressDownload = false;
+    public OnProgressUpdateListener onProgressUpdatedListener;
+    public OnProgressDownloadListener onProgressDownloadListener;
     private int maxRetryTime = 0;
     private volatile boolean isCanceled = false;
     public String filePath;
@@ -69,22 +71,6 @@ public class Request {
 
     protected void setCallback(ICallback callback) {
         this.callback = callback;
-    }
-
-    public boolean isEnableProgressDownload() {
-        return enableProgressDownload;
-    }
-
-    public void setEnableProgressDownload(boolean enableProgressDownload) {
-        this.enableProgressDownload = enableProgressDownload;
-    }
-
-    public boolean isEnableProgressUpdate() {
-        return enableProgressUpdate;
-    }
-
-    protected void setEnableProgressUpdate(boolean enableProgressUpdate) {
-        this.enableProgressUpdate = enableProgressUpdate;
     }
 
     public int getMaxRetryTime() {

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import download.imageLoader.core.LoadTask;
+
 /**
  * A smart thread pool executor, about {@link SmartExecutor}:
  *
@@ -141,6 +143,20 @@ public class SmartExecutor implements Executor {
         return threadPool;
     }
 
+    public void remove(android.view.View view){
+        synchronized (lock){
+            List<Runnable> list = getWaitingList();
+            for (Runnable r : list) {
+                if (r instanceof LoadTask){
+                    LoadTask t = (LoadTask) r;
+                    if (t.mRequest.view.get() != null && t.mRequest.view.get() == view){
+                        cancelWaitingTask(t);
+                        break;
+                    }
+                }
+            }
+        }
+    }
     public boolean cancelWaitingTask(Runnable command) {
         boolean removed = false;
         synchronized (lock) {

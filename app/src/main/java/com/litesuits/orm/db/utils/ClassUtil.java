@@ -24,7 +24,7 @@ public class ClassUtil {
     /**
      * 判断类是否是基础数据类型
      * 目前支持11种
-     * 在{@link com.litesuits.orm.db.utils.DataUtil#injectDataToObject} 中注入也有体现
+     * 在{@link DataUtil#injectDataToObject} 中注入也有体现
      */
     public static boolean isBaseDataType(Class<?> clazz) {
         return clazz.isPrimitive() || clazz.equals(String.class) || clazz.equals(Boolean.class)

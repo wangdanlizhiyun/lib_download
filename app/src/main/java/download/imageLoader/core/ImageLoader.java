@@ -5,14 +5,12 @@ import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 import download.imageLoader.config.ImageConfig;
 import download.imageLoader.request.BitmapRequest;
-import download.imageLoader.util.ViewTaskUtil;
 import download.imageLoader.view.PowerImageView;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
-import android.view.View;
 
 public class ImageLoader {
 	private SmartExecutor executor;
@@ -59,13 +57,14 @@ public class ImageLoader {
 	}
 
 	public void cancelOldTask(PowerImageView powerImageView) {
-		ViewTaskUtil.cancelOldTask(executor, powerImageView);
+		executor.remove(powerImageView);
 	}
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	public void loadImage(final BitmapRequest request) {
 		if (Looper.myLooper() == Looper.getMainLooper()) {
 			if (request.view == null || request.view.get() == null){
-
+				final LoadTask task = new LoadTask(request, ImageLoader.this);
+				executor.execute(task);
 			}else {
 				getInstance();
 				config.cache.setDiskLruCache(request.view.get().getContext()
@@ -75,19 +74,19 @@ public class ImageLoader {
 				if (!request.checkIfNeedAsyncLoad()) {
 					request.display();
 				} else {
-					ViewTaskUtil.cancelOldTask(executor, request.view.get());
+					executor.remove(request.view.get());
 					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
 					request.view.get().setTag(request.path+request.isBlur);
 					//通过延迟异步任务的执行，更大程度上减少ui的繁重绘制任务
-//					request.view.get().postDelayed(new Runnable() {
-//						@Override
-//						public void run() {
-//						if (request.checkEffective()){
+					request.view.get().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+						if (request.checkEffective()){
 							executor.execute(task);
-//						}
-//						}
-//					},0);
+						}
+						}
+					},200);
 				}
 
 			}

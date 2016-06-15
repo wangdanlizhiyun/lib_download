@@ -13,11 +13,12 @@
         android:gravity="center"
         android:layout_gravity="center_horizontal"
         android:textColor="#990000"
-        android:text="带网络图片的文本"/>
+        android:text="左边带网络图片的文本"/>
     <Button
         android:id="@+id/button"
         android:layout_width="100dp"
-        android:layout_height="40dp" />
+        android:layout_height="40dp"
+        android:text="多线程下载"/>
     <GridView
         android:id="@+id/gridView1"
         android:layout_width="match_parent"

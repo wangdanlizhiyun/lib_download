@@ -3,6 +3,7 @@ package download.http.core;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import java.net.HttpURLConnection;
 
@@ -37,15 +38,15 @@ public class HttpTask implements  Runnable {
             HttpURLConnection connection = HttpUrlConnectionUtil.execute(mRequest, new OnProgressUpdatedListener() {
                 @Override
                 public void onProgressUpdated(int curLen, int totalLen) {
-                    if (mRequest.isEnableProgressUpdate()){
+                    if (mRequest.onProgressUpdatedListener != null){
                         updateProgress(curLen,totalLen);
                     }
                 }
             });
-            if (mRequest.isEnableProgressUpdate()){
+            if (mRequest.onProgressDownloadListener != null){
                 return mRequest.getCallback().parse(mRequest, connection, new OnProgressDownloadListener() {
                     @Override
-                    public void onProgressUpdate(int curLength, int totalLength) {
+                    public void onProgressDownload(int curLength, int totalLength) {
                         downloadProgress(curLength, totalLength);
                     }
                 });
@@ -98,13 +99,13 @@ public class HttpTask implements  Runnable {
             final Request request = (Request) msg.obj;
             switch (msg.what) {
                 case HttpTask.UPDATEPROGRESS:
-                    request.getCallback().onProgressDownload(msg.arg1, msg.arg2);
+                    request.onProgressUpdatedListener.onProgressUpdate(msg.arg1, msg.arg2);
                     break;
                 case HttpTask.DOWNLOADPROGRESS:
-                    request.getCallback().onProgressUpdate(msg.arg1, msg.arg2);
+                    request.onProgressDownloadListener.onProgressDownload(msg.arg1, msg.arg2);
                     break;
                 case HttpTask.RESULT:
-                    if (request.getReturnObject() instanceof Exception){
+                    if (request.getReturnObject() instanceof AppException){
                         if (request.isCanceled()){
                             request.getCallback().onCancel();
                             return;

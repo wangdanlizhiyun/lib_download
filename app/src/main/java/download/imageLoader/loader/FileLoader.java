@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
@@ -15,7 +16,7 @@ import download.imageLoader.util.ImageSizeUtil;
 /**
  * Created by lizhiyun on 16/6/2.
  */
-public class FileLoader implements LoadInterface {
+public class FileLoader implements download.imageLoader.loader.LoadInterface {
     @Override
     public void load(BitmapRequest request, ImageConfig config) {
 

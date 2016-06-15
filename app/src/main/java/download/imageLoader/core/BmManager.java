@@ -17,7 +17,7 @@ public class BmManager {
 	 * @param path
 	 */
 	public static void preLoad(String path) {
-		ImageLoader.getInstance().preLoad(path);
+		download.imageLoader.core.ImageLoader.getInstance().preLoad(path);
 	}
 
 

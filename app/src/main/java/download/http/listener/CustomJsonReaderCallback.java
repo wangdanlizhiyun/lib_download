@@ -14,16 +14,14 @@ import java.util.UUID;
 
 import download.http.core.Http;
 import download.http.entity.CustomJsonReader;
-import download.http.entity.SimpleJsonReader;
 import download.http.exception.AppException;
 
-//import android.util.JsonReader;
 
 /**
  * 数据很多的时自己处理数据以防oom
  * Created by lizhiyun on 16/6/3.
  */
-public abstract class CustomJsonReaderCallback<T extends CustomJsonReader> extends AbsCallback<T> {
+public abstract class CustomJsonReaderCallback<T extends CustomJsonReader> extends download.http.listener.AbsCallback<T> {
     public CustomJsonReaderCallback(){
         setCachePath(Http.tempFileRootPath + File.separator + UUID.randomUUID());
     }
