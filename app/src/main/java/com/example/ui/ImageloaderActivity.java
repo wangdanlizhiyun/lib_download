@@ -78,12 +78,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 //                        Log.e("test", "result=" + result == null ? "null" : result.data.toString());
 //                    }
 //                }).execute();
-        Http.with(this).url(url).post().content(content).progressDownload(new OnProgressDownloadListener() {
-            @Override
-            public void onProgressDownload(int curLength, int totalLength) {
-
-            }
-        })
+        Http.with(this).url(url).post().content(content)
                 .globalException(new IfNeedLoginGlobalException())
                 .callback(new JsonReaderCallback<ResultData>() {
 
@@ -200,20 +195,6 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 			}
 		});
 
-        if (!mIsWifi) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("初次使用会从网络下载大概5MB的图片，确认要下载吗？");
-            builder.setTitle("注意");
-            builder.setPositiveButton("是", new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    mCanGetBitmapFromNetWork = true;
-                    mImageAdapter.notifyDataSetChanged();
-                }
-            });
-            builder.setNegativeButton("否", null);
-            builder.show();
-        }
         mTv = (TextView) findViewById(R.id.tv);
 
         Image.with(this).load("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg")

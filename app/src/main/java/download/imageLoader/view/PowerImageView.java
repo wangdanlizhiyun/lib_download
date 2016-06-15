@@ -52,7 +52,7 @@ public class PowerImageView extends ImageView {
 	private boolean mVisible = true;
 	private float mLeft,mTop;
 	private boolean isNeedSetPath = true;
-	private Runnable mDelayShowRunnable;
+	private Runnable mDelayShowGifRunnable;
 
 	public PowerImageView(Context context) {
 		this(context, null);
@@ -70,10 +70,14 @@ public class PowerImageView extends ImageView {
 		mBorderPaint.setColor(mBorderColor);
 		mBorderPaint.setStrokeWidth(mBorderWidth);
 		mPath = new Path();
-		mDelayShowRunnable = new Runnable() {
+		mDelayShowGifRunnable = new Runnable() {
 			@Override
 			public void run() {
 				mVisible = true;
+				setImageDrawable(null);
+				requestLayout();
+				notifyLayerType();
+				invalidateView();
 			}
 		};
 	}
@@ -124,9 +128,9 @@ public class PowerImageView extends ImageView {
 			throw new RuntimeException("only run on ui thread");
 		}
 		this.mMovie = movie;
-		setImageDrawable(null);
-		requestLayout();
-		notifySetedBitmap();
+		mVisible = false;
+		removeCallbacks(mDelayShowGifRunnable);
+		postDelayed(mDelayShowGifRunnable,30);
 	}
 
 	private void notifyLayerType() {
@@ -145,6 +149,7 @@ public class PowerImageView extends ImageView {
 		this.mMovie = null;
 		this.setImageDrawable(null);
 		ImageLoader.getInstance().cancelOldTask(this);
+		removeCallbacks(mDelayShowGifRunnable);
 		super.onDetachedFromWindow();
 	}
 
@@ -189,9 +194,7 @@ public class PowerImageView extends ImageView {
 	private void notifySetedBitmap(){
 		notifyLayerType();
 		invalidateView();
-		mVisible = false;
-		removeCallbacks(mDelayShowRunnable);
-		postDelayed(mDelayShowRunnable, 60);
+		removeCallbacks(mDelayShowGifRunnable);
 	}
 	@Override
 	public void setImageBitmap(Bitmap bm) {
