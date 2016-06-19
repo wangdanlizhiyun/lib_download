@@ -15,6 +15,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import download.http.core.Http;
 import download.http.listener.JsonReaderListCallback;
+import download.http.listener.OnProgressDownloadListener;
+import download.http.listener.OnProgressUpdateListener;
 import download.otherFileLoader.core.Download;
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
@@ -52,11 +54,21 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
         });
 
         String url = "http://api.stay4it.com/v1/public/core/?service=downloader.applist";
-        Http.with(this).url(url).callback(new JsonReaderListCallback<AppEntry>("data") {
+        Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener() {
+            @Override
+            public void onProgressDownload(int curLength, int totalLength) {
+
+            }
+        }).progressUpdate(new OnProgressUpdateListener() {
+            @Override
+            public void onProgressUpdate(int curLength, int totalLength) {
+
+            }
+        }).callback(new JsonReaderListCallback<AppEntry>("data") {
             @Override
             public void onSuccess(ArrayList<AppEntry> result) {
-                Log.e("test",""+result.size());
-                for (int i = 0;i<result.size();i++){
+                Log.e("test", "" + result.size());
+                for (int i = 0; i < result.size(); i++) {
                     DownFile downFile = new DownFile(result.get(i).url);
                     downFile = DownFileManager.getInstance(getApplicationContext()).initData(downFile);
                     mDownloadEntries.add(downFile);
@@ -131,6 +143,7 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             final DownFile entry = mDownloadEntries.get(position);
 
 
+
             holder.mDownloadLabel.setText(app.name + "  " + app.size + "\n" + app.desc);
 
             holder.mDownloadStatusLabel.setText(entry.state + "\n"
@@ -150,7 +163,6 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
 
                             @Override
                             public void progress(int currentLen, int totalLen) {
-
                                 entry.downLength = currentLen;
                                 entry.totalLength = totalLen;
                                 entry.state = 2;
