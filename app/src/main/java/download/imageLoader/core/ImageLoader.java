@@ -75,13 +75,11 @@ public class ImageLoader {
 				if (!request.checkIfNeedAsyncLoad()) {
 					request.display();
 				} else {
-					executor.remove(request.view.get());
+//					executor.remove(request.view.get());
 					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
 					request.view.get().setTag(request.getKey());
-							if (request.checkEffective()) {
-								executor.execute(task);
-							}
+					executor.execute(task);
 				}
 			}
 		} else {

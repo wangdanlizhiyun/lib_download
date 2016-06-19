@@ -85,7 +85,6 @@ public class BitmapRequest{
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void display() {
-//		Drawable drawable = bitmap != null ? new BitmapDrawable(bitmap) : ImageLoader.getInstance().getConfig().getFailedBm();
 		if (view == null || view.get() == null){
 			return;
 		}
