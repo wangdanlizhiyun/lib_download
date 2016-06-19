@@ -5,7 +5,10 @@
 
 非ImageView的view也支持哦
 
-支持预加载：```java BmLoader.preLoad(uri);```
+支持预加载：
+```java 
+BmLoader.preLoad(uri);
+```
 
 支持本地和网络图片，径格式示例为：
 		```xml
