@@ -21,6 +21,8 @@ BmLoader.preLoad(uri);
 
 圆角图采用了性能最优的方案
 
+可设置模糊效果和头像剪裁功能
+
 通过各种手段保障gridview等在有圆角和大量gif的情况下快速滑动时也能依旧极度流畅。
 
 通过自定义的方式确保默认的加载中和加载失败的图片在任何形状的view中都能显示完整并且大小适当。
@@ -42,7 +44,7 @@ Image.with(this).load("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.
         
 如果使用类download.imageLoader.view.GifMovieView，调用方法更简单了：
 ```java
-view.rectangle().blur(false).setBorder(Color.BLUE, 15f).bind(uri);
+view.rectangle().face(true).blur(false).setBorder(Color.BLUE, 15f).bind(uri);
 view.circle().blur(false).setBorder(Color.BLACK, 0f).bind(uri);
 view.round(50).blur(false).setBorder(Color.GREEN, 0f).bind(uri);
 view.bind(uri)
