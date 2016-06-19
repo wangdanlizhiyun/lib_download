@@ -1,4 +1,7 @@
 # lib_download
+## 效果图
+
+<img src="down.gif" width="320px"/>
 这是一个处理异步下载的库，包含图片下载文件下载和ormgo(马天宇的开源)，特点如下：
 
 全局公用一个线程池
