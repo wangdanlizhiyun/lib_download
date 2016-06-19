@@ -42,7 +42,7 @@ public class DrawableLoader implements LoadInterface {
 
         }
         if (request.checkIfNeedAsyncLoad()){
-            request.bitmap = new BitmapDrawable(request.view.get().getResources(),BitmapFactory.decodeResource(request.view.get().getResources(), id, options));
+            request.bitmap = BitmapFactory.decodeResource(request.view.get().getResources(), id, options);
         }
     }
 }

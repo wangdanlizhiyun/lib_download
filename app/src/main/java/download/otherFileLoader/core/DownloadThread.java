@@ -1,12 +1,19 @@
 package download.otherFileLoader.core;
 
+import android.util.Log;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import download.otherFileLoader.listener.DownloadListener;
 
 /**
  * Created by Stay on 4/8/15.
@@ -17,15 +24,16 @@ public class DownloadThread implements Runnable {
     private final int startPos;
     private final int endPos;
     private final File destFile;
-    private final ProcessListener listener;
+    private final DownListener listener;
     private final int index;
     private final boolean isSingleDownload;
     private volatile boolean isPaused;
+    private int state = Constants.DOWNLOAD_STATE_IDLE;
 
     private volatile boolean isCancelled;
     private volatile boolean isError;
 
-    public DownloadThread(String url, File destFile, int index, int startPos, int endPos, ProcessListener listener) {
+    public DownloadThread(String url, File destFile, int index, int startPos, int endPos, DownListener listener) {
         this.url = url;
         this.index = index;
         this.startPos = startPos;
@@ -42,6 +50,7 @@ public class DownloadThread implements Runnable {
 
     @Override
     public void run() {
+        state = Constants.DOWNLOAD_STATE_DOWNLOADING;
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
@@ -55,60 +64,45 @@ public class DownloadThread implements Runnable {
             int contentLength = connection.getContentLength();
             RandomAccessFile raf = null;
             FileOutputStream fos = null;
-            InputStream is = null;
+            BufferedInputStream is ;
+            byte[] bytes;
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 raf = new RandomAccessFile(destFile, "rw");
                 raf.seek(startPos);
-                is = connection.getInputStream();
-                byte[] buffer = new byte[2048];
-                int len = -1;
-                while ((len = is.read(buffer)) != -1) {
-                    if (isPaused || isCancelled || isError) {
-                        break;
-                    }
-                    raf.write(buffer, 0, len);
-                    listener.onProgressChanged(index, len);
-                }
-                raf.close();
-                is.close();
             } else if (responseCode == HttpURLConnection.HTTP_OK) {
                 fos = new FileOutputStream(destFile);
-                is = connection.getInputStream();
-                byte[] buffer = new byte[2048];
-                int len = -1;
-                while ((len = is.read(buffer)) != -1) {
-                    if (isPaused || isCancelled || isError) {
-                        break;
-                    }
-                    fos.write(buffer, 0, len);
-                    listener.onProgressChanged(index, len);
-                }
-                fos.close();
-                is.close();
             } else {
-//                mStatus = DownloadEntry.DownloadStatus.error;
+                state = Constants.DOWNLOAD_STATE_ERROR;
                 listener.onDownloadError(index, "server error:" + responseCode);
                 return;
             }
-            if (isPaused) {
-//                mStatus = DownloadEntry.DownloadStatus.paused;
-            } else if (isCancelled) {
-//                mStatus = DownloadEntry.DownloadStatus.cancelled;
-            } else if (isError) {
-//                mStatus = DownloadEntry.DownloadStatus.error;
-                listener.onDownloadError(index, "cancel manually by error");
-            } else {
-//                mStatus = DownloadEntry.DownloadStatus.completed;
+            String s;
+            is = new BufferedInputStream(connection.getInputStream(),8 *1024);
+            bytes = new byte[1024];
+            int len;
+            while ((len = is.read(bytes)) != -1) {
+                if (isPaused || isCancelled || isError) {
+                    break;
+                }
+                if (raf != null){
+                    raf.write(bytes,0,len);
+                }else {
+                    fos.write(bytes,0,len);
+                }
+                listener.onProgressChanged(index, len);
+            }
+            if (raf != null)
+                raf.close();
+            if (fos != null)
+                fos.close();
+            is.close();
+
+            if (!isPaused && !isCancelled && !isError){
+                listener.onDownloadCompleted(index);
             }
         } catch (IOException e) {
-//            listener.onConnectError(e.getMessage());
             e.printStackTrace();
-            if (isPaused) {
-//                mStatus = DownloadEntry.DownloadStatus.paused;
-            } else if (isCancelled) {
-//                mStatus = DownloadEntry.DownloadStatus.cancelled;
-            } else {
-//                mStatus = DownloadEntry.DownloadStatus.error;
+            if (!isPaused && !isCancelled && !isError){
                 listener.onDownloadError(index, e.getMessage());
             }
         } finally {
@@ -119,29 +113,32 @@ public class DownloadThread implements Runnable {
     }
 
     public boolean isRunning() {
-
-//        return mStatus == DownloadEntry.DownloadStatus.downloading;
-        return true;
+        return state == Constants.DOWNLOAD_STATE_DOWNLOADING;
     }
 
     public void pause() {
+        state = Constants.DOWNLOAD_STATE_PAUSE;
         isPaused = true;
         Thread.currentThread().interrupt();
     }
 
     public void cancel() {
+        state = Constants.DOWNLOAD_STATE_CANCEL;
         isCancelled = true;
         Thread.currentThread().interrupt();
     }
 
-
     public void cancelByError() {
+        state = Constants.DOWNLOAD_STATE_ERROR;
         isError = true;
         Thread.currentThread().interrupt();
     }
 
-    interface ProcessListener {
+
+    interface DownListener {
         void onProgressChanged(int index, int progress);
+
+        void onDownloadCompleted(int index);
 
         void onDownloadError(int index, String message);
 

@@ -25,17 +25,21 @@ public class ConnectRunnable implements Runnable {
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Range", "bytes=0-" + Integer.MAX_VALUE);
             connection.setConnectTimeout(5 * 1000);
             connection.setReadTimeout(5*1000);
             int responseCode = connection.getResponseCode();
             int contentLength = connection.getContentLength();
             boolean isSupport = false;
-            if (responseCode == HttpURLConnection.HTTP_PARTIAL){
-                isSupport = true;
+            if (responseCode == HttpURLConnection.HTTP_OK){
+                String ranges = connection.getHeaderField("Accept-Ranges");
+                if ("bytes".equals(ranges)){
+                    isSupport = true;
+                }
+                listener.onConnected(contentLength,isSupport);
+            }else {
+                listener.onError("server error:"+responseCode);
             }
             isRunning = false;
-            listener.onConnected(contentLength,isSupport);
         }catch (Exception e){
             isRunning = false;
             listener.onError(e.getMessage());

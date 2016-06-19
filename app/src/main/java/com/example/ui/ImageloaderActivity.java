@@ -15,6 +15,7 @@ import download.imageLoader.config.FailedDrawable;
 import download.imageLoader.core.BmManager;
 import download.imageLoader.core.Image;
 import download.imageLoader.listener.CustomDisplayMethod;
+import download.imageLoader.util.FaceCropper;
 import download.imageLoader.view.PowerImageView;
 
 import android.annotation.TargetApi;
@@ -24,8 +25,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Movie;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,10 +44,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ImageloaderActivity extends Activity implements OnScrollListener {
-    private static final String TAG = "MainActivity";
+public class ImageloaderActivity extends Activity {
 
     private List<String> mUrList = new ArrayList<String>();
     private GridView mImageGridView;
@@ -62,44 +66,19 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         setContentView(R.layout.activity_imageloader);
         initData();
         initView();
-        String url = "http://api.stay4it.com/v1/public/core/?service=user.login";
-        String content = "account=stay4it&password=123456";
-//        Http.with(this).url(url).post().content(content).downloadProcess()
-//                .globalException(new IfNeedLoginGlobalException())
-//                .callback(new JsonCallback<ResultData>() {
-//
-//                    @Override
-//                    public ResultData onPost(ResultData resultData) {
-//                        return super.onPost(resultData);
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(ResultData result) {
-//                        Log.e("test", "result=" + result == null ? "null" : result.data.toString());
-//                    }
-//                }).execute();
-        Http.with(this).url(url).post().content(content)
-                .globalException(new IfNeedLoginGlobalException())
-                .callback(new JsonReaderCallback<ResultData>() {
 
-                    @Override
-                    public void onSuccess(ResultData result) {
-                        Log.e("test", "result=" + result == null ? "null" : result.data.toString());
-                    }
-
-                    @Override
-                    public void onFailure(AppException exception) {
-                        super.onFailure(exception);
-
-                        Log.e("test", "exception="+exception.errorType + exception.getMessage());
-                    }
-                }).execute();
 
 
     }
 
     private void initData() {
         String[] imageUrls = {
+                "http://img3.imgtn.bdimg.com/it/u=3077244003,463188336&fm=21&gp=0.jpg",
+                "http://img3.imgtn.bdimg.com/it/u=3077244003,463188336&fm=21&gp=0.jpg",
+                "http://img3.imgtn.bdimg.com/it/u=3077244003,463188336&fm=21&gp=0.jpg",
+                "http://img3.imgtn.bdimg.com/it/u=3077244003,463188336&fm=21&gp=0.jpg",
+                "http://img3.imgtn.bdimg.com/it/u=3077244003,463188336&fm=21&gp=0.jpg",
+                "http://img3.imgtn.bdimg.com/it/u=3077244003,463188336&fm=21&gp=0.jpg",
                 "http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg",
     			"http://img.my.csdn.net/uploads/201407/26/1406383290_1042.jpg",
     			"http://img.my.csdn.net/uploads/201407/26/1406383275_3977.jpg",
@@ -181,10 +160,14 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void initView() {
+//        ImageView face = (ImageView) findViewById(R.id.face);
+//        FaceCropper fc = new FaceCropper();
+//        fc.setDebug(false);
+//        Bitmap bm = fc.cropFace(BitmapFactory.decodeResource(getResources(),R.drawable.face));
+//        face.setImageBitmap(bm);
         mImageGridView = (GridView) findViewById(R.id.gridView1);
         mImageAdapter = new ImageAdapter(this);
         mImageGridView.setAdapter(mImageAdapter);
-        mImageGridView.setOnScrollListener(this);
         mImageGridView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -197,13 +180,13 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
 
         mTv = (TextView) findViewById(R.id.tv);
 
-        Image.with(this).load("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg")
+        Image.with().load("http://img.my.csdn.net/uploads/201407/26/1406383265_8550.jpg")
                 .size(130, 130).blur(false)
                 .customDisplay(new CustomDisplayMethod() {
                     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
                     @Override
-                    public void display(Drawable bitmap, Movie movie) {
-                        mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(bitmap, null, null, null);
+                    public void display(Bitmap bitmap, Movie movie) {
+                        mTv.setCompoundDrawablesRelativeWithIntrinsicBounds(new BitmapDrawable(bitmap), null, null, null);
                     }
                 }).into(mTv);
 
@@ -240,7 +223,7 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder holder = null;
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.image_list_item,parent, false);
@@ -252,28 +235,24 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
             }
             final PowerImageView imageView = holder.imageView;
             final String uri = getItem(position);
-
             imageView.setBackgroundColor(Color.RED);
 
-            if (position == 0){
-            imageView.circle().blur(false).setBorder(Color.BLACK, 0f).bind(uri);
+                    if (position == 0){
+                        imageView.circle().face(true).blur(false).setBorder(Color.BLACK, 0f).bind(uri);
 
-            }else if (position == 1){
-                imageView.rectangle().blur(false).setBorder(Color.BLUE, 15f).bind(uri);
+                    }else if (position == 1){
+                        imageView.rectangle().face(false).blur(false).setBorder(Color.BLUE, 15f).bind(uri);
 
-            }else if (position == 2){
-                imageView.round(50).blur(false).setBorder(Color.GREEN, 20f).bind(uri);
+                    }else if (position == 2){
+                        imageView.round(50).face(false).blur(false).setBorder(Color.GREEN, 20f).bind(uri);
 
-            }else if (position == 3){
-                imageView.round(50).blur(true).setBorder(Color.GREEN, 20f).bind(uri);
+                    }else if (position == 3){
+                        imageView.round(50).face(false).blur(true).setBorder(Color.GREEN, 20f).bind(uri);
 
-            }else {
-                imageView.round(50).blur(false).setBorder(Color.GREEN, 0f).bind(uri);
+                    }else {
+                        imageView.round(50).face(false).blur(false).setBorder(Color.GREEN, 0f).bind(uri);
 
-            }
-//            imageView.setCircle().bind(uri);
-//            imageView.setRectangle().bind(uri);
-//            }
+                    }
             convertView.getLayoutParams().width = mImageWidth;
             convertView.getLayoutParams().height = mImageWidth;
             return convertView;
@@ -285,21 +264,5 @@ public class ImageloaderActivity extends Activity implements OnScrollListener {
         public PowerImageView imageView;
     }
 
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        if (scrollState != OnScrollListener.SCROLL_STATE_FLING) {
-            mIsGridViewIdle = true;
-//            mImageAdapter.notifyDataSetChanged();
-        } else {
-            mIsGridViewIdle = false;
-        }
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem,
-            int visibleItemCount, int totalItemCount) {
-        // ignored
-        
-    }
     
 }

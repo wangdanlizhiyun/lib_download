@@ -10,4 +10,6 @@ public interface DownloadListener {
     void success(String path);
     void progress(int currentLen,int totalLen);
     void error(String errror);
+    void pause();
+    void cancel();
 }

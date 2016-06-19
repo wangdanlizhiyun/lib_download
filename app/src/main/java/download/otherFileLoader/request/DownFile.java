@@ -1,17 +1,14 @@
 package download.otherFileLoader.request;
 
-import com.litesuits.orm.db.annotation.Column;
-import com.litesuits.orm.db.annotation.NotNull;
-import com.litesuits.orm.db.annotation.UniqueCombine;
-
+import android.text.TextUtils;
 import java.io.File;
-import java.io.Serializable;
 import java.util.HashMap;
 
+import download.otherFileLoader.core.Constants;
 import download.otherFileLoader.listener.DownloadListener;
 import download.utils.Util;
 
-public class DownFile implements Serializable{
+public class DownFile{
 
 	private DownFile() {
 	}
@@ -19,6 +16,7 @@ public class DownFile implements Serializable{
 	public DownFile(String downUrl) {
 		super();
 		this.url = downUrl;
+		this.name = Util.getNameFromUrl(url);
 		state = 0;
 		this.isCanceled = false;
 		this.isPaused = false;
@@ -29,38 +27,40 @@ public class DownFile implements Serializable{
 	public volatile boolean isCanceled = false;
 	public volatile boolean isPaused = false;
 	public long lastNotifyTime;
-	public String icon;
-	public String name;
-	public String description;
+	public String icon = "";
+	public String name = "";
+	public String description = "";
 	public Boolean isSuppurtRanger = false;
-	public String pakageName;
-	/** 1表示已下载完成 0表示未开始下载 2表示已开始下载. */
-	public int state;
+	public String pakageName = "";
+	/** public static final int DOWNLOAD_STATE_IDLE = 0;
+	 public static final int DOWNLOAD_STATE_DOWNLOADING = 2;
+	 public static final int DOWNLOAD_STATE_FINISH = 1;
+	 public static final int DOWNLOAD_STATE_ERROR = 3;
+	 public static final int DOWNLOAD_STATE_PAUSE = 4;
+	 public static final int DOWNLOAD_STATE_CANCEL = 5;
+	 *  */
+	public int state = Constants.DOWNLOAD_STATE_IDLE;
 	/**
 	 * 1表示安装了0表示没安装
 	 */
-	public int isInstall;
-	public Boolean isAutoInstall;
-	@UniqueCombine(1)
-	@NotNull
+	public int isInstall = 0;
+	public Boolean isAutoInstall = false;
 	public String url;
-	
-	/** 文件保存路径. */
-
-	@UniqueCombine(1)
-	@NotNull
 	public String downPath;
-	public int downLength;
-	public int totalLength;
+	public int downLength = 0;
+	public int totalLength = 0;
 	public HashMap<Integer, Integer> ranges;
 
 	public File getDownloadFile() {
-		return new File(downPath, Util.md5(url));
+		return new File(downPath, name);
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return o.equals(this);
+		if (o == null){
+			return false;
+		}
+		return this.hashCode() == o.hashCode();
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package download.otherFileLoader.core;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.litesuits.go.SmartExecutor;
 import java.io.File;
@@ -10,14 +11,15 @@ import java.util.HashMap;
 import download.otherFileLoader.request.DownFile;
 
 
-public class DownloadTask implements DownloadThread.ProcessListener{
-    private  DownFile downFile;
+public class DownloadTask implements DownloadThread.DownListener{
+    public DownFile downFile;
     private final Handler mHandler;
     private final SmartExecutor mExecutor;
-    private volatile boolean isPaused;
-    private volatile boolean isCancelled;
+    public volatile boolean isPaused;
+    public volatile boolean isCancelled;
     private ConnectRunnable mConnectThread;
     private DownloadThread[] mDownloadThreads;
+    private int[] mDownloadStatus;
     private long mLastStamp;
     private File destFile;
 
@@ -52,7 +54,6 @@ public class DownloadTask implements DownloadThread.ProcessListener{
         if (mConnectThread != null && mConnectThread.isRunning()) {
             mConnectThread.cancel();
         }
-
         if (mDownloadThreads != null && mDownloadThreads.length > 0) {
             for (int i = 0; i < mDownloadThreads.length; i++) {
                 if (mDownloadThreads[i] != null && mDownloadThreads[i].isRunning()) {
@@ -62,23 +63,25 @@ public class DownloadTask implements DownloadThread.ProcessListener{
         }
     }
 
-    public Object buildTask(DownFile downFile){
-        return null;
-    }
     public void start() {
-        if (downFile.totalLength <= 0){
+        if (downFile.totalLength == 0){
             mExecutor.execute(new ConnectRunnable(downFile.url, new ConnectRunnable.ConnectListener() {
                 @Override
                 public void onConnected(int totalLength, Boolean isSupport) {
-                    downFile.downLength = totalLength;
+                    downFile.totalLength = totalLength;
                     downFile.isSuppurtRanger = isSupport;
+                    if (downFile.totalLength <= 0){
+                        downFile.isSuppurtRanger = false;
+                    }
                     startDownload();
 
                 }
 
                 @Override
                 public void onError(String message) {
-//                    listener.error(message);
+                    if (downFile.listener != null) {
+                        downFile.listener.error(message);
+                    }
                 }
             }));
         }else{
@@ -87,17 +90,11 @@ public class DownloadTask implements DownloadThread.ProcessListener{
     }
 
     private void startDownload() {
-        Object object = buildTask(downFile);
-        if (object instanceof Runnable) {
-            downFile.state = 2;
-//                        mExecutor.execute((DownloadTask) object);
-            if (downFile.isSuppurtRanger) {
-                startMultiDownload();
-            } else {
-                startSingleDownload();
-            }
+        downFile.state = Constants.DOWNLOAD_STATE_DOWNLOADING;
+        if (downFile.isSuppurtRanger) {
+            startMultiDownload();
         } else {
-//                        listener.error(((Exception) object).getMessage());
+            startSingleDownload();
         }
     }
 
@@ -112,6 +109,7 @@ public class DownloadTask implements DownloadThread.ProcessListener{
             }
         }
         mDownloadThreads = new DownloadThread[Constants.BLOB_COUNT];
+        mDownloadStatus = new int[Constants.BLOB_COUNT];
         for (int i = 0; i < Constants.BLOB_COUNT; i++) {
             startPos = i * block + downFile.ranges.get(i);
             if (i == Constants.BLOB_COUNT - 1) {
@@ -121,7 +119,10 @@ public class DownloadTask implements DownloadThread.ProcessListener{
             }
             if (startPos < endPos) {
                 mDownloadThreads[i] = new DownloadThread(downFile.url,destFile, i, startPos, endPos, this);
+                mDownloadStatus[i] = Constants.DOWNLOAD_STATE_DOWNLOADING;
                 mExecutor.execute(mDownloadThreads[i]);
+            }else {
+                mDownloadStatus[i] = Constants.DOWNLOAD_STATE_FINISH;
             }
 
         }
@@ -130,11 +131,20 @@ public class DownloadTask implements DownloadThread.ProcessListener{
     private void startSingleDownload() {
         downFile.state = 1;
         mDownloadThreads = new DownloadThread[1];
+        mDownloadStatus = new int[1];
+        mDownloadStatus[0] = Constants.DOWNLOAD_STATE_DOWNLOADING;
         mDownloadThreads[0] = new DownloadThread(downFile.url,destFile, 0, 0, 0, this);
         mExecutor.execute(mDownloadThreads[0]);
     }
 
     private void notifyUpdate(DownFile entry, int what) {
+        if (what == Constants.WHAT_PROCESS){
+            if (System.currentTimeMillis() - downFile.lastNotifyTime > 1000 || downFile.downLength >= downFile.totalLength){
+                downFile.lastNotifyTime = System.currentTimeMillis();
+            }else {
+                return;
+            }
+        }
         Message msg = mHandler.obtainMessage();
         msg.what = what;
         msg.obj = entry;
@@ -152,7 +162,26 @@ public class DownloadTask implements DownloadThread.ProcessListener{
     }
 
     @Override
+    public void onDownloadCompleted(int index) {
+        Log.e("test","onDownloadCompleted  "+index);
+        mDownloadStatus[index] = Constants.DOWNLOAD_STATE_FINISH;
+        for (int i = 0; i < mDownloadStatus.length;i++){
+            if (mDownloadStatus[i] != Constants.DOWNLOAD_STATE_FINISH){
+                return;
+            }
+        }
+
+        notifyUpdate(downFile,Constants.WHAT_FINISH);
+    }
+
+    @Override
     public void onDownloadError(int index, String message) {
+        for (int i = 0; i < mDownloadStatus.length; i++) {
+        if (mDownloadStatus[i] != Constants.DOWNLOAD_STATE_FINISH && mDownloadStatus[i] != Constants.DOWNLOAD_STATE_ERROR) {
+            mDownloadThreads[i].cancelByError();
+            return;
+        }
+    }
         Message msg = mHandler.obtainMessage();
         msg.what = Constants.WHAT_ERROR;
         Bundle bundle = new Bundle();
@@ -161,4 +190,5 @@ public class DownloadTask implements DownloadThread.ProcessListener{
         msg.obj = message;
         mHandler.sendMessage(msg);
     }
+
 }

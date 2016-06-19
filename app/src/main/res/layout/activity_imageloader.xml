@@ -14,6 +14,10 @@
         android:layout_gravity="center_horizontal"
         android:textColor="#990000"
         android:text="左边带网络图片的文本"/>
+    <ImageView
+        android:id="@+id/face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     <Button
         android:id="@+id/button"
         android:layout_width="100dp"

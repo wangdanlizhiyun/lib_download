@@ -1,5 +1,10 @@
 package download.imageLoader.core;
 
+import android.graphics.Bitmap;
+import android.util.Log;
+
+import download.imageLoader.util.FaceCropper;
+
 /**
  * 为了调用更简单添加此门面
  * path示例："http://img.blog.csdn.net/20160114230048304",//gif图
@@ -43,6 +48,23 @@ public class BmManager {
 	public static void clearAllMemory(){
 		ImageLoader.getInstance().getConfig().cache.clearMemory();
 		ImageLoader.getInstance().getConfig().cache.clearDiskMemory();
+	}
+
+
+	static FaceCropper fc = null;
+	public static synchronized Bitmap face(Bitmap bitmap){
+		try{
+			if (fc == null){
+				fc = new FaceCropper();
+				fc.setDebug(false);
+			}
+			Log.e("test", "face");
+			Bitmap faceBitmap = fc.cropFace(bitmap);
+			return faceBitmap;
+		}catch (Exception e){
+			Log.e("test","face exception "+e.getMessage());
+			return null;
+		}
 	}
 
 }

@@ -41,7 +41,7 @@ public class FileLoader implements download.imageLoader.loader.LoadInterface {
 
             }
             if (request.checkIfNeedAsyncLoad()){
-                request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
+                request.bitmap = BitmapFactory.decodeFile(path, options);
             }
 
     }

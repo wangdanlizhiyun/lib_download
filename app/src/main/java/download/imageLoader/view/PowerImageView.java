@@ -73,11 +73,11 @@ public class PowerImageView extends ImageView {
 		mDelayShowGifRunnable = new Runnable() {
 			@Override
 			public void run() {
-				mVisible = true;
-				setImageDrawable(null);
-				requestLayout();
-				notifyLayerType();
-				invalidateView();
+				if (getDrawable() == null){
+					requestLayout();
+					notifyLayerType();
+					invalidateView();
+				}
 			}
 		};
 	}
@@ -88,20 +88,17 @@ public class PowerImageView extends ImageView {
 		this.mBorderWidth = borderWidth;
 		mBorderPaint.setColor(mBorderColor);
 		mBorderPaint.setStrokeWidth(mBorderWidth);
-		invalidateView();
 		return this;
 	}
 
 	public PowerImageView circle(){
 		isNeedSetPath = true;
 		this.SHAPE = SHAPE_CYCLE;
-		requestLayout();
 		return this;
 	}
 	public PowerImageView rectangle(){
 		isNeedSetPath = true;
 		this.SHAPE = SHAPE_RECTANGLE;
-		requestLayout();
 		return this;
 	}
 	public PowerImageView round(int round){
@@ -110,17 +107,21 @@ public class PowerImageView extends ImageView {
 		if (round > 0){
 			boder_radius = round;
 		}
-		requestLayout();
 		return this;
 	}
 	public Boolean isBlur;
+	public Boolean isFace;
 
+	public PowerImageView face(Boolean b){
+		isFace = b;
+		return this;
+	}
 	public PowerImageView blur(Boolean b){
 		isBlur = b;
 		return this;
 	}
-	public void bind(String path){
-		Image.with(getContext()).blur(isBlur).load(path).into(this);
+	public void bind(final String path){
+		Image.with().face(isFace).blur(isBlur).load(path).into(PowerImageView.this);
 	}
 
 	public void setMovie(Movie movie) {
@@ -128,8 +129,7 @@ public class PowerImageView extends ImageView {
 			throw new RuntimeException("only run on ui thread");
 		}
 		this.mMovie = movie;
-		mVisible = false;
-		removeCallbacks(mDelayShowGifRunnable);
+		setImageDrawable(null);
 		postDelayed(mDelayShowGifRunnable,30);
 	}
 
@@ -191,10 +191,10 @@ public class PowerImageView extends ImageView {
 			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
 		}
 	}
+
 	private void notifySetedBitmap(){
 		notifyLayerType();
 		invalidateView();
-		removeCallbacks(mDelayShowGifRunnable);
 	}
 	@Override
 	public void setImageBitmap(Bitmap bm) {

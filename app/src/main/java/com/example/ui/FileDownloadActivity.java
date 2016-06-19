@@ -19,6 +19,7 @@ import download.otherFileLoader.core.Download;
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
 import download.otherFileLoader.request.DownFile;
+import download.otherFileLoader.util.ToastUtils;
 
 public class FileDownloadActivity extends Activity implements View.OnClickListener{
 
@@ -54,9 +55,10 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
         Http.with(this).url(url).callback(new JsonReaderListCallback<AppEntry>("data") {
             @Override
             public void onSuccess(ArrayList<AppEntry> result) {
+                Log.e("test",""+result.size());
                 for (int i = 0;i<result.size();i++){
                     DownFile downFile = new DownFile(result.get(i).url);
-                    DownFileManager.getInstance(getApplicationContext()).initData(downFile);
+                    downFile = DownFileManager.getInstance(getApplicationContext()).initData(downFile);
                     mDownloadEntries.add(downFile);
                 }
                 adapter = new DownloadAdapter(result);
@@ -141,9 +143,9 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                         entry.listener = new DownloadListener() {
                             @Override
                             public void success(String path) {
-
                                 entry.state = 1;
                                 adapter.notifyDataSetChanged();
+                                ToastUtils.showToast(FileDownloadActivity.this,"已完成"+path);
                             }
 
                             @Override
@@ -158,6 +160,18 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                             @Override
                             public void error(String errror) {
 
+                            }
+
+                            @Override
+                            public void pause() {
+                                entry.state = 0;
+                                adapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void cancel() {
+                                entry.state = 0;
+                                adapter.notifyDataSetChanged();
                             }
                         };
                         mDownloadManager.down(entry);

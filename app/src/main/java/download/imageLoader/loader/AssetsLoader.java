@@ -41,7 +41,7 @@ public class AssetsLoader implements LoadInterface {
             options.inSampleSize = ImageSizeUtil.caculateInSampleSize(options,
                     request.width, request.height);
             options.inJustDecodeBounds = false;
-            request.bitmap = new BitmapDrawable(request.view.get().getResources(),BitmapFactory.decodeStream(is, null, options));
+            request.bitmap = BitmapFactory.decodeStream(is, null, options);
         }
     }
 }

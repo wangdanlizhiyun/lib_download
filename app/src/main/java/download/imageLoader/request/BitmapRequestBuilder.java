@@ -13,15 +13,16 @@ import download.imageLoader.listener.CustomDisplayMethod;
  */
 public class BitmapRequestBuilder {
     public WeakReference<View> view;
-    public WeakReference<LoadTask> task;
     public int width;
     public int height;
     public String path;
     public CustomDisplayMethod customDisplayMethod;
     public Boolean isBlur;
+    public Boolean isFace;
 
-    public BitmapRequestBuilder(Context context){
+    public BitmapRequestBuilder(){
         this.isBlur = false;
+        this.isFace = false;
     }
 
     public void into(View view){
@@ -35,7 +36,7 @@ public class BitmapRequestBuilder {
         bitmapRequest.customDisplayMethod = customDisplayMethod;
         bitmapRequest.view = new WeakReference<View>(view);
         bitmapRequest.isBlur = isBlur;
-
+        bitmapRequest.isFace = isFace;
         ImageLoader.getInstance().loadImage(bitmapRequest);
 
 
@@ -43,6 +44,10 @@ public class BitmapRequestBuilder {
     }
     public BitmapRequestBuilder blur(Boolean b){
         this.isBlur = b;
+        return this;
+    }
+    public BitmapRequestBuilder face(Boolean b){
+        this.isFace = b;
         return this;
     }
 

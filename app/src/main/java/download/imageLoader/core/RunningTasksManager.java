@@ -18,18 +18,27 @@ public class RunningTasksManager {
     }
     public Boolean hasDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
+            if (!request.path.contains("http:") && !request.path.contains("https:")){
+                return false;
+            }
             return doingMap.containsKey(request.path);
         }
     }
 
     public void addDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
+            if (!request.path.contains("http:") && !request.path.contains("https:")){
+                return ;
+            }
             doingMap.put(request.path, request.path);
         }
     }
 
     public void removeDoingTask(BitmapRequest request) {
         synchronized (doingMap) {
+            if (!request.path.contains("http:") && !request.path.contains("https:")){
+                return ;
+            }
             doingMap.remove(request.path);
         }
     }

@@ -144,14 +144,20 @@ public class SmartExecutor implements Executor {
     }
 
     public void remove(android.view.View view){
-        synchronized (lock){
-            List<Runnable> list = getWaitingList();
-            for (Runnable r : list) {
-                if (r instanceof LoadTask){
-                    LoadTask t = (LoadTask) r;
-                    if (t.mRequest.view.get() != null && t.mRequest.view.get() == view){
-                        cancelWaitingTask(t);
-                        break;
+        boolean removed = false;
+        synchronized (lock) {
+            int size = waitingList.size();
+            if (size > 0) {
+                for (int i = size - 1; i >= 0; i--) {
+                    if (waitingList.get(i).getRealRunnable() instanceof LoadTask){
+                        LoadTask t = (LoadTask) waitingList.get(i).getRealRunnable();
+                        if (t.mRequest.view.get() != null && t.mRequest.view.get() == view){
+                            t.cancel();
+                            Log.e("test","remove");
+                            waitingList.remove(i);
+                            removed = true;
+                            break;
+                        }
                     }
                 }
             }

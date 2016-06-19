@@ -11,6 +11,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 
 public class ImageLoader {
 	private SmartExecutor executor;
@@ -77,18 +78,11 @@ public class ImageLoader {
 					executor.remove(request.view.get());
 					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
-					request.view.get().setTag(request.path+request.isBlur);
-					//通过延迟异步任务的执行，更大程度上减少ui的繁重绘制任务
-					request.view.get().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-						if (request.checkEffective()){
-							executor.execute(task);
-						}
-						}
-					},200);
+					request.view.get().setTag(request.getKey());
+							if (request.checkEffective()) {
+								executor.execute(task);
+							}
 				}
-
 			}
 		} else {
 			throw new RuntimeException("only run on ui thread");

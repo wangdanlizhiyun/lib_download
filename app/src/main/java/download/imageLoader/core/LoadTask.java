@@ -1,5 +1,7 @@
 package download.imageLoader.core;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -7,11 +9,14 @@ import android.os.Message;
 import android.util.Log;
 
 
+import com.example.ui.R;
+
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import download.imageLoader.loader.Load;
 import download.imageLoader.request.BitmapRequest;
+import download.imageLoader.util.FaceCropper;
 import download.imageLoader.util.GaussianBlur;
 
 /**
@@ -65,6 +70,7 @@ public class LoadTask implements  Runnable {
         if (mCancel.get()){
             return;
         }
+        face();
         blur();
         if (mCancel.get()){
             return;
@@ -74,10 +80,19 @@ public class LoadTask implements  Runnable {
         mImageLoader.getmRunningTasksManager().removeDoingTask(mRequest);
     }
 
+    private void face() {
+        if (mRequest.isFace && mRequest.movie == null && mRequest.bitmap != null) {
+            Bitmap face = BmManager.face(mRequest.bitmap);
+            if (face != null){
+                mRequest.bitmap = face;
+            }
+        }
+    }
 
     private void blur() {
         if (mRequest.isBlur && mRequest.movie == null && mRequest.bitmap != null) {
-            mRequest.bitmap = new BitmapDrawable(new GaussianBlur().blur(mRequest.bitmap.getBitmap(), 3));
+            Bitmap blurBitmap = new GaussianBlur().blur(mRequest.bitmap, 3);
+            mRequest.bitmap = blurBitmap;
         }
     }
 

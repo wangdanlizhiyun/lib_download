@@ -13,6 +13,7 @@ import download.utils.Util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,7 +25,7 @@ import android.util.LruCache;
 
 @SuppressLint("NewApi")
 public class BitmapCache {
-	private LruCache<String, BitmapDrawable> mMemoryBitmapLruCache;
+	private LruCache<String, Bitmap> mMemoryBitmapLruCache;
 	private LruCache<String, Movie> mMemoryMovieLruCache;
 	private DiskLruCache mDiskLruCache = null;
     private static final long DISK_CACHE_SIZE = 1024 * 1024 * 60;
@@ -46,9 +47,9 @@ public class BitmapCache {
 		// 获取我们应用的最大可用内存
 		int maxMemory = Math.min(
 				(int) Runtime.getRuntime().maxMemory()  / 8, 30 * 1024 * 1024);
-		mMemoryBitmapLruCache = new LruCache<String, BitmapDrawable>(maxMemory) {
+		mMemoryBitmapLruCache = new LruCache<String, Bitmap>(maxMemory) {
 			@Override
-			protected int sizeOf(String key, BitmapDrawable value) {
+			protected int sizeOf(String key, Bitmap value) {
 				return getBitmapByteSize(value);
 			}
 		};
@@ -103,7 +104,7 @@ public class BitmapCache {
 			if (oldSize == null || ( newSize.width * newSize.height > oldSize.width * oldSize.height )){
 				mHistoryMaxSize.put(request.path,newSize);
 			}
-			mMemoryBitmapLruCache.put(key+request.isBlur, request.bitmap);
+			mMemoryBitmapLruCache.put(request.getKey(), request.bitmap);
 		}
 		if (request.movie != null){
 			mMemoryMovieLruCache.put(key,request.movie);
@@ -116,7 +117,7 @@ public class BitmapCache {
 		ImageSizeUtil.getImageViewSize(request);
 		request.movie = mMemoryMovieLruCache.get(key);
 		if (request.checkIfNeedAsyncLoad()){
-			request.bitmap = mMemoryBitmapLruCache.get(key+request.isBlur);
+			request.bitmap = mMemoryBitmapLruCache.get(request.getKey());
 
 			Size oldSize = mHistoryMaxSize.get(request.path);
 			if (oldSize != null && request.view != null && request.bitmap != null && (request.width > oldSize.width || request.height > oldSize.height)) {
@@ -168,7 +169,7 @@ public class BitmapCache {
 
 		}
 		if (request.checkIfNeedAsyncLoad()){
-			request.bitmap = new BitmapDrawable(BitmapFactory.decodeFile(path, options));
+			request.bitmap = BitmapFactory.decodeFile(path, options);
 		}
 
 	}
@@ -192,22 +193,22 @@ public class BitmapCache {
 			e.printStackTrace();
 		}
 	}
-	private int getBitmapByteSize(BitmapDrawable bitmap) {
+	private int getBitmapByteSize(Bitmap bitmap) {
 		// The return value of getAllocationByteCount silently changes for recycled bitmaps from the
 		// internal buffer size to row bytes * height. To avoid random inconsistencies in caches, we
 		// instead assert here.
-		if (bitmap.getBitmap().isRecycled()) {
+		if (bitmap.isRecycled()) {
 			throw new IllegalStateException("Cannot obtain size for recycled Bitmap: " + bitmap
-					+ "[" + bitmap.getBitmap().getWidth() + "x" + bitmap.getBitmap().getHeight() + "] " + bitmap.getBitmap().getConfig());
+					+ "[" + bitmap.getWidth() + "x" + bitmap.getHeight() + "] " + bitmap.getConfig());
 		}
 		if (Build.VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
 			// Workaround for KitKat initial release NPE in Bitmap, fixed in MR1. See issue #148.
 			try {
-				return bitmap.getBitmap().getAllocationByteCount();
+				return bitmap.getAllocationByteCount();
 			} catch (NullPointerException e) {
 				// Do nothing.
 			}
 		}
-		return bitmap.getBitmap().getHeight() * bitmap.getBitmap().getRowBytes();
+		return bitmap.getHeight() * bitmap.getRowBytes();
 	}
 }

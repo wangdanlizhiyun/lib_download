@@ -4,9 +4,11 @@ import download.imageLoader.core.ImageLoader;
 import download.imageLoader.core.LoadTask;
 import download.imageLoader.listener.CustomDisplayMethod;
 import download.imageLoader.view.PowerImageView;
+import download.utils.Util;
 
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.graphics.Movie;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,13 +21,13 @@ import java.lang.ref.WeakReference;
 
 public class BitmapRequest{
 	public WeakReference<View> view;
-//	public WeakReference<LoadTask> task;
-	public BitmapDrawable bitmap;
+	public Bitmap bitmap;
 	public Movie movie;
 	public int width;
 	public int height;
 	public Boolean isFirstDown;
 	public Boolean isBlur;
+	public Boolean isFace;
 	public String path;
 	public long totalSize;
 	public CustomDisplayMethod customDisplayMethod;
@@ -34,6 +36,9 @@ public class BitmapRequest{
 	public BitmapRequest(){
 		isFirstDown = false;
 		isBlur = false;
+	}
+	public String getKey(){
+		return Util.md5(this.path) + this.isBlur + this.isFace;
 	}
 	/**
 	 * 检测是否需要异步获取
@@ -52,7 +57,7 @@ public class BitmapRequest{
 	 * @return
 	 */
 	public Boolean checkEffective(){
-		if (this.view.get() != null && ((String)this.view.get().getTag()).equals(this.path+this.isBlur)){
+		if (this.view.get() != null && ((String)this.view.get().getTag()).equals(getKey())){
 			return true;
 		}
 		return false;
@@ -68,31 +73,31 @@ public class BitmapRequest{
 			return;
 		}
 		if (customDisplayMethod != null){
-			customDisplayMethod.display(b, movie);
+			customDisplayMethod.display(bitmap, movie);
 			return;
 		}
 		if (view.get() instanceof PowerImageView){
 			((PowerImageView) view.get()).setImageDrawable(b);
 		}else{
-			setBitmap(view.get(), bitmap);
+			setBitmap(view.get(), b);
 		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void display() {
-		Drawable drawable = bitmap != null ? bitmap : ImageLoader.getInstance().getConfig().getFailedBm();
+//		Drawable drawable = bitmap != null ? new BitmapDrawable(bitmap) : ImageLoader.getInstance().getConfig().getFailedBm();
 		if (view == null || view.get() == null){
 			return;
 		}
 		if (customDisplayMethod != null){
-			customDisplayMethod.display(drawable,movie);
+			customDisplayMethod.display(bitmap,movie);
 			return;
 		}
 		if (view.get() instanceof PowerImageView){
 			if (movie != null){
 				((PowerImageView) view.get()).setMovie(movie);
 			}else {
-				((PowerImageView) view.get()).setImageDrawable(drawable);
+				((PowerImageView) view.get()).setImageBitmap(bitmap);
 			}
 		}else{
 			setBitmap(view.get(),bitmap);
@@ -114,6 +119,19 @@ public class BitmapRequest{
 			((ImageSwitcher) view).setImageDrawable(bitmap);
 		} else {// 对于其他view设置背景
 			view.setBackground(bitmap);
+		}
+	}
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	public void setBitmap(View view,Bitmap bitmap) {
+		if (view == null) {
+			return;
+		}
+		if (view instanceof ImageView) {
+			((ImageView) view).setImageBitmap(bitmap);
+		} else if (view instanceof ImageSwitcher) {
+			((ImageSwitcher) view).setImageDrawable(new BitmapDrawable(bitmap));
+		} else {// 对于其他view设置背景
+			view.setBackground(new BitmapDrawable(bitmap));
 		}
 	}
 

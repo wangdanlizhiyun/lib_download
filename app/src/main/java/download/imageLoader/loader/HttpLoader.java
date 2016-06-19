@@ -103,7 +103,7 @@ public class HttpLoader implements LoadInterface {
             options.inJustDecodeBounds = false;
             request.movie = Movie.decodeStream(is);
             if (request.checkIfNeedAsyncLoad()){
-                request.bitmap = new BitmapDrawable(request.view.get().getResources(),BitmapFactory.decodeStream(is, null, options));
+                request.bitmap = BitmapFactory.decodeStream(is, null, options);
             }
         } catch (Exception e) {
             e.printStackTrace();
