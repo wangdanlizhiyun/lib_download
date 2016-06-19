@@ -140,3 +140,5 @@ Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener(
 
 以上参考了有心课堂stay的视频http://www.stay4it.com/page/framework
 
+下一步：实现简单的线程自动切换框架
+
