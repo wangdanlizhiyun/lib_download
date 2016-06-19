@@ -51,9 +51,63 @@ view.bind(uri)
 
 断点下载 
 ```java
-ApkLoader.getInstance(this).downApk("");
+DownFile downFile = new DownFile("");
+            downFile.listener = new DownloadListener() {
+                @Override
+                public void success(String path) {
+                    
+                }
+
+                @Override
+                public void progress(int currentLen, int totalLen) {
+
+                }
+
+                @Override
+                public void error(String errror) {
+
+                }
+
+                @Override
+                public void pause() {
+
+                }
+
+                @Override
+                public void cancel() {
+
+                }
+            };
+            DownFileManager.getInstance(convertView.getContext()).down(downFile);
 ```
+或者
+```java
+Download.with(FileDownloadActivity.this).url("").savePath("").listen(new DownloadListener() {
+                @Override
+                public void success(String path) {
+                    
+                }
 
+                @Override
+                public void progress(int currentLen, int totalLen) {
 
+                }
+
+                @Override
+                public void error(String errror) {
+
+                }
+
+                @Override
+                public void pause() {
+
+                }
+
+                @Override
+                public void cancel() {
+
+                }
+            }).download();
+```
 
 
