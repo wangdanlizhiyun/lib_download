@@ -109,5 +109,34 @@ Download.with(FileDownloadActivity.this).url("").savePath("").listen(new Downloa
                 }
             }).download();
 ```
+HTTP模块：
+```java
+Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener() {
+            @Override
+            public void onProgressDownload(int curLength, int totalLength) {
+                
+            }
+        }).progressUpdate(new OnProgressUpdateListener() {
+            @Override
+            public void onProgressUpdate(int curLength, int totalLength) {
+                
+            }
+        }).callback(new JsonReaderListCallback<AppEntry>("data") {
+            @Override
+            public void onSuccess(ArrayList<AppEntry> result) {
+                Log.e("test",""+result.size());
+                for (int i = 0;i<result.size();i++){
+                    DownFile downFile = new DownFile(result.get(i).url);
+                    downFile = DownFileManager.getInstance(getApplicationContext()).initData(downFile);
+                    mDownloadEntries.add(downFile);
+                }
+                adapter = new DownloadAdapter(result);
+                mDownloadLsv.setAdapter(adapter);
+            }
+        }).execute();
+        
+```
+当返回数据较小时使用JsonCallback和JsonListCallback，当返回数据很大时为避免gson的oom请使用JsonReaderCallback和JsonReaderListCallback。也可以用CustomJsonReaderCallback自定义返回数据的处理。另外可以直接返回StringCallback或者返回文件路径FileCallback。
 
+以上参考了有心课堂stay的视频http://www.stay4it.com/page/framework
 
