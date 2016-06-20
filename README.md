@@ -2,7 +2,7 @@
 ## 效果图
 
 <img src="down.gif" width="320px"/>
-这是一个处理异步下载的库，包含图片下载文件下载和ormgo(马天宇的开源)，特点如下：
+这是一个处理异步下载的库，包含图片加载，多文件多线程断点下载，http和ormgo(马天宇的开源)，特点如下：
 
 全局公用一个线程池
 
@@ -24,7 +24,7 @@ BmLoader.preLoad(uri);
 
 圆角图采用了性能最优的方案
 
-可设置模糊效果和头像剪裁功能
+可设置模糊效果和头像识别自动剪裁功能
 
 通过各种手段保障gridview等在有圆角和大量gif的情况下快速滑动时也能依旧极度流畅。
 
@@ -145,5 +145,5 @@ Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener(
 
 以上参考了有心课堂stay的视频http://www.stay4it.com/page/framework
 
-下一步：实现简单的线程自动切换框架
+下一步：继续完善并实现简单的线程自动切换框架
 
