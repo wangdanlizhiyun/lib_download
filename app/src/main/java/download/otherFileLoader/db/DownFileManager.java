@@ -49,19 +49,16 @@ public class DownFileManager {
 					if (df.listener != null) {
 						switch (msg.what){
 							case Constants.WHAT_DOWNLOADING:
-											df.listener.progress(df.downLength,df.totalLength);
+											df.listener.progress(df.downLength, df.totalLength);
 								break;
 							case Constants.WHAT_FINISH:
-								if (downFile.isAutoInstall) {
+								if (df.isAutoInstall) {
 									Boolean code = PackageUtil.install(context, new File(downFile.downPath));
 									if (!code) {
 										ToastUtils.showToast(context, "安装失败");
 									}
 								}
 											df.listener.success(df.downPath);
-								break;
-							case Constants.WHAT_PROCESS:
-											df.listener.progress(downFile.downLength,downFile.totalLength);
 								break;
 							case Constants.WHAT_ERROR:
 											Bundle b = msg.getData();
@@ -76,7 +73,12 @@ public class DownFileManager {
 					}
 				}
 			}
-			dldbManager.insertOrUpdate(downFile);
+			if (msg.what == Constants.WHAT_ERROR){
+				dldbManager.deleteTaskInfo(downFile);
+			}else {
+				dldbManager.insertOrUpdate(downFile);
+			}
+
 		}
 	};
 

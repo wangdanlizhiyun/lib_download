@@ -27,7 +27,7 @@ final class DLDBManager {
         return sManager;
     }
 
-    public synchronized void insertTaskInfo(DownFile info) {
+    public void insertTaskInfo(DownFile info) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("url",info.url);
@@ -50,7 +50,7 @@ final class DLDBManager {
         db.insert(DLDBHelper.TABLENAME,null,values);
     }
 
-    public synchronized void insertOrUpdate(DownFile info){
+    public void insertOrUpdate(DownFile info){
         if (queryTaskInfo(info) == null){
             insertTaskInfo(info);
         }else {
@@ -64,7 +64,7 @@ final class DLDBManager {
         db.close();
     }
 
-    public synchronized void updateTaskInfo(DownFile info) {
+    public void updateTaskInfo(DownFile info) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("url",info.url);
@@ -88,7 +88,7 @@ final class DLDBManager {
         db.update(DLDBHelper.TABLENAME,values,"url = ? and path = ?",new String[]{info.url,info.downPath});
     }
 
-    public synchronized DownFile queryTaskInfo(DownFile info) {
+    public DownFile queryTaskInfo(DownFile info) {
         DownFile downFile = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(DLDBHelper.TABLENAME,new String[]{"name,issupportrange,downlength,totallength,rangers,state"},"url = ? and path = ?",new String[]{info.url,info.downPath},null,null,"url desc","1,2");

@@ -21,7 +21,7 @@ public class DownFile{
 		this.isCanceled = false;
 		this.isPaused = false;
 		this.isSuppurtRanger = false;
-		this.isInstall = 0;
+		this.isInstall = false;
 	}
 	public DownloadListener listener;
 	public volatile boolean isCanceled = false;
@@ -40,10 +40,7 @@ public class DownFile{
 	 public static final int DOWNLOAD_STATE_CANCEL = 5;
 	 *  */
 	public int state = Constants.DOWNLOAD_STATE_IDLE;
-	/**
-	 * 1表示安装了0表示没安装
-	 */
-	public int isInstall = 0;
+	public Boolean isInstall = false;
 	public Boolean isAutoInstall = false;
 	public String url;
 	public String downPath;

@@ -17,6 +17,7 @@ import download.http.core.Http;
 import download.http.listener.JsonReaderListCallback;
 import download.http.listener.OnProgressDownloadListener;
 import download.http.listener.OnProgressUpdateListener;
+import download.otherFileLoader.core.Constants;
 import download.otherFileLoader.core.Download;
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
@@ -54,23 +55,16 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
         });
 
         String url = "http://api.stay4it.com/v1/public/core/?service=downloader.applist";
-        Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener() {
-            @Override
-            public void onProgressDownload(int curLength, int totalLength) {
-
-            }
-        }).progressUpdate(new OnProgressUpdateListener() {
-            @Override
-            public void onProgressUpdate(int curLength, int totalLength) {
-
-            }
-        }).callback(new JsonReaderListCallback<AppEntry>("data") {
+        Http.with(this).url(url).callback(new JsonReaderListCallback<AppEntry>("data") {
             @Override
             public void onSuccess(ArrayList<AppEntry> result) {
                 Log.e("test", "" + result.size());
                 for (int i = 0; i < result.size(); i++) {
                     DownFile downFile = new DownFile(result.get(i).url);
                     downFile = DownFileManager.getInstance(getApplicationContext()).initData(downFile);
+                    if (i == 1){
+                        downFile.isInstall = true;
+                    }
                     mDownloadEntries.add(downFile);
                 }
                 adapter = new DownloadAdapter(result);
@@ -78,15 +72,18 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             }
         }).execute();
     }
+    Boolean isVisiable = false;
 
     @Override
     protected void onPause() {
         super.onPause();
+        isVisiable = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        isVisiable = true;
     }
 
     @Override
@@ -102,6 +99,7 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                 }
                 break;
         }
+
     }
     class DownloadAdapter extends BaseAdapter {
 
@@ -152,37 +150,41 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             holder.mDownloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (entry.state == 0) {
+                    if (entry.state != Constants.DOWNLOAD_STATE_DOWNLOADING && entry.state != Constants.DOWNLOAD_STATE_FINISH) {
                         entry.listener = new DownloadListener() {
                             @Override
                             public void success(String path) {
-                                entry.state = 1;
+                                entry.state = Constants.DOWNLOAD_STATE_FINISH;
                                 adapter.notifyDataSetChanged();
                                 ToastUtils.showToast(FileDownloadActivity.this,"已完成"+path);
                             }
 
                             @Override
                             public void progress(int currentLen, int totalLen) {
+                                if (!isVisiable){
+                                    return;
+                                }
                                 entry.downLength = currentLen;
                                 entry.totalLength = totalLen;
-                                entry.state = 2;
+                                entry.state = Constants.DOWNLOAD_STATE_DOWNLOADING;
                                 adapter.notifyDataSetChanged();
                             }
 
                             @Override
                             public void error(String errror) {
-
+                                entry.state = Constants.DOWNLOAD_STATE_ERROR;
+                                adapter.notifyDataSetChanged();
                             }
 
                             @Override
                             public void pause() {
-                                entry.state = 0;
+                                entry.state = Constants.DOWNLOAD_STATE_PAUSE;
                                 adapter.notifyDataSetChanged();
                             }
 
                             @Override
                             public void cancel() {
-                                entry.state = 0;
+                                entry.state = Constants.DOWNLOAD_STATE_CANCEL;
                                 adapter.notifyDataSetChanged();
                             }
                         };

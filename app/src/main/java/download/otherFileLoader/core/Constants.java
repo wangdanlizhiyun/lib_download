@@ -6,14 +6,13 @@ package download.otherFileLoader.core;
 public class Constants {
 
     public static final int WHAT_DOWNLOADING = 10;
-    public static final int WHAT_PROCESS = 11;
     public static final int WHAT_FINISH = 12;
     public static final int WHAT_ERROR = 13;
 
 
-    public static final int CONNECT_TIME = 5000;
-    public static final int READ_TIME = 5000;
-    public static final int BLOB_COUNT = 2;
+    public static final int CONNECT_TIME = 10000;
+    public static final int READ_TIME = 10000;
+    public static final int BLOB_COUNT = 3;
 
     public static final int DOWNLOAD_STATE_IDLE = 0;
     public static final int DOWNLOAD_STATE_DOWNLOADING = 2;

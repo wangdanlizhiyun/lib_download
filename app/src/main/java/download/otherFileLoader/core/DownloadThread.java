@@ -3,6 +3,7 @@ package download.otherFileLoader.core;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -63,14 +64,14 @@ public class DownloadThread implements Runnable {
             int responseCode = connection.getResponseCode();
             int contentLength = connection.getContentLength();
             RandomAccessFile raf = null;
-            FileOutputStream fos = null;
+            BufferedOutputStream bos = null;
             BufferedInputStream is ;
             byte[] bytes;
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 raf = new RandomAccessFile(destFile, "rw");
                 raf.seek(startPos);
             } else if (responseCode == HttpURLConnection.HTTP_OK) {
-                fos = new FileOutputStream(destFile);
+                bos = new BufferedOutputStream(new FileOutputStream(destFile));
             } else {
                 state = Constants.DOWNLOAD_STATE_ERROR;
                 listener.onDownloadError(index, "server error:" + responseCode);
@@ -78,7 +79,7 @@ public class DownloadThread implements Runnable {
             }
             String s;
             is = new BufferedInputStream(connection.getInputStream(),8 *1024);
-            bytes = new byte[1024];
+            bytes = new byte[2048];
             int len;
             while ((len = is.read(bytes)) != -1) {
                 if (isPaused || isCancelled || isError) {
@@ -87,14 +88,14 @@ public class DownloadThread implements Runnable {
                 if (raf != null){
                     raf.write(bytes,0,len);
                 }else {
-                    fos.write(bytes,0,len);
+                    bos.write(bytes,0,len);
                 }
                 listener.onProgressChanged(index, len);
             }
             if (raf != null)
                 raf.close();
-            if (fos != null)
-                fos.close();
+            if (bos != null)
+                bos.close();
             is.close();
 
             if (!isPaused && !isCancelled && !isError){

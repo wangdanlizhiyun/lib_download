@@ -138,7 +138,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     private void notifyUpdate(DownFile entry, int what) {
-        if (what == Constants.WHAT_PROCESS){
+        if (what == Constants.WHAT_DOWNLOADING){
             if (System.currentTimeMillis() - downFile.lastNotifyTime > 1000 || downFile.downLength >= downFile.totalLength){
                 downFile.lastNotifyTime = System.currentTimeMillis();
             }else {
@@ -158,7 +158,7 @@ public class DownloadTask implements DownloadThread.DownListener{
             downFile.ranges.put(index, range);
         }
         downFile.downLength += progress;
-        notifyUpdate(downFile, Constants.WHAT_PROCESS);
+        notifyUpdate(downFile, Constants.WHAT_DOWNLOADING);
     }
 
     @Override

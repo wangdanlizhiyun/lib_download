@@ -49,6 +49,7 @@ public class DownBuilder {
 		downFile.isAutoInstall = isAutoInstall;
 		downFile.downPath = downPath;
 		downFile.listener = listener;
+		downFile.isInstall = isAutoInstall;
 		return  downFile;
 	}
 	public void download(){
