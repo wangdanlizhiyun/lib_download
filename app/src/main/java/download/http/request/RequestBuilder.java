@@ -67,21 +67,21 @@ public class RequestBuilder {
     }
 
 
-    public RequestBuilder post(){
+    public void post(){
         this.method = RequestMethod.POST;
-        return this;
+        execute();
     }
-    public RequestBuilder get(){
+    public void get(){
         this.method = RequestMethod.GET;
-        return this;
+        execute();
     }
-    public RequestBuilder delete(){
+    public void delete(){
         this.method = RequestMethod.DELETE;
-        return this;
+        execute();
     }
-    public RequestBuilder put(){
+    public void put(){
         this.method = RequestMethod.PUT;
-        return this;
+        put();
     }
 
     public RequestBuilder progressUpdate(OnProgressUpdateListener listener){
@@ -102,7 +102,7 @@ public class RequestBuilder {
         this.fileEntities = fileEntities;
         return this;
     }
-    public void execute(){
+    private void execute(){
         Request request = new Request();
         request.setUrl(url);
         request.setCallback(callback);

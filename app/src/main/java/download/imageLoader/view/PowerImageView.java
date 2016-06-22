@@ -19,6 +19,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.util.Map;
+
 import download.imageLoader.core.BmManager;
 import download.imageLoader.core.Image;
 import download.imageLoader.core.ImageLoader;
@@ -34,7 +36,7 @@ public class PowerImageView extends ImageView {
 	private Paint mBorderPaint = new Paint();
 	private float mBorderWidth = 0;
 	private int mBorderColor = Color.BLACK;
-	public static final int SHAPE_RECTANGLE = 0,SHAPE_CYCLE = 1,SHAPE_ROUND = 2;
+	public static final int SHAPE_RECTANGLE = 0,SHAPE_CYCLE = 1,SHAPE_ROUND = 2,SHAPE_POLYGON = 3;
 	private int SHAPE = SHAPE_RECTANGLE;
 	private int boder_radius = 10;
 
@@ -91,6 +93,12 @@ public class PowerImageView extends ImageView {
 		return this;
 	}
 
+	public PowerImageView polygon(){
+
+		isNeedSetPath = true;
+		this.SHAPE = SHAPE_POLYGON;
+		return this;
+	}
 	public PowerImageView circle(){
 		isNeedSetPath = true;
 		this.SHAPE = SHAPE_CYCLE;
@@ -130,7 +138,7 @@ public class PowerImageView extends ImageView {
 		}
 		this.mMovie = movie;
 		setImageDrawable(null);
-		postDelayed(mDelayShowGifRunnable,30);
+		postDelayed(mDelayShowGifRunnable,60);
 	}
 
 	private void notifyLayerType() {
@@ -186,7 +194,19 @@ public class PowerImageView extends ImageView {
 			//强行完全显示
 			mMeasuredMovieWidth = (int) (movieWidth * mScale);
 			mMeasuredMovieHeight = (int) (movieHeight * mScale);
-			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
+
+//			if (SHAPE == SHAPE_CYCLE || SHAPE == SHAPE_POLYGON){
+//				int w = MeasureSpec.getSize(widthMeasureSpec);
+//				int h = MeasureSpec.getSize(heightMeasureSpec);
+//				if (w == Math.min(w,h)){
+//					super.onMeasure(widthMeasureSpec,widthMeasureSpec);
+//				}else {
+//					super.onMeasure(heightMeasureSpec,heightMeasureSpec);
+//				}
+//			}else {
+
+				super.onMeasure(widthMeasureSpec,heightMeasureSpec);
+//			}
 		} else {
 			super.onMeasure(widthMeasureSpec,heightMeasureSpec);
 		}
@@ -226,8 +246,8 @@ public class PowerImageView extends ImageView {
 		mVisible = getVisibility() == View.VISIBLE;
 
 		if (mMovie != null && getDrawable() == null) {
-			mLeft = (getWidth() - mMeasuredMovieWidth - getPaddingLeft() - getPaddingRight()) / 2f + getPaddingLeft();
-			mTop = (getHeight() - mMeasuredMovieHeight - getPaddingTop() - getPaddingBottom()) / 2f + getPaddingTop();
+			mLeft = ((getWidth() - mMeasuredMovieWidth - getPaddingLeft() - getPaddingRight()) / 2f + getPaddingLeft())/mScale;
+			mTop = ((getHeight() - mMeasuredMovieHeight - getPaddingTop() - getPaddingBottom()) / 2f + getPaddingTop())/mScale;
 
 		}else {
 			mLeft = getPaddingLeft();
@@ -287,26 +307,40 @@ public class PowerImageView extends ImageView {
 		switch (SHAPE){
 			case SHAPE_CYCLE:
 				mPath.addCircle(rect.centerX(), rect.centerY(),
-						Math.min(getWidth()/2-getPaddingLeft()-getPaddingRight(), getHeight()/2-getPaddingTop()-getPaddingBottom()), Path.Direction.CCW);
+						Math.min(getWidth()/2-getPaddingLeft()/2-getPaddingTop()/2, getHeight()/2-getPaddingTop()/2-getPaddingBottom()/2), Path.Direction.CCW);
 				break;
 			case SHAPE_ROUND:
-				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius,boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
+				mPath.addRoundRect(rect, new float[]{boder_radius, boder_radius, boder_radius, boder_radius, boder_radius, boder_radius, boder_radius, boder_radius}, Path.Direction.CCW);
 				break;
 			case SHAPE_RECTANGLE:
 				mPath.addRect(rect, Path.Direction.CCW);
+				break;
+			case SHAPE_POLYGON:
+				float size = Math.min(getWidth()-getPaddingLeft()-getPaddingRight(),getHeight()-getPaddingTop()-getPaddingBottom());
+				float length = size / 2;
+				float gao = (float) (length / 2 * Math.sqrt(3));
+				float di = length - gao;
+				mPath.moveTo(di + mLeft, length / 2 + mTop);
+				mPath.lineTo(length + mLeft, 0 + mTop);
+				mPath.lineTo(length + gao + mLeft, length / 2 + mTop);
+				mPath.lineTo(length + gao + mLeft, length + length / 2 + mTop);
+				mPath.lineTo(length + mLeft,size + mTop);
+				mPath.lineTo(di + mLeft,length + length / 2 + mTop);
+				mPath.lineTo(di + mLeft,length / 2 + mTop);
+				mPath.close();
 				break;
 		}
 		canvas.clipPath(mPath, Region.Op.REPLACE);
 	}
 
 	private void clipGif(Canvas canvas){
-		canvas.translate(mLeft/mScale,mTop /mScale);
+		canvas.translate(mLeft,mTop);
 		if (!isNeedSetPath){
 			canvas.clipPath(mPath, Region.Op.REPLACE);
 			return;
 		}
 		mPath.reset();
-		RectF rect = new RectF(getPaddingLeft()/2, getPaddingTop()/2, (int) (getShowWidth()/mScale), (int) (getShowHeight()/mScale));
+		RectF rect = new RectF(getPaddingLeft()/mScale, getPaddingTop()/mScale, (int) (getShowWidth()/mScale), (int) (getShowHeight()/mScale));
 		canvas.clipPath(mPath);
 		switch (SHAPE) {
 			case SHAPE_CYCLE:
@@ -314,10 +348,14 @@ public class PowerImageView extends ImageView {
 						Math.min(getShowWidth(), getShowHeight()) / 2 / mScale * Math.max(scaleH,scaleW) / Math.min(scaleH,scaleW), Path.Direction.CCW);
 				break;
 			case SHAPE_ROUND://纠结是该让gif圆角化还是view圆角化，貌似让gif圆角好看点。但是按理是该让view圆角。当填充方式是centerscrop时两者效果一样
-				mPath.addRoundRect(rect, new float[]{boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius/mScale, boder_radius/mScale, boder_radius/mScale}, Path.Direction.CCW);
+				mPath.addRoundRect(rect, new float[]{boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale, boder_radius / mScale}, Path.Direction.CCW);
 				break;
 			case SHAPE_RECTANGLE:
-				mPath.addRect(rect,Path.Direction.CCW);
+				mPath.addRect(rect, Path.Direction.CCW);
+				break;
+			case SHAPE_POLYGON://由于当gif不是正方形时，他的正六边形图太丑了，所以按矩形的方式处理
+
+				mPath.addRect(rect, Path.Direction.CCW);
 				break;
 		}
 		canvas.clipPath(mPath, Region.Op.REPLACE);

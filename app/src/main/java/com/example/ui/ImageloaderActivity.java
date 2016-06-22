@@ -235,7 +235,8 @@ public class ImageloaderActivity extends Activity {
             }
             final PowerImageView imageView = holder.imageView;
             final String uri = getItem(position);
-            imageView.setBackgroundColor(Color.RED);
+            imageView.setBackgroundColor(Color.TRANSPARENT);
+//            imageView.setPadding(20,0,0,0);
 
                     if (position == 0){
                         imageView.circle().face(true).blur(false).setBorder(Color.BLACK, 0f).bind(uri);
@@ -248,6 +249,12 @@ public class ImageloaderActivity extends Activity {
 
                     }else if (position == 3){
                         imageView.round(50).face(false).blur(true).setBorder(Color.GREEN, 20f).bind(uri);
+
+                    }else if (position == 4){
+                        imageView.polygon().face(false).blur(true).setBorder(Color.GREEN, 0f).bind(uri);
+
+                    }else if (position == 14){
+                        imageView.polygon().face(false).blur(true).setBorder(Color.GREEN, 0f).bind(uri);
 
                     }else {
                         imageView.round(50).face(false).blur(false).setBorder(Color.GREEN, 0f).bind(uri);

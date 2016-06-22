@@ -97,7 +97,7 @@ public class DownFileManager {
 	private DownFileManager(Context context){
 		this.context = context;
 		dldbManager = DLDBManager.getInstance(context);
-		executor = new SmartExecutor(4, 100);
+		executor = new SmartExecutor(6, 100);
 		executor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
 		executor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
 	}

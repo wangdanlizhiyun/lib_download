@@ -70,7 +70,7 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                 adapter = new DownloadAdapter(result);
                 mDownloadLsv.setAdapter(adapter);
             }
-        }).execute();
+        }).get();
     }
     Boolean isVisiable = false;
 

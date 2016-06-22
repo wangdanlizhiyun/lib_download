@@ -96,12 +96,18 @@ public class BitmapRequest{
 			if (movie != null){
 				((PowerImageView) view.get()).setMovie(movie);
 			}else {
-				((PowerImageView) view.get()).setImageBitmap(bitmap);
+				if (bitmap != null){
+					((PowerImageView) view.get()).setImageBitmap(bitmap);
+				}else {
+					((PowerImageView) view.get()).setImageDrawable(ImageLoader.getInstance().getConfig().getFailedBm());
+				}
 			}
 		}else{
-			setBitmap(view.get(),bitmap);
-			view.get().setBackgroundDrawable(ImageLoader.getInstance().getConfig().getFailedBm());
-
+			if (bitmap != null){
+				setBitmap(view.get(),bitmap);
+			}else {
+				setBitmap(view.get(),ImageLoader.getInstance().getConfig().getFailedBm());
+			}
 		}
 		if (this != null && isFirstDown != null && isFirstDown && bitmap != null) {
 			ObjectAnimator.ofFloat(view.get(),"alpha",0,1f).setDuration(500).start();

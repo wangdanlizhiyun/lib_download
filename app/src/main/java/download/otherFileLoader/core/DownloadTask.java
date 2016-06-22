@@ -124,7 +124,6 @@ public class DownloadTask implements DownloadThread.DownListener{
             }else {
                 mDownloadStatus[i] = Constants.DOWNLOAD_STATE_FINISH;
             }
-
         }
     }
 
