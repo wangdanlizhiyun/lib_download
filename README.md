@@ -116,7 +116,7 @@ Download.with(FileDownloadActivity.this).url("").savePath("").listen(new Downloa
 ```
 HTTP模块：
 ```java
-Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener() {
+Http.with(this).url(url).progressDownload(new OnProgressDownloadListener() {
             @Override
             public void onProgressDownload(int curLength, int totalLength) {
                 
@@ -138,7 +138,7 @@ Http.with(this).url(url).post().progressDownload(new OnProgressDownloadListener(
                 adapter = new DownloadAdapter(result);
                 mDownloadLsv.setAdapter(adapter);
             }
-        }).execute();
+        }).get();
         
 ```
 当返回数据较小时使用JsonCallback和JsonListCallback，当返回数据很大时为避免gson的oom请使用JsonReaderCallback和JsonReaderListCallback。也可以用CustomJsonReaderCallback自定义返回数据的处理。另外可以直接返回StringCallback或者返回文件路径FileCallback。
