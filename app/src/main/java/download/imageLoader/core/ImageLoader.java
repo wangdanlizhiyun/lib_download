@@ -72,13 +72,13 @@ public class ImageLoader {
 						.getApplicationContext());
 				config.initDefault(request.view.get().getContext());
 				config.cache.getMemoryCache(request);
+				request.view.get().setTag(request.getKey());
 				if (!request.checkIfNeedAsyncLoad()) {
 					request.display();
 				} else {
-//					executor.remove(request.view.get());
+					executor.remove(request.view.get());
 					final LoadTask task = new LoadTask(request, ImageLoader.this);
 					request.displayLoading(config.getLoadingBm());
-					request.view.get().setTag(request.getKey());
 					executor.execute(task);
 				}
 			}
