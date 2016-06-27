@@ -48,19 +48,13 @@ public class Load {
 	private static HashMap<String,LoadInterface> map;
 	private static HashMap<String,Class> classHashMap;
 	static {
-		if (classHashMap == null){
-			classHashMap = new HashMap<String, Class>();
-			classHashMap.put("http:",HttpLoader.class);
-			classHashMap.put("https:",HttpLoader.class);
-			classHashMap.put("assets:",AssetsLoader.class);
-			classHashMap.put("drawable:",DrawableLoader.class);
-			classHashMap.put("file:",FileLoader.class);
-		}
-		if (map == null){
-			map = new HashMap<String, LoadInterface>();
-		}
-
-
+		classHashMap = new HashMap<String, Class>(4);
+		classHashMap.put("http:",HttpLoader.class);
+		classHashMap.put("https:",HttpLoader.class);
+		classHashMap.put("assets:",AssetsLoader.class);
+		classHashMap.put("drawable:",DrawableLoader.class);
+		classHashMap.put("file:",FileLoader.class);
+		map = new HashMap<String, LoadInterface>();
 	}
 	public static void loadBitmap(BitmapRequest request, ImageConfig config) {
 		for (Map.Entry<String,Class> entry: classHashMap.entrySet()

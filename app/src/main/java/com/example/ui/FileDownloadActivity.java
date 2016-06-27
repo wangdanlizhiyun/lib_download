@@ -2,6 +2,8 @@ package com.example.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -173,6 +175,12 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                             @Override
                             public void error(String errror) {
                                 entry.state = Constants.DOWNLOAD_STATE_ERROR;
+                                adapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void waiting() {
+                                entry.state = Constants.DOWNLOAD_STATE_WAITING;
                                 adapter.notifyDataSetChanged();
                             }
 

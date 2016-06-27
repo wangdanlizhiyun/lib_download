@@ -8,6 +8,8 @@ import android.util.Log;
 import com.litesuits.go.SmartExecutor;
 import java.io.File;
 import java.util.HashMap;
+
+import download.otherFileLoader.db.DLDBManager;
 import download.otherFileLoader.request.DownFile;
 
 
@@ -22,13 +24,15 @@ public class DownloadTask implements DownloadThread.DownListener{
     private int[] mDownloadStatus;
     private long mLastStamp;
     private File destFile;
+    DLDBManager dldbManager;
 
 
-    public DownloadTask(DownFile entry, Handler mHandler, SmartExecutor mExecutor) {
+    public DownloadTask(DLDBManager dldbManager,DownFile entry, Handler mHandler, SmartExecutor mExecutor) {
         this.downFile = entry;
         this.mHandler = mHandler;
         this.mExecutor = mExecutor;
         this.destFile = downFile.getDownloadFile();
+        this.dldbManager = dldbManager;
     }
 
     public void pause() {
@@ -79,13 +83,24 @@ public class DownloadTask implements DownloadThread.DownListener{
 
                 @Override
                 public void onError(String message) {
-                    if (downFile.listener != null) {
-                        downFile.listener.error(message);
-                    }
+                    notifyError(message);
                 }
             }));
         }else{
             startDownload();
+        }
+    }
+
+    private void notifyError(String message) {
+        if (downFile.listener != null) {
+            Message msg = mHandler.obtainMessage();
+            msg.what = Constants.WHAT_ERROR;
+            Bundle bundle = new Bundle();
+            bundle.putString("error",message);
+            msg.setData(bundle);
+            msg.obj = message;
+            mHandler.sendMessage(msg);
+            dldbManager.deleteTaskInfo(downFile);
         }
     }
 
@@ -148,6 +163,7 @@ public class DownloadTask implements DownloadThread.DownListener{
         msg.what = what;
         msg.obj = entry;
         mHandler.sendMessage(msg);
+            dldbManager.insertOrUpdate(downFile);
     }
 
     @Override
@@ -175,19 +191,12 @@ public class DownloadTask implements DownloadThread.DownListener{
 
     @Override
     public void onDownloadError(int index, String message) {
-        for (int i = 0; i < mDownloadStatus.length; i++) {
+    for (int i = 0; i < mDownloadStatus.length; i++) {
         if (mDownloadStatus[i] != Constants.DOWNLOAD_STATE_FINISH && mDownloadStatus[i] != Constants.DOWNLOAD_STATE_ERROR) {
-            mDownloadThreads[i].cancelByError();
-            return;
+            mDownloadThreads[i].cancel();
         }
     }
-        Message msg = mHandler.obtainMessage();
-        msg.what = Constants.WHAT_ERROR;
-        Bundle bundle = new Bundle();
-        bundle.putString("error",message);
-        msg.setData(bundle);
-        msg.obj = message;
-        mHandler.sendMessage(msg);
+    notifyError(message);
     }
 
 }

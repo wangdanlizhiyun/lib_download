@@ -8,6 +8,7 @@ import download.otherFileLoader.request.DownFile;
 public interface DownloadListener {
     public long lastTime = 0;
     void success(String path);
+    void waiting();
     void progress(int currentLen,int totalLen);
     void error(String errror);
     void pause();

@@ -11,7 +11,7 @@ import java.util.List;
 
 import download.otherFileLoader.request.DownFile;
 
-final class DLDBManager {
+public final class DLDBManager {
     private static DLDBManager sManager;
     private DLDBHelper helper;
     private Context context;
@@ -27,7 +27,7 @@ final class DLDBManager {
         return sManager;
     }
 
-    public void insertTaskInfo(DownFile info) {
+    public synchronized void insertTaskInfo(DownFile info) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("url",info.url);
@@ -50,7 +50,7 @@ final class DLDBManager {
         db.insert(DLDBHelper.TABLENAME,null,values);
     }
 
-    public void insertOrUpdate(DownFile info){
+    public synchronized void insertOrUpdate(DownFile info){
         if (queryTaskInfo(info) == null){
             insertTaskInfo(info);
         }else {
@@ -64,7 +64,7 @@ final class DLDBManager {
         db.close();
     }
 
-    public void updateTaskInfo(DownFile info) {
+    public synchronized void updateTaskInfo(DownFile info) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("url",info.url);

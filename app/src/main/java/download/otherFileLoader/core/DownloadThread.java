@@ -29,7 +29,7 @@ public class DownloadThread implements Runnable {
     private final int index;
     private final boolean isSingleDownload;
     private volatile boolean isPaused;
-    private int state = Constants.DOWNLOAD_STATE_IDLE;
+    private volatile int state = Constants.DOWNLOAD_STATE_IDLE;
 
     private volatile boolean isCancelled;
     private volatile boolean isError;
@@ -128,13 +128,6 @@ public class DownloadThread implements Runnable {
         isCancelled = true;
         Thread.currentThread().interrupt();
     }
-
-    public void cancelByError() {
-        state = Constants.DOWNLOAD_STATE_ERROR;
-        isError = true;
-        Thread.currentThread().interrupt();
-    }
-
 
     interface DownListener {
         void onProgressChanged(int index, int progress);

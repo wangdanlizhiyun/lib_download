@@ -57,11 +57,10 @@ public class DownFile{
 		if (o == null){
 			return false;
 		}
-		return this.hashCode() == o.hashCode();
-	}
-
-	@Override
-	public int hashCode() {
-		return url.hashCode()+downPath.hashCode()*31;
+		if (!(o instanceof DownFile)){
+			return false;
+		}
+		DownFile other = (DownFile) o;
+		return this.url.equals(other.url) && this.downPath.equals(other.downPath);
 	}
 }

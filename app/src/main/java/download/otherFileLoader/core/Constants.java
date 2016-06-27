@@ -12,7 +12,7 @@ public class Constants {
 
     public static final int CONNECT_TIME = 10000;
     public static final int READ_TIME = 10000;
-    public static final int BLOB_COUNT = 5;
+    public static final int BLOB_COUNT = 3;
 
     public static final int DOWNLOAD_STATE_IDLE = 0;
     public static final int DOWNLOAD_STATE_DOWNLOADING = 2;
@@ -20,4 +20,5 @@ public class Constants {
     public static final int DOWNLOAD_STATE_ERROR = 3;
     public static final int DOWNLOAD_STATE_PAUSE = 4;
     public static final int DOWNLOAD_STATE_CANCEL = 5;
+    public static final int DOWNLOAD_STATE_WAITING = 6;
 }

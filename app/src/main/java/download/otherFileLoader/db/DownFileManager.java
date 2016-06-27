@@ -67,17 +67,12 @@ public class DownFileManager {
 								df.getDownloadFile().delete();
 								df.downLength = 0;
 								df.ranges = null;
-								dldbManager.insertOrUpdate(downFile);
 								break;
 						}
 					}
 				}
 			}
-			if (msg.what == Constants.WHAT_ERROR){
-				dldbManager.deleteTaskInfo(downFile);
-			}else {
-				dldbManager.insertOrUpdate(downFile);
-			}
+
 
 		}
 	};
@@ -137,9 +132,13 @@ public class DownFileManager {
 				return;
 			}
 		}
+		downFile.state = Constants.DOWNLOAD_STATE_WAITING;
+		if (downFile.listener != null){
+			downFile.listener.waiting();
+		}
 		downingFiles.add(downFile);
 		if (!exist){
-			DownloadTask task = new DownloadTask(downFile,sHandler,executor);
+			DownloadTask task = new DownloadTask(dldbManager,downFile,sHandler,executor);
 			tasks.add(task);
 			task.start();
 		}
