@@ -35,7 +35,7 @@ public final class DLDBManager {
         values.put("name",info.name);
         values.put("downlength",info.downLength);
         values.put("totallength", info.totalLength);
-        values.put("state",info.state);
+        values.put("state",info.state.value);
 
         if (info.ranges != null && info.ranges.size() > 0){
             StringBuilder sb = new StringBuilder();
@@ -72,7 +72,7 @@ public final class DLDBManager {
         values.put("name",info.name);
         values.put("downlength",info.downLength);
         values.put("totallength", info.totalLength);
-        values.put("state",info.state);
+        values.put("state",info.state.value);
         if (info.ranges != null && info.ranges.size() > 0){
             StringBuilder sb = new StringBuilder();
             if (info.ranges != null){
@@ -88,7 +88,7 @@ public final class DLDBManager {
         db.update(DLDBHelper.TABLENAME,values,"url = ? and path = ?",new String[]{info.url,info.downPath});
     }
 
-    public DownFile queryTaskInfo(DownFile info) {
+    public synchronized DownFile queryTaskInfo(DownFile info) {
         DownFile downFile = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(DLDBHelper.TABLENAME,new String[]{"name,issupportrange,downlength,totallength,rangers,state"},"url = ? and path = ?",new String[]{info.url,info.downPath},null,null,"url desc","1,2");
@@ -112,7 +112,30 @@ public final class DLDBManager {
                     downFile.ranges.put(i,Integer.parseInt(strings[i]));
                 }
             }
-            downFile.state = cursor.getInt(5);
+            int value = cursor.getInt(5);
+            switch (value){
+                case 0:
+                    downFile.state = DownFile.DownloadStatus.IDLE;
+                    break;
+                case 1:
+                    downFile.state = DownFile.DownloadStatus.FINISH;
+                    break;
+                case 2:
+                    downFile.state = DownFile.DownloadStatus.DOWNLOADING;
+                    break;
+                case 3:
+                    downFile.state = DownFile.DownloadStatus.ERROR;
+                    break;
+                case 4:
+                    downFile.state = DownFile.DownloadStatus.PAUSE;
+                    break;
+                case 5:
+                    downFile.state = DownFile.DownloadStatus.CANCEL;
+                    break;
+                case 6:
+                    downFile.state = DownFile.DownloadStatus.WAITING;
+                    break;
+            }
             break;
         }
         cursor.close();

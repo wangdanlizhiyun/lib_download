@@ -1,11 +1,13 @@
 package download.otherFileLoader.request;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.io.Serializable;
 
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
+import download.utils.Util;
 
 
 @SuppressWarnings("serial")
@@ -17,6 +19,7 @@ public class DownBuilder {
 	public DownBuilder(Context context) {
 		this.context = context;
 		this.isAutoInstall = false;
+		this.downPath = Util.getDiskCacheDir(context, "downFile").getAbsolutePath();
 	}
 
 	public Boolean isAutoInstall;
@@ -32,7 +35,9 @@ public class DownBuilder {
 	}
 
 	public DownBuilder savePath(String path){
-		this.downPath = path;
+		if (!TextUtils.isEmpty(path)){
+			this.downPath = path;
+		}
 		return this;
 	}
 	public DownBuilder listen(DownloadListener listener){
@@ -44,7 +49,7 @@ public class DownBuilder {
 		this.isAutoInstall = true;
 		return this;
 	}
-	private DownFile build(){
+	public DownFile build(){
 		DownFile downFile = new DownFile(downUrl);
 		downFile.isAutoInstall = isAutoInstall;
 		downFile.downPath = downPath;

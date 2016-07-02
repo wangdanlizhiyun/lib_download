@@ -36,6 +36,7 @@
            <activity android:name=".FileDownloadActivity">
 
            </activity>
+           <service android:name="download.otherFileLoader.core.DownService"></service>
        </application>
     
 </manifest>

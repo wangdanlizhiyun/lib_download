@@ -21,7 +21,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     public volatile boolean isCancelled;
     private ConnectRunnable mConnectThread;
     private DownloadThread[] mDownloadThreads;
-    private int[] mDownloadStatus;
+    private DownFile.DownloadStatus[] mDownloadStatus;
     private long mLastStamp;
     private File destFile;
     DLDBManager dldbManager;
@@ -31,7 +31,7 @@ public class DownloadTask implements DownloadThread.DownListener{
         this.downFile = entry;
         this.mHandler = mHandler;
         this.mExecutor = mExecutor;
-        this.destFile = downFile.getDownloadFile();
+        this.destFile = new File(entry.downPath,entry.name);
         this.dldbManager = dldbManager;
     }
 
@@ -105,7 +105,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     private void startDownload() {
-        downFile.state = Constants.DOWNLOAD_STATE_DOWNLOADING;
+        downFile.state = DownFile.DownloadStatus.DOWNLOADING;
         if (downFile.isSuppurtRanger) {
             startMultiDownload();
         } else {
@@ -124,7 +124,7 @@ public class DownloadTask implements DownloadThread.DownListener{
             }
         }
         mDownloadThreads = new DownloadThread[Constants.BLOB_COUNT];
-        mDownloadStatus = new int[Constants.BLOB_COUNT];
+        mDownloadStatus = new DownFile.DownloadStatus[Constants.BLOB_COUNT];
         for (int i = 0; i < Constants.BLOB_COUNT; i++) {
             startPos = i * block + downFile.ranges.get(i);
             if (i == Constants.BLOB_COUNT - 1) {
@@ -134,19 +134,19 @@ public class DownloadTask implements DownloadThread.DownListener{
             }
             if (startPos < endPos) {
                 mDownloadThreads[i] = new DownloadThread(downFile.url,destFile, i, startPos, endPos, this);
-                mDownloadStatus[i] = Constants.DOWNLOAD_STATE_DOWNLOADING;
+                mDownloadStatus[i] = DownFile.DownloadStatus.DOWNLOADING;
                 mExecutor.execute(mDownloadThreads[i]);
             }else {
-                mDownloadStatus[i] = Constants.DOWNLOAD_STATE_FINISH;
+                mDownloadStatus[i] = DownFile.DownloadStatus.FINISH;
             }
         }
     }
 
     private void startSingleDownload() {
-        downFile.state = 1;
+        downFile.state = DownFile.DownloadStatus.FINISH;
         mDownloadThreads = new DownloadThread[1];
-        mDownloadStatus = new int[1];
-        mDownloadStatus[0] = Constants.DOWNLOAD_STATE_DOWNLOADING;
+        mDownloadStatus = new DownFile.DownloadStatus[1];
+        mDownloadStatus[0] = DownFile.DownloadStatus.DOWNLOADING;
         mDownloadThreads[0] = new DownloadThread(downFile.url,destFile, 0, 0, 0, this);
         mExecutor.execute(mDownloadThreads[0]);
     }
@@ -179,9 +179,9 @@ public class DownloadTask implements DownloadThread.DownListener{
     @Override
     public void onDownloadCompleted(int index) {
         Log.e("test","onDownloadCompleted  "+index);
-        mDownloadStatus[index] = Constants.DOWNLOAD_STATE_FINISH;
+        mDownloadStatus[index] = DownFile.DownloadStatus.FINISH;
         for (int i = 0; i < mDownloadStatus.length;i++){
-            if (mDownloadStatus[i] != Constants.DOWNLOAD_STATE_FINISH){
+            if (mDownloadStatus[i] != DownFile.DownloadStatus.FINISH){
                 return;
             }
         }
@@ -192,7 +192,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     @Override
     public void onDownloadError(int index, String message) {
     for (int i = 0; i < mDownloadStatus.length; i++) {
-        if (mDownloadStatus[i] != Constants.DOWNLOAD_STATE_FINISH && mDownloadStatus[i] != Constants.DOWNLOAD_STATE_ERROR) {
+        if (mDownloadStatus[i] != DownFile.DownloadStatus.FINISH && mDownloadStatus[i] != DownFile.DownloadStatus.ERROR) {
             mDownloadThreads[i].cancel();
         }
     }

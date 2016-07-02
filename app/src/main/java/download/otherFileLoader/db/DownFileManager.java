@@ -2,42 +2,45 @@ package download.otherFileLoader.db;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
 
 import com.litesuits.go.OverloadPolicy;
 import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 
 import download.otherFileLoader.core.Constants;
+import download.otherFileLoader.core.DownService;
 import download.otherFileLoader.core.DownloadTask;
 import download.otherFileLoader.request.DownFile;
 import download.otherFileLoader.util.PackageUtil;
 import download.otherFileLoader.util.ToastUtils;
-import download.utils.Util;
 
 
 public class DownFileManager {
 	private SmartExecutor executor;
 	private static DLDBManager dldbManager;
-	private static ArrayList<DownFile> downingFiles = new ArrayList<DownFile>();
-	private ArrayList<DownloadTask> tasks = new ArrayList<DownloadTask>();
+	private static HashMap<Integer,DownFile> downingFiles = new HashMap<Integer,DownFile>();
+	private static ArrayList<DownloadTask> tasks = new ArrayList<DownloadTask>();
 
 	private static Handler sHandler = new Handler(Looper.getMainLooper()){
 		@Override
 		public void handleMessage(Message msg) {
-			DownFile downFile = (DownFile) msg.obj;
-			if (downFile == null) {
-				return;
+			DownFile downFile = null;
+			if (msg.what != Constants.WHAT_ERROR){
+				downFile = (DownFile) msg.obj;
 			}
-			for (DownFile df:downingFiles
+			for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 					) {
+				DownFile df = entry.getValue();
+
 				if (df.url.equals(downFile.url) && df.downPath.equals(downFile.downPath)) {
 					df.state = downFile.state;
 					df.downLength = downFile.downLength;
@@ -50,6 +53,7 @@ public class DownFileManager {
 						switch (msg.what){
 							case Constants.WHAT_DOWNLOADING:
 											df.listener.progress(df.downLength, df.totalLength);
+								dldbManager.insertOrUpdate(downFile);
 								break;
 							case Constants.WHAT_FINISH:
 								if (df.isAutoInstall) {
@@ -59,14 +63,17 @@ public class DownFileManager {
 									}
 								}
 											df.listener.success(df.downPath);
+								dldbManager.insertOrUpdate(downFile);
+								downingFiles.remove(downFile.hashCode());
 								break;
 							case Constants.WHAT_ERROR:
 											Bundle b = msg.getData();
 											df.listener.error(b.getString("error"));
 
-								df.getDownloadFile().delete();
+								new File(df.downPath,df.name).delete();
 								df.downLength = 0;
 								df.ranges = null;
+								cancel(df);
 								break;
 						}
 					}
@@ -90,17 +97,14 @@ public class DownFileManager {
 	}
 	private static Context context;
 	private DownFileManager(Context context){
-		this.context = context;
-		dldbManager = DLDBManager.getInstance(context);
+		this.context = context.getApplicationContext();
+		dldbManager = DLDBManager.getInstance(this.context);
 		executor = new SmartExecutor(6, 100);
 		executor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
 		executor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
 	}
 
 	public DownFile initData(DownFile downFile){
-		if (TextUtils.isEmpty(downFile.downPath)){
-			downFile.downPath = Util.getDiskCacheDir(context,"downFile").getAbsolutePath();
-		}
 		DownFile downFileT = dldbManager.queryTaskInfo(downFile);
 		if (downFileT != null){
 			downFile.downLength = downFileT.downLength;
@@ -108,8 +112,8 @@ public class DownFileManager {
 			downFile.ranges = downFileT.ranges;
 			downFile.isSuppurtRanger = downFileT.isSuppurtRanger;
 			downFile.name = downFileT.name;
-			if (downFileT.state == Constants.DOWNLOAD_STATE_FINISH){
-				downFile.state = Constants.DOWNLOAD_STATE_FINISH;
+			if (downFileT.state == DownFile.DownloadStatus.FINISH){
+				downFile.state = DownFile.DownloadStatus.FINISH;
 			}
 		}
 		for (DownloadTask task:tasks
@@ -124,19 +128,23 @@ public class DownFileManager {
 
 
 	public void down(DownFile downFile) {
+		Intent intent = new Intent(context, DownService.class);
+		intent.putExtra("data",downFile);
+		context.startService(intent);
+
 		Boolean exist = hasIntasks(downFile);
 		downFile = DownFileManager.getInstance(context).initData(downFile);
-		if (downFile.state == Constants.DOWNLOAD_STATE_FINISH){
+		if (downFile.state == DownFile.DownloadStatus.FINISH){
 			if (downFile.listener != null){
 				downFile.listener.success(downFile.downPath);
 				return;
 			}
 		}
-		downFile.state = Constants.DOWNLOAD_STATE_WAITING;
+		downFile.state = DownFile.DownloadStatus.WAITING;
 		if (downFile.listener != null){
 			downFile.listener.waiting();
 		}
-		downingFiles.add(downFile);
+		downingFiles.put(downFile.hashCode(), downFile);
 		if (!exist){
 			DownloadTask task = new DownloadTask(dldbManager,downFile,sHandler,executor);
 			tasks.add(task);
@@ -144,8 +152,9 @@ public class DownFileManager {
 		}
 	}
 	public void pause(DownFile downFile) {
-		for (DownFile df:downingFiles
+		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 				) {
+			DownFile df = entry.getValue();
 			if (df.equals(downFile)){
 				df.isPaused = true;
 				if (df.listener != null){
@@ -159,19 +168,25 @@ public class DownFileManager {
 				task.pause();
 			}
 		}
+		downFile.isPaused = true;
+		if (downFile.listener != null){
+			downFile.listener.pause();
+		}
 	}
-	public void cancel(DownFile downFile) {
-		for (DownFile df:downingFiles
+	public static void cancel(DownFile downFile) {
+		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 				) {
+			DownFile df = entry.getValue();
 			if (df.equals(downFile)){
 				df.isCanceled = true;
 				if (df.listener != null){
 					df.listener.cancel();
 				}
-				downFile.getDownloadFile().delete();
+				new File(df.downPath,df.name).delete();
 				downFile.downLength = 0;
 				downFile.ranges = null;
-				dldbManager.insertOrUpdate(downFile);
+				dldbManager.deleteTaskInfo(downFile);
+				downingFiles.remove(df.hashCode());
 			}
 		}
 		for (DownloadTask task:tasks
@@ -183,11 +198,15 @@ public class DownFileManager {
 			}
 		}
 	}
+	public static  void removeDownFiles(ArrayList<DownFile> mDownloadEntries){
+
+	}
 
 
 	public void pauseAll() {
-		for (DownFile df:downingFiles
+		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 				) {
+			DownFile df = entry.getValue();
 				df.isPaused = true;
 				if (df.listener != null){
 					df.listener.pause();
@@ -201,8 +220,9 @@ public class DownFileManager {
 	}
 
 	public void recoverAll() {
-		for (DownFile df:downingFiles
+		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 				) {
+			DownFile df = entry.getValue();
 			df.isPaused = false;
 		}
 		for (DownloadTask task:tasks

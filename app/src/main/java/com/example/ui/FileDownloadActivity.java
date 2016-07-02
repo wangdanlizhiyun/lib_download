@@ -23,6 +23,7 @@ import download.otherFileLoader.core.Constants;
 import download.otherFileLoader.core.Download;
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
+import download.otherFileLoader.request.DownBuilder;
 import download.otherFileLoader.request.DownFile;
 import download.otherFileLoader.util.ToastUtils;
 
@@ -59,18 +60,32 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
         String url = "http://api.stay4it.com/v1/public/core/?service=downloader.applist";
         Http.with(this).url(url).callback(new JsonReaderListCallback<AppEntry>("data") {
             @Override
-            public void onSuccess(ArrayList<AppEntry> result) {
-                Log.e("test", "" + result.size());
-                for (int i = 0; i < result.size(); i++) {
-                    DownFile downFile = new DownFile(result.get(i).url);
+            public ArrayList<AppEntry> onPost(ArrayList<AppEntry> appEntries) {
+                for (int i = 0; i < appEntries.size(); i++) {
+
+                    DownFile downFile = new DownBuilder(FileDownloadActivity.this).url(appEntries.get(i).url).build();
                     downFile = DownFileManager.getInstance(getApplicationContext()).initData(downFile);
                     if (i == 1){
                         downFile.isInstall = true;
                     }
                     mDownloadEntries.add(downFile);
                 }
+                return super.onPost(appEntries);
+            }
+
+            @Override
+            public void onSuccess(ArrayList<AppEntry> result) {
+                Log.e("test", "" + result.size());
+
                 adapter = new DownloadAdapter(result);
                 mDownloadLsv.setAdapter(adapter);
+
+                for (final DownFile entry:mDownloadEntries
+                     ) {
+                    if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING){
+                        down(entry);
+                    }
+                }
             }
         }).get();
     }
@@ -86,6 +101,12 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
     protected void onResume() {
         super.onResume();
         isVisiable = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 
     @Override
@@ -152,61 +173,63 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             holder.mDownloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (entry.state != Constants.DOWNLOAD_STATE_DOWNLOADING && entry.state != Constants.DOWNLOAD_STATE_FINISH) {
-                        entry.listener = new DownloadListener() {
-                            @Override
-                            public void success(String path) {
-                                entry.state = Constants.DOWNLOAD_STATE_FINISH;
-                                adapter.notifyDataSetChanged();
-                                ToastUtils.showToast(FileDownloadActivity.this,"已完成"+path);
-                            }
-
-                            @Override
-                            public void progress(int currentLen, int totalLen) {
-                                if (!isVisiable){
-                                    return;
-                                }
-                                entry.downLength = currentLen;
-                                entry.totalLength = totalLen;
-                                entry.state = Constants.DOWNLOAD_STATE_DOWNLOADING;
-                                adapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void error(String errror) {
-                                entry.state = Constants.DOWNLOAD_STATE_ERROR;
-                                adapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void waiting() {
-                                entry.state = Constants.DOWNLOAD_STATE_WAITING;
-                                adapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void pause() {
-                                entry.state = Constants.DOWNLOAD_STATE_PAUSE;
-                                adapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void cancel() {
-                                entry.state = Constants.DOWNLOAD_STATE_CANCEL;
-                                adapter.notifyDataSetChanged();
-                            }
-                        };
-                        mDownloadManager.down(entry);
-
-                    } else if (entry.state == 1) {
+                    if (entry.state != DownFile.DownloadStatus.DOWNLOADING && entry.state != DownFile.DownloadStatus.FINISH && entry.state != DownFile.DownloadStatus.WAITING) {
+                        down(entry);
+                    } else if (entry.state == DownFile.DownloadStatus.FINISH) {
                         //完成
-                    } else if (entry.state == 2) {
+                    } else if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING) {
                         mDownloadManager.pause(entry);
                     }
                 }
             });
             return convertView;
         }
+    }
+    private void down(final DownFile entry){
+        entry.listener = new DownloadListener() {
+            @Override
+            public void success(String path) {
+                entry.state = DownFile.DownloadStatus.FINISH;
+                adapter.notifyDataSetChanged();
+                ToastUtils.showToast(FileDownloadActivity.this,"已完成"+path);
+            }
+
+            @Override
+            public void progress(int currentLen, int totalLen) {
+                if (!isVisiable){
+                    return;
+                }
+                entry.downLength = currentLen;
+                entry.totalLength = totalLen;
+                entry.state = DownFile.DownloadStatus.DOWNLOADING;
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void error(String errror) {
+                entry.state = DownFile.DownloadStatus.ERROR;
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void waiting() {
+                entry.state = DownFile.DownloadStatus.WAITING;
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void pause() {
+                entry.state = DownFile.DownloadStatus.PAUSE;
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void cancel() {
+                entry.state = DownFile.DownloadStatus.CANCEL;
+                adapter.notifyDataSetChanged();
+            }
+        };
+        mDownloadManager.down(entry);
     }
 
     static class ViewHolder {

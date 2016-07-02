@@ -15,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import download.otherFileLoader.listener.DownloadListener;
+import download.otherFileLoader.request.DownFile;
 
 /**
  * Created by Stay on 4/8/15.
@@ -29,7 +30,7 @@ public class DownloadThread implements Runnable {
     private final int index;
     private final boolean isSingleDownload;
     private volatile boolean isPaused;
-    private volatile int state = Constants.DOWNLOAD_STATE_IDLE;
+    private volatile DownFile.DownloadStatus state = DownFile.DownloadStatus.IDLE;
 
     private volatile boolean isCancelled;
     private volatile boolean isError;
@@ -51,7 +52,7 @@ public class DownloadThread implements Runnable {
 
     @Override
     public void run() {
-        state = Constants.DOWNLOAD_STATE_DOWNLOADING;
+        state = DownFile.DownloadStatus.DOWNLOADING;
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
@@ -73,7 +74,7 @@ public class DownloadThread implements Runnable {
             } else if (responseCode == HttpURLConnection.HTTP_OK) {
                 bos = new BufferedOutputStream(new FileOutputStream(destFile));
             } else {
-                state = Constants.DOWNLOAD_STATE_ERROR;
+                state = DownFile.DownloadStatus.ERROR;
                 listener.onDownloadError(index, "server error:" + responseCode);
                 return;
             }
@@ -114,17 +115,17 @@ public class DownloadThread implements Runnable {
     }
 
     public boolean isRunning() {
-        return state == Constants.DOWNLOAD_STATE_DOWNLOADING;
+        return state == DownFile.DownloadStatus.DOWNLOADING;
     }
 
     public void pause() {
-        state = Constants.DOWNLOAD_STATE_PAUSE;
+        state = DownFile.DownloadStatus.PAUSE;
         isPaused = true;
         Thread.currentThread().interrupt();
     }
 
     public void cancel() {
-        state = Constants.DOWNLOAD_STATE_CANCEL;
+        state = DownFile.DownloadStatus.CANCEL;
         isCancelled = true;
         Thread.currentThread().interrupt();
     }
