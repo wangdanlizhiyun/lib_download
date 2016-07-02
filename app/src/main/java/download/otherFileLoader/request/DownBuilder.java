@@ -11,7 +11,7 @@ import download.utils.Util;
 
 
 @SuppressWarnings("serial")
-public class DownBuilder {
+public class DownBuilder implements Serializable{
 	private Context context;
 	private DownBuilder(){
 
@@ -51,14 +51,23 @@ public class DownBuilder {
 	}
 	public DownFile build(){
 		DownFile downFile = new DownFile(downUrl);
-		downFile.isAutoInstall = isAutoInstall;
-		downFile.downPath = downPath;
-		downFile.listener = listener;
-		downFile.isInstall = isAutoInstall;
+		if (this.isAutoInstall != null){
+			downFile.isAutoInstall = this.isAutoInstall;
+		}
+		if (!TextUtils.isEmpty(this.downPath))
+			downFile.downPath = this.downPath;
+		if (this.listener != null)
+			downFile.listener = this.listener;
+		if (this.isAutoInstall != null)
+			downFile.isInstall = this.isAutoInstall;
 		return  downFile;
 	}
 	public void download(){
 		DownFile downFile = build();
 		DownFileManager.getInstance(context).down(downFile);
+	}
+	public void pause(){
+		DownFile downFile = build();
+		DownFileManager.getInstance(context).pause(downFile);
 	}
 }

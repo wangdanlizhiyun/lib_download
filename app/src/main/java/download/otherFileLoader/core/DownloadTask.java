@@ -83,7 +83,7 @@ public class DownloadTask implements DownloadThread.DownListener{
 
                 @Override
                 public void onError(String message) {
-                    notifyError(message);
+                    notifyUpdate(downFile, Constants.WHAT_ERROR);
                 }
             }));
         }else{
@@ -91,18 +91,6 @@ public class DownloadTask implements DownloadThread.DownListener{
         }
     }
 
-    private void notifyError(String message) {
-        if (downFile.listener != null) {
-            Message msg = mHandler.obtainMessage();
-            msg.what = Constants.WHAT_ERROR;
-            Bundle bundle = new Bundle();
-            bundle.putString("error",message);
-            msg.setData(bundle);
-            msg.obj = message;
-            mHandler.sendMessage(msg);
-            dldbManager.deleteTaskInfo(downFile);
-        }
-    }
 
     private void startDownload() {
         downFile.state = DownFile.DownloadStatus.DOWNLOADING;
@@ -143,7 +131,6 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     private void startSingleDownload() {
-        downFile.state = DownFile.DownloadStatus.FINISH;
         mDownloadThreads = new DownloadThread[1];
         mDownloadStatus = new DownFile.DownloadStatus[1];
         mDownloadStatus[0] = DownFile.DownloadStatus.DOWNLOADING;
@@ -163,7 +150,11 @@ public class DownloadTask implements DownloadThread.DownListener{
         msg.what = what;
         msg.obj = entry;
         mHandler.sendMessage(msg);
+        if (what == Constants.WHAT_ERROR){
+            dldbManager.deleteTaskInfo(downFile);
+        }else {
             dldbManager.insertOrUpdate(downFile);
+        }
     }
 
     @Override
@@ -196,7 +187,7 @@ public class DownloadTask implements DownloadThread.DownListener{
             mDownloadThreads[i].cancel();
         }
     }
-    notifyError(message);
+        notifyUpdate(downFile, Constants.WHAT_ERROR);
     }
 
 }

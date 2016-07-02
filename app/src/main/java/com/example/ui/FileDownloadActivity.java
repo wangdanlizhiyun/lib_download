@@ -32,7 +32,6 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
 
     DownFileManager mDownloadManager;
 
-    ArrayList<DownFile> mDownloadEntries = new ArrayList<DownFile>();
     Button pauseall;
 
 
@@ -63,12 +62,10 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             public ArrayList<AppEntry> onPost(ArrayList<AppEntry> appEntries) {
                 for (int i = 0; i < appEntries.size(); i++) {
 
-                    DownFile downFile = new DownBuilder(FileDownloadActivity.this).url(appEntries.get(i).url).build();
-                    downFile = DownFileManager.getInstance(getApplicationContext()).initData(downFile);
-                    if (i == 1){
-                        downFile.isInstall = true;
-                    }
-                    mDownloadEntries.add(downFile);
+                    DownFile downFile = DownFileManager.getInstance(getApplicationContext()).initData(new DownBuilder(FileDownloadActivity.this).url(appEntries.get(i).url).build());
+                    appEntries.get(i).downLength = downFile.downLength;
+                    appEntries.get(i).totalLength = downFile.totalLength;
+                    appEntries.get(i).state = downFile.state;
                 }
                 return super.onPost(appEntries);
             }
@@ -80,10 +77,10 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                 adapter = new DownloadAdapter(result);
                 mDownloadLsv.setAdapter(adapter);
 
-                for (final DownFile entry:mDownloadEntries
+                for (final AppEntry entry:result
                      ) {
                     if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING){
-                        down(entry);
+                        Download.with(FileDownloadActivity.this).url(entry.url).listen(getDownloadListener(entry)).download();
                     }
                 }
             }
@@ -161,32 +158,32 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                 holder = (ViewHolder) convertView.getTag();
             }
             final AppEntry app = applist.get(position);
-            final DownFile entry = mDownloadEntries.get(position);
 
 
 
             holder.mDownloadLabel.setText(app.name + "  " + app.size + "\n" + app.desc);
 
-            holder.mDownloadStatusLabel.setText(entry.state + "\n"
-                    + Formatter.formatShortFileSize(getApplicationContext(), entry.downLength)
-                    + "/" + Formatter.formatShortFileSize(getApplicationContext(), entry.totalLength));
+            holder.mDownloadStatusLabel.setText(app.state + "\n"
+                    + Formatter.formatShortFileSize(getApplicationContext(), app.downLength)
+                    + "/" + Formatter.formatShortFileSize(getApplicationContext(), app.totalLength));
             holder.mDownloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (entry.state != DownFile.DownloadStatus.DOWNLOADING && entry.state != DownFile.DownloadStatus.FINISH && entry.state != DownFile.DownloadStatus.WAITING) {
-                        down(entry);
-                    } else if (entry.state == DownFile.DownloadStatus.FINISH) {
+                    if (app.state != DownFile.DownloadStatus.DOWNLOADING && app.state != DownFile.DownloadStatus.FINISH && app.state != DownFile.DownloadStatus.WAITING) {
+                        Download.with(FileDownloadActivity.this).url(app.url).listen(getDownloadListener(app)).download();
+                    } else if (app.state == DownFile.DownloadStatus.FINISH) {
                         //完成
-                    } else if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING) {
-                        mDownloadManager.pause(entry);
+                    } else if (app.state == DownFile.DownloadStatus.DOWNLOADING || app.state == DownFile.DownloadStatus.WAITING) {
+                        Download.with(FileDownloadActivity.this).url(app.url).pause();
                     }
                 }
             });
             return convertView;
         }
     }
-    private void down(final DownFile entry){
-        entry.listener = new DownloadListener() {
+    public DownloadListener getDownloadListener(final AppEntry entry){
+
+        return new DownloadListener() {
             @Override
             public void success(String path) {
                 entry.state = DownFile.DownloadStatus.FINISH;
@@ -206,7 +203,7 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             }
 
             @Override
-            public void error(String errror) {
+            public void error() {
                 entry.state = DownFile.DownloadStatus.ERROR;
                 adapter.notifyDataSetChanged();
             }
@@ -229,7 +226,6 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
                 adapter.notifyDataSetChanged();
             }
         };
-        mDownloadManager.down(entry);
     }
 
     static class ViewHolder {

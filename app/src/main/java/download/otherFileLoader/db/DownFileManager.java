@@ -7,18 +7,18 @@ import java.util.Map;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
 
 import com.litesuits.go.OverloadPolicy;
 import com.litesuits.go.SchedulePolicy;
 import com.litesuits.go.SmartExecutor;
 
 import download.otherFileLoader.core.Constants;
-import download.otherFileLoader.core.DownService;
 import download.otherFileLoader.core.DownloadTask;
+import download.otherFileLoader.request.DownBuilder;
 import download.otherFileLoader.request.DownFile;
 import download.otherFileLoader.util.PackageUtil;
 import download.otherFileLoader.util.ToastUtils;
@@ -33,10 +33,11 @@ public class DownFileManager {
 	private static Handler sHandler = new Handler(Looper.getMainLooper()){
 		@Override
 		public void handleMessage(Message msg) {
-			DownFile downFile = null;
-			if (msg.what != Constants.WHAT_ERROR){
-				downFile = (DownFile) msg.obj;
+			if (msg.obj == null || !(msg.obj instanceof DownFile)){
+				return;
 			}
+			DownFile downFile = null;
+			downFile = (DownFile) msg.obj;
 			for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 					) {
 				DownFile df = entry.getValue();
@@ -67,9 +68,7 @@ public class DownFileManager {
 								downingFiles.remove(downFile.hashCode());
 								break;
 							case Constants.WHAT_ERROR:
-											Bundle b = msg.getData();
-											df.listener.error(b.getString("error"));
-
+								df.listener.error();
 								new File(df.downPath,df.name).delete();
 								df.downLength = 0;
 								df.ranges = null;
@@ -128,10 +127,6 @@ public class DownFileManager {
 
 
 	public void down(DownFile downFile) {
-		Intent intent = new Intent(context, DownService.class);
-		intent.putExtra("data",downFile);
-		context.startService(intent);
-
 		Boolean exist = hasIntasks(downFile);
 		downFile = DownFileManager.getInstance(context).initData(downFile);
 		if (downFile.state == DownFile.DownloadStatus.FINISH){
