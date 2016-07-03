@@ -62,10 +62,13 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             public ArrayList<AppEntry> onPost(ArrayList<AppEntry> appEntries) {
                 for (int i = 0; i < appEntries.size(); i++) {
 
-                    DownFile downFile = DownFileManager.getInstance(getApplicationContext()).initData(new DownBuilder(FileDownloadActivity.this).url(appEntries.get(i).url).build());
-                    appEntries.get(i).downLength = downFile.downLength;
-                    appEntries.get(i).totalLength = downFile.totalLength;
-                    appEntries.get(i).state = downFile.state;
+                    DownFile downFile = DownFileManager.getInstance(getApplicationContext()).initData
+                            (new DownBuilder(FileDownloadActivity.this).url(appEntries.get(i).url).build());
+                    if (downFile != null){
+                        appEntries.get(i).downLength = downFile.downLength;
+                        appEntries.get(i).totalLength = downFile.totalLength;
+                        appEntries.get(i).state = downFile.state;
+                    }
                 }
                 return super.onPost(appEntries);
             }
@@ -100,11 +103,6 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
         isVisiable = true;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
 
     @Override
     public void onClick(View v) {

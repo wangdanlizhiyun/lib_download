@@ -88,7 +88,7 @@ public final class DLDBManager {
         db.update(DLDBHelper.TABLENAME,values,"url = ? and path = ?",new String[]{info.url,info.downPath});
     }
 
-    public synchronized DownFile queryTaskInfo(DownFile info) {
+    public DownFile queryTaskInfo(DownFile info) {
         DownFile downFile = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(DLDBHelper.TABLENAME,new String[]{"name,issupportrange,downlength,totallength,rangers,state"},"url = ? and path = ?",new String[]{info.url,info.downPath},null,null,"url desc","1,2");

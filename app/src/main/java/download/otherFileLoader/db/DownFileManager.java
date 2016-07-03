@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +28,7 @@ import download.otherFileLoader.util.ToastUtils;
 public class DownFileManager {
 	private SmartExecutor executor;
 	private static DLDBManager dldbManager;
-	private static HashMap<Integer,DownFile> downingFiles = new HashMap<Integer,DownFile>();
+	private static ConcurrentHashMap<Integer,DownFile> downingFiles = new ConcurrentHashMap<Integer,DownFile>();
 	private static ArrayList<DownloadTask> tasks = new ArrayList<DownloadTask>();
 
 	private static Handler sHandler = new Handler(Looper.getMainLooper()){
@@ -54,7 +55,6 @@ public class DownFileManager {
 						switch (msg.what){
 							case Constants.WHAT_DOWNLOADING:
 											df.listener.progress(df.downLength, df.totalLength);
-								dldbManager.insertOrUpdate(downFile);
 								break;
 							case Constants.WHAT_FINISH:
 								if (df.isAutoInstall) {
@@ -64,7 +64,6 @@ public class DownFileManager {
 									}
 								}
 											df.listener.success(df.downPath);
-								dldbManager.insertOrUpdate(downFile);
 								downingFiles.remove(downFile.hashCode());
 								break;
 							case Constants.WHAT_ERROR:
@@ -104,31 +103,21 @@ public class DownFileManager {
 	}
 
 	public DownFile initData(DownFile downFile){
-		DownFile downFileT = dldbManager.queryTaskInfo(downFile);
+		return dldbManager.queryTaskInfo(downFile);
+	}
+
+
+	public void down(DownFile downFile) {
+		Boolean exist = hasIntasks(downFile);
+		DownFile downFileT = DownFileManager.getInstance(context).initData(downFile);
 		if (downFileT != null){
 			downFile.downLength = downFileT.downLength;
 			downFile.totalLength = downFileT.totalLength;
 			downFile.ranges = downFileT.ranges;
 			downFile.isSuppurtRanger = downFileT.isSuppurtRanger;
 			downFile.name = downFileT.name;
-			if (downFileT.state == DownFile.DownloadStatus.FINISH){
-				downFile.state = DownFile.DownloadStatus.FINISH;
-			}
+			downFile.state = downFileT.state;
 		}
-		for (DownloadTask task:tasks
-				) {
-			if (task != null && !task.isCancelled && !task.isPaused && task.downFile.equals(downFile)){
-				downFile.state = task.downFile.state;
-				break;
-			}
-		}
-		return downFile;
-	}
-
-
-	public void down(DownFile downFile) {
-		Boolean exist = hasIntasks(downFile);
-		downFile = DownFileManager.getInstance(context).initData(downFile);
 		if (downFile.state == DownFile.DownloadStatus.FINISH){
 			if (downFile.listener != null){
 				downFile.listener.success(downFile.downPath);
@@ -181,7 +170,6 @@ public class DownFileManager {
 				downFile.downLength = 0;
 				downFile.ranges = null;
 				dldbManager.deleteTaskInfo(downFile);
-				downingFiles.remove(df.hashCode());
 			}
 		}
 		for (DownloadTask task:tasks
@@ -192,9 +180,6 @@ public class DownFileManager {
 				break;
 			}
 		}
-	}
-	public static  void removeDownFiles(ArrayList<DownFile> mDownloadEntries){
-
 	}
 
 

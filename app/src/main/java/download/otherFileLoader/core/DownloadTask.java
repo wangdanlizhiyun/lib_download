@@ -176,8 +176,9 @@ public class DownloadTask implements DownloadThread.DownListener{
                 return;
             }
         }
-
-        notifyUpdate(downFile,Constants.WHAT_FINISH);
+        downFile.state = DownFile.DownloadStatus.FINISH;
+        Log.v("test","finish"+downFile.state.name+downFile.downLength+" "+downFile.totalLength);
+        notifyUpdate(downFile, Constants.WHAT_FINISH);
     }
 
     @Override
@@ -187,6 +188,7 @@ public class DownloadTask implements DownloadThread.DownListener{
             mDownloadThreads[i].cancel();
         }
     }
+        downFile.state = DownFile.DownloadStatus.ERROR;
         notifyUpdate(downFile, Constants.WHAT_ERROR);
     }
 
