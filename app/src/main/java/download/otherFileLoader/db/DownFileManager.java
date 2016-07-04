@@ -26,12 +26,12 @@ import download.otherFileLoader.util.ToastUtils;
 
 
 public class DownFileManager {
-	private SmartExecutor executor;
-	private static DLDBManager dldbManager;
+	public static SmartExecutor sExecutor;
+	public static DLDBManager dldbManager;
 	private static ConcurrentHashMap<Integer,DownFile> downingFiles = new ConcurrentHashMap<Integer,DownFile>();
 	private static ArrayList<DownloadTask> tasks = new ArrayList<DownloadTask>();
 
-	private static Handler sHandler = new Handler(Looper.getMainLooper()){
+	public static Handler sHandler = new Handler(Looper.getMainLooper()){
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.obj == null || !(msg.obj instanceof DownFile)){
@@ -97,9 +97,9 @@ public class DownFileManager {
 	private DownFileManager(Context context){
 		this.context = context.getApplicationContext();
 		dldbManager = DLDBManager.getInstance(this.context);
-		executor = new SmartExecutor(6, 100);
-		executor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
-		executor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
+		sExecutor = new SmartExecutor(6, 100);
+		sExecutor.setSchedulePolicy(SchedulePolicy.FirstInFistRun);
+		sExecutor.setOverloadPolicy(OverloadPolicy.DiscardOldTaskInQueue);
 	}
 
 	public DownFile initData(DownFile downFile){
@@ -116,7 +116,17 @@ public class DownFileManager {
 			downFile.ranges = downFileT.ranges;
 			downFile.isSuppurtRanger = downFileT.isSuppurtRanger;
 			downFile.name = downFileT.name;
-			downFile.state = downFileT.state;
+			if (downFileT.state == DownFile.DownloadStatus.FINISH){
+				downFile.state = downFileT.state;
+			}
+		}
+		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
+				) {
+			DownFile df = entry.getValue();
+			if (df.equals(downFile)) {
+				downFile.state = df.state;
+				break;
+			}
 		}
 		if (downFile.state == DownFile.DownloadStatus.FINISH){
 			if (downFile.listener != null){
@@ -130,7 +140,7 @@ public class DownFileManager {
 		}
 		downingFiles.put(downFile.hashCode(), downFile);
 		if (!exist){
-			DownloadTask task = new DownloadTask(dldbManager,downFile,sHandler,executor);
+			DownloadTask task = new DownloadTask(downFile);
 			tasks.add(task);
 			task.start();
 		}

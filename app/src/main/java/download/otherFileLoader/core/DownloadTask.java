@@ -10,13 +10,12 @@ import java.io.File;
 import java.util.HashMap;
 
 import download.otherFileLoader.db.DLDBManager;
+import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.request.DownFile;
 
 
 public class DownloadTask implements DownloadThread.DownListener{
     public DownFile downFile;
-    private final Handler mHandler;
-    private final SmartExecutor mExecutor;
     public volatile boolean isPaused;
     public volatile boolean isCancelled;
     private ConnectRunnable mConnectThread;
@@ -24,15 +23,11 @@ public class DownloadTask implements DownloadThread.DownListener{
     private DownFile.DownloadStatus[] mDownloadStatus;
     private long mLastStamp;
     private File destFile;
-    DLDBManager dldbManager;
 
 
-    public DownloadTask(DLDBManager dldbManager,DownFile entry, Handler mHandler, SmartExecutor mExecutor) {
+    public DownloadTask(DownFile entry) {
         this.downFile = entry;
-        this.mHandler = mHandler;
-        this.mExecutor = mExecutor;
         this.destFile = new File(entry.downPath,entry.name);
-        this.dldbManager = dldbManager;
     }
 
     public void pause() {
@@ -69,12 +64,12 @@ public class DownloadTask implements DownloadThread.DownListener{
 
     public void start() {
         if (downFile.totalLength == 0){
-            mExecutor.execute(new ConnectRunnable(downFile.url, new ConnectRunnable.ConnectListener() {
+            DownFileManager.sExecutor.execute(new ConnectRunnable(downFile.url, new ConnectRunnable.ConnectListener() {
                 @Override
                 public void onConnected(int totalLength, Boolean isSupport) {
                     downFile.totalLength = totalLength;
                     downFile.isSuppurtRanger = isSupport;
-                    if (downFile.totalLength <= 0){
+                    if (downFile.totalLength <= 0) {
                         downFile.isSuppurtRanger = false;
                     }
                     startDownload();
@@ -123,7 +118,7 @@ public class DownloadTask implements DownloadThread.DownListener{
             if (startPos < endPos) {
                 mDownloadThreads[i] = new DownloadThread(downFile.url,destFile, i, startPos, endPos, this);
                 mDownloadStatus[i] = DownFile.DownloadStatus.DOWNLOADING;
-                mExecutor.execute(mDownloadThreads[i]);
+                DownFileManager.sExecutor.execute(mDownloadThreads[i]);
             }else {
                 mDownloadStatus[i] = DownFile.DownloadStatus.FINISH;
             }
@@ -135,7 +130,7 @@ public class DownloadTask implements DownloadThread.DownListener{
         mDownloadStatus = new DownFile.DownloadStatus[1];
         mDownloadStatus[0] = DownFile.DownloadStatus.DOWNLOADING;
         mDownloadThreads[0] = new DownloadThread(downFile.url,destFile, 0, 0, 0, this);
-        mExecutor.execute(mDownloadThreads[0]);
+        DownFileManager.sExecutor.execute(mDownloadThreads[0]);
     }
 
     private void notifyUpdate(DownFile entry, int what) {
@@ -146,14 +141,14 @@ public class DownloadTask implements DownloadThread.DownListener{
                 return;
             }
         }
-        Message msg = mHandler.obtainMessage();
+        Message msg = DownFileManager.sHandler.obtainMessage();
         msg.what = what;
         msg.obj = entry;
-        mHandler.sendMessage(msg);
+        DownFileManager.sHandler.sendMessage(msg);
         if (what == Constants.WHAT_ERROR){
-            dldbManager.deleteTaskInfo(downFile);
+            DownFileManager.dldbManager.deleteTaskInfo(downFile);
         }else {
-            dldbManager.insertOrUpdate(downFile);
+            DownFileManager.dldbManager.insertOrUpdate(downFile);
         }
     }
 
