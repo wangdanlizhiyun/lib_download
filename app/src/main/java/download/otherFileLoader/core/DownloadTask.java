@@ -18,6 +18,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     public DownFile downFile;
     public volatile boolean isPaused;
     public volatile boolean isCancelled;
+    public volatile boolean isErrored;
     private ConnectRunnable mConnectThread;
     private DownloadThread[] mDownloadThreads;
     private DownFile.DownloadStatus[] mDownloadStatus;
@@ -48,6 +49,20 @@ public class DownloadTask implements DownloadThread.DownListener{
         }
     }
 
+    public void error() {
+        isErrored = true;
+        if (mConnectThread != null && mConnectThread.isRunning()) {
+            mConnectThread.cancel();
+        }
+        if (mDownloadThreads != null && mDownloadThreads.length > 0) {
+            for (int i = 0; i < mDownloadThreads.length; i++) {
+                if (mDownloadThreads[i] != null && mDownloadThreads[i].isRunning()) {
+                    mDownloadThreads[i].error();
+                }
+            }
+        }
+    }
+
     public void cancel() {
         isCancelled = true;
         if (mConnectThread != null && mConnectThread.isRunning()) {
@@ -63,6 +78,9 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     public void start() {
+        downFile.isError = false;
+        downFile.isCanceled = false;
+        downFile.isPaused = false;
         if (downFile.totalLength == 0){
             DownFileManager.sExecutor.execute(new ConnectRunnable(downFile.url, new ConnectRunnable.ConnectListener() {
                 @Override
@@ -78,6 +96,7 @@ public class DownloadTask implements DownloadThread.DownListener{
 
                 @Override
                 public void onError(String message) {
+                    downFile.isError = true;
                     notifyUpdate(downFile, Constants.WHAT_ERROR);
                 }
             }));
@@ -180,9 +199,10 @@ public class DownloadTask implements DownloadThread.DownListener{
     public void onDownloadError(int index, String message) {
     for (int i = 0; i < mDownloadStatus.length; i++) {
         if (mDownloadStatus[i] != DownFile.DownloadStatus.FINISH && mDownloadStatus[i] != DownFile.DownloadStatus.ERROR) {
-            mDownloadThreads[i].cancel();
+            mDownloadThreads[i].error();
         }
     }
+        downFile.isError = true;
         downFile.state = DownFile.DownloadStatus.ERROR;
         notifyUpdate(downFile, Constants.WHAT_ERROR);
     }

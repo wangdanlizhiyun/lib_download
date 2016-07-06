@@ -33,6 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+           <service android:name="download.otherFileLoader.core.DownloadService"></service>
            <activity android:name=".FileDownloadActivity">
 
            </activity>

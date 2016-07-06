@@ -2,8 +2,6 @@ package com.example.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.MessageQueue;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,13 +15,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import download.http.core.Http;
 import download.http.listener.JsonReaderListCallback;
-import download.http.listener.OnProgressDownloadListener;
-import download.http.listener.OnProgressUpdateListener;
-import download.otherFileLoader.core.Constants;
-import download.otherFileLoader.core.Download;
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.listener.DownloadListener;
-import download.otherFileLoader.request.DownBuilder;
 import download.otherFileLoader.request.DownFile;
 import download.otherFileLoader.util.ToastUtils;
 
@@ -62,8 +55,8 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             public ArrayList<AppEntry> onPost(ArrayList<AppEntry> appEntries) {
                 for (int i = 0; i < appEntries.size(); i++) {
 
-                    DownFile downFile = DownFileManager.getInstance(getApplicationContext()).initData
-                            (new DownBuilder(FileDownloadActivity.this).url(appEntries.get(i).url).build());
+                    DownFile downFile = DownFileManager.getInstance(FileDownloadActivity.this).initData
+                            (appEntries.get(i).url, null);
                     if (downFile != null){
                         appEntries.get(i).downLength = downFile.downLength;
                         appEntries.get(i).totalLength = downFile.totalLength;
@@ -82,8 +75,8 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
 
                 for (final AppEntry entry:result
                      ) {
-                    if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING){
-                        Download.with(FileDownloadActivity.this).url(entry.url).listen(getDownloadListener(entry)).download();
+                    if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING || entry.state == DownFile.DownloadStatus.ERROR){
+                        DownFileManager.getInstance(FileDownloadActivity.this).download(entry.url,getDownloadListener(entry));
                     }
                 }
             }
@@ -155,24 +148,24 @@ public class FileDownloadActivity extends Activity implements View.OnClickListen
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            final AppEntry app = applist.get(position);
+            final AppEntry entry = applist.get(position);
 
 
 
-            holder.mDownloadLabel.setText(app.name + "  " + app.size + "\n" + app.desc);
+            holder.mDownloadLabel.setText(entry.name + "  " + entry.size + "\n" + entry.desc);
 
-            holder.mDownloadStatusLabel.setText(app.state + "\n"
-                    + Formatter.formatShortFileSize(getApplicationContext(), app.downLength)
-                    + "/" + Formatter.formatShortFileSize(getApplicationContext(), app.totalLength));
+            holder.mDownloadStatusLabel.setText(entry.state + "\n"
+                    + Formatter.formatShortFileSize(getApplicationContext(), entry.downLength)
+                    + "/" + Formatter.formatShortFileSize(getApplicationContext(), entry.totalLength));
             holder.mDownloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (app.state != DownFile.DownloadStatus.DOWNLOADING && app.state != DownFile.DownloadStatus.FINISH && app.state != DownFile.DownloadStatus.WAITING) {
-                        Download.with(FileDownloadActivity.this).url(app.url).listen(getDownloadListener(app)).download();
-                    } else if (app.state == DownFile.DownloadStatus.FINISH) {
+                    if (entry.state != DownFile.DownloadStatus.DOWNLOADING && entry.state != DownFile.DownloadStatus.FINISH && entry.state != DownFile.DownloadStatus.WAITING) {
+                        DownFileManager.getInstance(FileDownloadActivity.this).download(entry.url,getDownloadListener(entry));
+                    } else if (entry.state == DownFile.DownloadStatus.FINISH) {
                         //完成
-                    } else if (app.state == DownFile.DownloadStatus.DOWNLOADING || app.state == DownFile.DownloadStatus.WAITING) {
-                        Download.with(FileDownloadActivity.this).url(app.url).pause();
+                    } else if (entry.state == DownFile.DownloadStatus.DOWNLOADING || entry.state == DownFile.DownloadStatus.WAITING) {
+                        DownFileManager.getInstance(FileDownloadActivity.this).pause(entry.url);
                     }
                 }
             });

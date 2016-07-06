@@ -130,6 +130,11 @@ public class DownloadThread implements Runnable {
         Thread.currentThread().interrupt();
     }
 
+    public void error() {
+        state = DownFile.DownloadStatus.NETERROR;
+        isError = true;
+        Thread.currentThread().interrupt();
+    }
     interface DownListener {
         void onProgressChanged(int index, int progress);
 
