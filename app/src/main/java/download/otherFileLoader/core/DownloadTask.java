@@ -3,6 +3,7 @@ package download.otherFileLoader.core;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.litesuits.go.SmartExecutor;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import download.otherFileLoader.db.DLDBManager;
 import download.otherFileLoader.db.DownFileManager;
 import download.otherFileLoader.request.DownFile;
+import download.utils.Util;
 
 
 public class DownloadTask implements DownloadThread.DownListener{
@@ -98,6 +100,11 @@ public class DownloadTask implements DownloadThread.DownListener{
                 public void onError(String message) {
                     downFile.isError = true;
                     notifyUpdate(downFile, Constants.WHAT_ERROR);
+                }
+
+                @Override
+                public void onGetContentMd5(String md5) {
+                    downFile.content_md5 = md5;
                 }
             }));
         }else{
@@ -187,6 +194,13 @@ public class DownloadTask implements DownloadThread.DownListener{
         mDownloadStatus[index] = DownFile.DownloadStatus.FINISH;
         for (int i = 0; i < mDownloadStatus.length;i++){
             if (mDownloadStatus[i] != DownFile.DownloadStatus.FINISH){
+                return;
+            }
+        }
+        if (!TextUtils.isEmpty(downFile.content_md5)){
+            if (!downFile.content_md5.equals(Util.md5sum(downFile.downPath))){
+                downFile.state = DownFile.DownloadStatus.ERROR;
+                notifyUpdate(downFile,Constants.WHAT_ERROR);
                 return;
             }
         }

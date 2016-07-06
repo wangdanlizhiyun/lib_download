@@ -1,5 +1,7 @@
 package download.otherFileLoader.core;
 
+import android.text.TextUtils;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -36,6 +38,10 @@ public class ConnectRunnable implements Runnable {
                     isSupport = true;
                 }
                 listener.onConnected(contentLength,isSupport);
+                String content_md5 = connection.getHeaderField("Content-MD5");
+                if (TextUtils.isEmpty(content_md5)){
+                    listener.onGetContentMd5(content_md5);
+                }
             }else {
                 listener.onError("server error:"+responseCode);
             }
@@ -54,6 +60,7 @@ public class ConnectRunnable implements Runnable {
     interface ConnectListener{
         void onConnected(int totalLength, Boolean isSupport);
         void onError(String message);
+        void onGetContentMd5(String md5);
     }
     public void cancel(){
         Thread.currentThread().interrupt();

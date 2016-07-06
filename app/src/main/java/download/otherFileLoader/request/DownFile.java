@@ -45,6 +45,7 @@ public class DownFile implements Serializable{
 	public String name = "";
 	public String description = "";
 	public Boolean isSuppurtRanger;
+	public String content_md5 = "";
 	public String pakageName;
 	public DownloadStatus state = DownloadStatus.IDLE;
 	public String url;
@@ -53,7 +54,7 @@ public class DownFile implements Serializable{
 	public int totalLength;
 	public HashMap<Integer, Integer> ranges;
 	public enum DownloadStatus{
-		IDLE(0,"空闲"),DOWNLOADING(2,"下载中"),FINISH(1,"完成"),ERROR(3,"异常"),PAUSE(4,"暂停"),CANCEL(5,"取消"),WAITING(6,"等待"),NETERROR(7,"网络错误");
+		IDLE(0,"空闲"),DOWNLOADING(2,"下载中"),FINISH(1,"完成"),ERROR(3,"异常"),PAUSE(4,"暂停"),CANCEL(5,"取消"),WAITING(6,"等待");
 		public int value;
 		public String name;
 		private DownloadStatus(int value,String name){

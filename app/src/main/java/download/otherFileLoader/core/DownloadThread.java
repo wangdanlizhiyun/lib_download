@@ -131,7 +131,7 @@ public class DownloadThread implements Runnable {
     }
 
     public void error() {
-        state = DownFile.DownloadStatus.NETERROR;
+        state = DownFile.DownloadStatus.ERROR;
         isError = true;
         Thread.currentThread().interrupt();
     }
