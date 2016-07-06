@@ -54,7 +54,7 @@ view.bind(uri)
 
 ```
 
-断点下载 ：可多界面监听同一下载，恢复网络时自动恢复之前失败的下载，可指定各自的下载目录
+断点下载 ：可多界面监听同一下载，恢复网络时自动恢复之前失败的下载，可指定各自的下载目录，带md5校验
 ```java
 DownFileManager.getInstance(FileDownloadActivity.this).download(entry.url,new DownloadListener() {
                 @Override
