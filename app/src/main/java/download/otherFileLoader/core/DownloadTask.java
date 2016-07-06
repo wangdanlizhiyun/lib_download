@@ -161,8 +161,8 @@ public class DownloadTask implements DownloadThread.DownListener{
 
     private void notifyUpdate(DownFile entry, int what) {
         if (what == Constants.WHAT_DOWNLOADING){
-            if (System.currentTimeMillis() - downFile.lastNotifyTime > 1000 || downFile.downLength >= downFile.totalLength){
-                downFile.lastNotifyTime = System.currentTimeMillis();
+            if (System.currentTimeMillis() - Constants.lastNotifyTime > 1000 || downFile.downLength >= downFile.totalLength){
+                Constants.lastNotifyTime = System.currentTimeMillis();
             }else {
                 return;
             }

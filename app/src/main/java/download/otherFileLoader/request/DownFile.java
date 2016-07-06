@@ -40,7 +40,6 @@ public class DownFile implements Serializable{
 	public volatile boolean isCanceled = false;
 	public volatile boolean isPaused = false;
 	public volatile boolean isError = false;
-	public long lastNotifyTime;
 	public String icon = "";
 	public String name = "";
 	public String description = "";

@@ -230,6 +230,7 @@ public class DownFileManager {
 			savePath = Util.getDiskCacheDir(application, "downFile").getAbsolutePath();
 		}
 		DownFile downFile = new DownFile(url,savePath);
+		dldbManager.insertOrUpdate(downFile);
 		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
 				) {
 			DownFile df = entry.getValue();
@@ -316,6 +317,7 @@ public class DownFileManager {
 				df.isPaused = true;
 				if (df.listener != null){
 					df.listener.pause();
+					dldbManager.insertOrUpdate(df);
 				}
 		}
 		for (DownloadTask task:tasks

@@ -15,6 +15,7 @@ public class Constants {
     public static final int BLOB_COUNT = 3;
 
 
+    public volatile static long lastNotifyTime;
 
 
 }
