@@ -54,10 +54,9 @@ view.bind(uri)
 
 ```
 
-断点下载 
+断点下载 ：可多界面监听同一下载，恢复网络时自动恢复之前失败的下载，可指定各自的下载目录
 ```java
-DownFile downFile = new DownFile("");
-            downFile.listener = new DownloadListener() {
+DownFileManager.getInstance(FileDownloadActivity.this).download(entry.url,new DownloadListener() {
                 @Override
                 public void success(String path) {
                     
@@ -82,38 +81,10 @@ DownFile downFile = new DownFile("");
                 public void cancel() {
 
                 }
-            };
-            DownFileManager.getInstance(convertView.getContext()).down(downFile);
+            });
+
 ```
-或者
-```java
-Download.with(FileDownloadActivity.this).url("").savePath("").listen(new DownloadListener() {
-                @Override
-                public void success(String path) {
-                    
-                }
 
-                @Override
-                public void progress(int currentLen, int totalLen) {
-
-                }
-
-                @Override
-                public void error(String errror) {
-
-                }
-
-                @Override
-                public void pause() {
-
-                }
-
-                @Override
-                public void cancel() {
-
-                }
-            }).download();
-```
 HTTP模块：
 ```java
 Http.with(this).url(url).progressDownload(new OnProgressDownloadListener() {
