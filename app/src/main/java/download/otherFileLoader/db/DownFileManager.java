@@ -177,7 +177,6 @@ public class DownFileManager {
 		DownFile downFile = new DownFile(url);
 		downFile.downPath = savePath;
 		downFile.listener = listener;
-		Boolean exist = hasIntasks(downFile);
 		DownFile downFileT = initData(url, savePath);
 		if (downFileT != null){
 			downFile.downLength = downFileT.downLength;
@@ -208,15 +207,23 @@ public class DownFileManager {
 			downFile.listener.waiting();
 		}
 		downingFiles.put(downFile.hashCode(), downFile);
-		if (!exist){
-
 			Intent it = new Intent(application, DownloadService.class);
 			it.putExtra("url",downFile.url);
 			it.putExtra("path",downFile.downPath);
 			application.startService(it);
-		}
 	}
 	public void addTask(DownFile downFile){
+		for (DownloadTask task:tasks
+				) {
+			if (task != null && task.downFile.equals(downFile)){
+				if (task.downFile.state == DownFile.DownloadStatus.DOWNLOADING || task.downFile.state == DownFile.DownloadStatus.DOWNLOADING){
+					return;
+				}else {
+					task.start();
+					break;
+				}
+			}
+		}
 		DownloadTask task = new DownloadTask(downFile);
 		tasks.add(task);
 		task.start();
@@ -277,7 +284,6 @@ public class DownFileManager {
 				) {
 			if (task.downFile.equals(downFile)){
 				task.error();
-				break;
 			}
 		}
 	}
@@ -300,12 +306,27 @@ public class DownFileManager {
 				) {
 			if (task.downFile.equals(downFile)){
 				task.cancel();
-				tasks.remove(task);
-				break;
 			}
 		}
 	}
-
+	private void notifyUpdate(DownFile downFile, int what) {
+		if (what == Constants.WHAT_DOWNLOADING){
+			if (System.currentTimeMillis() - Constants.lastNotifyTime > 1000 || downFile.downLength >= downFile.totalLength){
+				Constants.lastNotifyTime = System.currentTimeMillis();
+			}else {
+				return;
+			}
+		}
+		Message msg = DownFileManager.sHandler.obtainMessage();
+		msg.what = what;
+		msg.obj = downFile;
+		DownFileManager.sHandler.sendMessage(msg);
+		if (what == Constants.WHAT_ERROR){
+			DownFileManager.dldbManager.deleteTaskInfo(downFile);
+		}else {
+			DownFileManager.dldbManager.insertOrUpdate(downFile);
+		}
+	}
 
 	/**
 	 * 暂停所有下载
@@ -333,8 +354,9 @@ public class DownFileManager {
 	public void recoverAllNetError() {
 		for (DownloadTask task:tasks
 				) {
-			if (task.isErrored == true){
+			if (task.downFile.state == DownFile.DownloadStatus.ERROR){
 				task.start();
+				notifyUpdate(task.downFile, Constants.WHAT_DOWNLOADING);
 			}
 		}
 	}
@@ -343,23 +365,12 @@ public class DownFileManager {
 	 * 全部恢复下载
 	 */
 	public void recoverAll() {
-		for (Map.Entry<Integer,DownFile> entry:downingFiles.entrySet()
-				) {
-			DownFile df = entry.getValue();
-			df.isPaused = false;
-		}
 		for (DownloadTask task:tasks
 				) {
-			task.start();
-		}
-	}
-	private Boolean hasIntasks(DownFile downFile){
-		for (DownloadTask task:tasks
-				) {
-			if (task != null && !task.isCancelled && !task.isPaused && task.downFile.equals(downFile)){
-				return true;
+			if (task.downFile.state == DownFile.DownloadStatus.PAUSE){
+				task.start();
+				notifyUpdate(task.downFile,Constants.WHAT_DOWNLOADING);
 			}
 		}
-		return false;
 	}
 }

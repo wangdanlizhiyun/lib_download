@@ -18,9 +18,6 @@ import download.utils.Util;
 
 public class DownloadTask implements DownloadThread.DownListener{
     public DownFile downFile;
-    public volatile boolean isPaused;
-    public volatile boolean isCancelled;
-    public volatile boolean isErrored;
     private ConnectRunnable mConnectThread;
     private DownloadThread[] mDownloadThreads;
     private DownFile.DownloadStatus[] mDownloadStatus;
@@ -34,7 +31,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     public void pause() {
-        isPaused = true;
+        downFile.state = DownFile.DownloadStatus.PAUSE;
         if (mConnectThread != null && mConnectThread.isRunning()) {
             mConnectThread.cancel();
         }
@@ -52,7 +49,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     public void error() {
-        isErrored = true;
+        downFile.state = DownFile.DownloadStatus.ERROR;
         if (mConnectThread != null && mConnectThread.isRunning()) {
             mConnectThread.cancel();
         }
@@ -66,7 +63,7 @@ public class DownloadTask implements DownloadThread.DownListener{
     }
 
     public void cancel() {
-        isCancelled = true;
+        downFile.state = DownFile.DownloadStatus.CANCEL;
         if (mConnectThread != null && mConnectThread.isRunning()) {
             mConnectThread.cancel();
         }
